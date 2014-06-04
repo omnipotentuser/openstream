@@ -1,0 +1,28 @@
+doctype html
+html
+  head
+    include header
+  body
+    include navbar 
+    #page-navigator
+      //.page-img-container
+        //img(class='openvri-logo', src='images/openvri.svg')
+      // home page
+      include lobby
+      // echo test assessment
+      include lavatory
+      // AKA classroom teacher to student model
+      include meetingroom
+      // Chatroom list room names public and private
+      include lounge
+      // One to many relay server
+      include stage
+      // one to one URL based
+      include hallway
+      // gateway to other platforms - sip stack?
+      include modular
+    include footer
+    script(src='http://code.jquery.com/jquery-1.9.1.js')
+    script(src='/js/shell.js')
+    script(src='/js/home.js')
+    script(src='/js/navbar.js')
