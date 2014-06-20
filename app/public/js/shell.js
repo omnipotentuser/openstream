@@ -1,7 +1,3 @@
-var log = function(str){
-    console.log(str);
-}
-
 $(document).ready(function(){
 
   var lobby = new Lobby();

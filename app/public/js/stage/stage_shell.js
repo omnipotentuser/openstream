@@ -1,4 +1,4 @@
 function Stage(){
-	log('stage ready');
+	console.log('stage ready');
 	var stageViews = new StageViews();
 };
