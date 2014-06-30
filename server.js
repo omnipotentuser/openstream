@@ -1,37 +1,36 @@
-var express	    = require('express');
-var path	    = require('path');
-var stylus	    = require('stylus');
-var nib		    = require('nib');
+var express	        = require('express');
+var path	          = require('path');
+var stylus	        = require('stylus');
+var nib		          = require('nib');
 var bodyParser	    = require('body-parser');
-var sock	    = require('socket.io');
-var favicon	    = require('static-favicon');
+var favicon	        = require('static-favicon');
 var methodOverride  = require('method-override');
 var cookieParser    = require('cookie-parser');
 var errorHandler    = require('errorhandler');
-var morgan	    = require('morgan');
+var morgan	        = require('morgan');
 
-var app		    = express();
-var router	    = express.Router();
-var mcu		    = require(path.join(__dirname, './lib/mcu.js'));
-var pub		    = path.join(__dirname, './app/public');
-var views	    = path.join(__dirname, './app/server/views');
-var port	    = process.env.PORT || 19000;
+var app		          = express();
+var router	        = express.Router();
+var mcu		          = require(path.join(__dirname, './lib/mcu.js'));
+var pub		          = path.join(__dirname, './app/public');
+var views	          = path.join(__dirname, './app/server/views');
+var port	          = process.env.PORT || 19000;
 
 function compile(str, path){
-    return stylus(str)
-	.set('filename', path)
-	.set('compress', true)
-	.use(nib());
+  return stylus(str)
+    .set('filename', path)
+    .set('compress', true)
+    .use(nib());
 }
 
 var env = process.env.NODE_ENV || 'development';
 
 if (env === 'development'){
-    console.log('development mode');
-    app.use(errorHandler());
-    app.use(morgan('dev'));
+  console.log('development mode');
+  app.use(errorHandler());
+  app.use(morgan('dev'));
 } else {
-    console.log('production mode');
+  console.log('production mode');
 };
 
 app.set('port', port);
@@ -42,14 +41,14 @@ app.use(bodyParser());
 app.use(cookieParser());
 app.use(methodOverride());
 app.use(stylus.middleware({
-    src: pub,
-    compile: compile
+  src: pub,
+  compile: compile
 }));
 app.use(express.static(pub));
 
 router.use(function(req, res, next){
-    console.log('something is happening');
-    next();
+  console.log('something is happening');
+  next();
 });
 
 require(path.join(__dirname, './app/server/router.js'))(app);
