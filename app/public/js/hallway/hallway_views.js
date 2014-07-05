@@ -1,15 +1,9 @@
 
 function HallwayViews(){
-  var link = $('#lobby-link');
-  var linkClick = function(){
-    link.click(function(){
-      log('clicked');
-      $('#lobby-main').fadeOut(function(){
-          $('#lobby-main').fadeIn();
-      });
-    });
+  // todo build private p2p chat
+
+  this.start = function( engine ){
+    console.log('starting rtc engine');
+    engine.connect();
   }
-
-  linkClick();
-
 };

@@ -1,64 +1,88 @@
 
-function LobbyViews(){
-  var lobby = $('#lobby-link');
-  var lavatory = $('#lavatory-link');
-  var conference = $('#conference-link');
-  var lounge = $('#lounge-link');
-  var stage = $('#stage-link');
-  var hallway = $('#hallway-link');
-  var modular = $('#modular-link');
+function LobbyViews(cb){
 
-  var linkClick = function(){
-    lobby.click(function(){
-      log('clicked');
-      $('#lobby-main').fadeOut(function(){
-          $('#lobby-main').fadeIn();
-      });
-    });
+  var lobby = $('#lobby-banner'),
+      lavatory = $('#lavatory-link'),
+      conference = $('#conference-link'),
+      lounge = $('#lounge-link'),
+      stage = $('#stage-link'),
+      hallway = $('#hallway-link'),
+      modular = $('#modular-link'),
+      lobbyMain = $('#lobby-main'),
+      currentPage = lobbyMain;
 
-    lavatory.click(function(){
-      log('lavatory clicked');
-      $('#lobby-main').fadeOut(function(){
-          $('#lavatory-main').fadeIn();
-      });
+  var lobbyPage = function(){
+    lobby.fadeOut();
+    currentPage.fadeOut( function(){
+      lobbyMain.fadeIn();
     });
+    currentPage = lobbyMain;
+    cb('lobby');
+  };
 
-    conference.click(function(){
-      log('Conference clicked');
-      $('#lobby-main').fadeOut(function(){
-          $('#conference-main').fadeIn();
-      });
+  var conferencePage = function(){
+    currentPage = $('#conference-main');
+    lobbyMain.fadeOut(function(){
+      currentPage.fadeIn();
+      lobby.fadeIn();
     });
+    cb('conference');
+  };
 
-    lounge.click(function(){
-      log('Lounge clicked');
-      $('#lobby-main').fadeOut(function(){
-          $('#lounge-main').fadeIn();
-      });
+  var lavatoryPage = function(){
+    currentPage = $('#lavatory-main');
+    lobbyMain.fadeOut(function(){
+      currentPage.fadeIn();
+      lobby.fadeIn();
     });
+    cb('lavatory');
+  };
 
-    stage.click(function(){
-      log('Stage clicked');
-      $('#lobby-main').fadeOut(function(){
-          $('#stage-main').fadeIn();
-      });
+  var loungePage = function(){
+    currentPage = $('#lounge-main');
+    lobbyMain.fadeOut(function(){
+      currentPage.fadeIn();
+      lobby.fadeIn();
     });
+    cb('lounge');
+  };
 
-    modular.click(function(){
-      log('Modular clicked');
-      $('#lobby-main').fadeOut(function(){
-          $('#modular-main').fadeIn();
-      });
+  var stagePage = function(){
+    currentPage = $('#stage-main');
+    lobbyMain.fadeOut(function(){
+      currentPage.fadeIn();
+      lobby.fadeIn();
     });
+    cb('stage');
+  };
 
-    hallway.click(function(){
-      log('Hallway clicked');
-      $('#lobby-main').fadeOut(function(){
-          $('#hallway-main').fadeIn();
-      });
+  var modularPage = function(){
+    currentPage = $('#modular-main');
+    lobbyMain.fadeOut(function(){
+      currentPage.fadeIn();
+      lobby.fadeIn();
     });
+    cb('modular');
+  };
+
+  var hallwayPage = function(){
+    currentPage = $('#hallway-main');
+    lobbyMain.fadeOut(function(){
+      currentPage.fadeIn();
+      lobby.fadeIn();
+    });
+    cb('hallway');
   }
 
-  linkClick();
+  var pages = {
+    lavatory: lavatoryPage,
+    conference: conferencePage,
+    lounge: loungePage,
+    lobby: lobbyPage,
+    stage: stagePage,
+    modular: modularPage,
+    hallway: hallwayPage
+  };
 
+  return {pages: pages};
 };
