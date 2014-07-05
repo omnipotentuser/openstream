@@ -8,7 +8,7 @@ var methodOverride  = require('method-override');
 var cookieParser    = require('cookie-parser');
 var errorHandler    = require('errorhandler');
 var morgan	        = require('morgan');
-
+var io              = require('socket.io');
 var app		          = express();
 var router	        = express.Router();
 var mcu		          = require(path.join(__dirname, './lib/mcu.js'));
@@ -58,5 +58,4 @@ var server = app.listen(port, function(){
 });
 
 console.log('Magic happens on port ' + port);
-
-mcu.init(server);
+mcu.init(io(server));

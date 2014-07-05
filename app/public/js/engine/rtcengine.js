@@ -1,26 +1,52 @@
-var $ = jQuery;
-
 function RTCEngine(){
   var peers = [],
       socket = null,
       roomName = null,
+      localStream = null,
       localId = null;
 
   var shiftKeyCode = {'192':'126', '49':'33', '50':'64', '51':'35', '52':'36', '53':'37', '54':'94', '55':'38', '56':'42', '57':'40', '48':'41', '189':'95', '187':'43', '219':'123', '221':'125', '220':'124', '186':'58', '222':'34', '188':'60', '190':'62', '191':'63'};
   var specialCharCode = {'8':'8', '13':'13', '32':'32', '186':'58', '187':'61', '188':'44', '189':'45', '190':'46', '191':'47', '192':'96', '219':'91', '220':'92', '221':'93', '222':'39'};
 
   function startMedia(room){
-    var constraints = {
-      video = {minFrameRate: 20, minAspectRatio: 1.66},
-      audio = true
+    var media_constraints = {
+      video : {mandatory: {minFrameRate: 20, minAspectRatio: 1.334}},
+      audio : true
     };
 
-    // todo ice servers
     // getUserMedia
-
+    getUserMedia(
+      media_constraints,
+      function(stream){
+        localStream = stream;
+        var video = $('#local-video');
+        video.attr('src', window.URL.createObjectURL(localStream));
+        localStream.onloadedmetadata = function(e){
+          for(prop in e){
+            console.log(prop + ' in ' + e[prop]);
+          }
+        }
+        socket.emit('join', {room:room});
+      },
+      logError
+    );
   };
 
   function stopMedia(){
+    if (localStream){
+      localStream.stop();
+    }
+    socket.emit('exit');
+  };
+
+  function sendMsg(socket, code, room){
+    if (room){
+      var message = {
+        room: room,
+        code: code
+      };
+      socket.emit('code', message);
+    }
   };
 
   function handleJoinRoom(socket) {
@@ -30,35 +56,36 @@ function RTCEngine(){
     });
   };
 
-  function handleCreatePeers(socket, p_roomName) {
+  function handleCreatePeers(socket, room) {
     socket.on('createPeers', function(message){
 	    console.log('createPeers');
 	    var users = message.users;
 	    if(users.length > 0)
-        asyncCreatePeers(users, p_roomName);
+        createPeers(users, room);
     });
   }
 
-  function asyncCreatePeers(p_users, p_roomName) {
-	  var pid = p_users.shift();
-	  console.log('creating new peer ' + pid);
-	  dialog_width += 492;
-	  $('#_openvri_dialog').dialog('option', 'width', dialog_width);
+  function createPeers(users, room) {
+	  var pid = users.shift();
+    $('<div/>', {class:'media-layout'})
+      .append('<video id='+pid+' autoplay="autoplay" controls="controls" muted>')
+      .append('<textarea id='+pid+'-ta></textarea>')
+      .appendTo('#video-container');
 	    
-	  var orient = createDisplay();
-	  var peer = new Peer(socket, pid, p_roomName, orient);
+	  var peer = new Peer(socket, pid, room);
 	  peers.push(peer);
-	  if(p_users.length > 0)
-      asyncCreatePeers( p_users, p_roomName );
+	  if(users.length > 0){
+      createPeers(users, room);
+    }
   }
 
-  function handleCreateOffer(socket, p_roomName) {
+  function handleCreateOffer(socket, room) {
     socket.on('createOffer', function(message){
-	    console.log('createOffer for remote peer: ' + message.id);
-	    dialog_width += 492;
-	    $('#_openvri_dialog').dialog('option', 'width', dialog_width);
-	    var orient = createDisplay();
-	    var peer = new Peer(socket, message.id, p_roomName, orient);
+      $('<div/>', {class:'media-layout'})
+        .append('<video id='+pid+' autoplay="autoplay" controls="controls">')
+        .append('<textarea id='+pid+'-ta></textarea>')
+        .appendTo('#video-container');
+	    var peer = new Peer(socket, message.id, room);
 	    peer.buildClient(true);
 	    peers.push(peer);
 	    peer.peerCreateOffer();
@@ -98,19 +125,11 @@ function RTCEngine(){
   function handleClientDisconnected(socket) {
     socket.on('exit', function (message) {
 	    console.log('handleClientDisconnected');
+      var id = message.from_id;
 	    for(var i = 0; i < peers.length; i++) {
-        if(peers[i].getid() == message.from_id){
+        if(peers[i].getid() === id){
           if(peers[i].hasPC()){
-            var orient = peers[i].getOrientation();
-            if( orient == 'two' ) {
-              $('#_openvri_video-src-two').remove();
-              $('#_openvri_message-src-two').remove();
-            } else if (orient == 'three') {
-              $('#_openvri_video-src-three').remove();
-              $('#_openvri_message-src-three').remove();
-            }
-            dialog_width -= 492;
-            $('#_openvri_dialog').dialog('option', 'width', dialog_width);
+            $('#'+id).parent().remove();
             peers.splice(i, 1);
             return;
           };
@@ -170,8 +189,8 @@ function RTCEngine(){
     });
   }
 
-  var setupRTC = function(room) {
-    socket = io(); 
+  var connect = function(room) {
+    socket = io('/'); 
     handleJoinRoom(socket);
     handleCreatePeers(socket, room);
     handleCreateOffer(socket, room);
@@ -200,15 +219,7 @@ function RTCEngine(){
     }, 10 );
   }
     
-  function createFirstDisplay() {
-    if( $('#_openvri_video-src-one').length  == 0 ) {
-	    $('#_openvri_video-body').append("<video id='_openvri_video-src-one' class='_openvri_video-box'  autoplay='autoplay' controls='controls' muted>");
-	    $('#_openvri_dialog').dialog('open');
-    }
-  }
-
-
-  setupRTC(socket, roomName);
+  //setupRTC(socket, roomName);
 
   $('#_openvri_createBtn').click(function () {
     console.log('createBtn clicked');
@@ -224,7 +235,7 @@ function RTCEngine(){
     stopMedia(socket);
   });
 
-  $('#_openvri_message-src-one').on('keydown', function(e) {
+  $('#local-ta').on('keydown', function(e) {
     var code = (e.keyCode ? e.keyCode : e.which);
     //console.log(e.type, e.which, e.keyCode);
 
@@ -272,4 +283,6 @@ function RTCEngine(){
     }
     return url;
   }
+
+  return {connect:connect};
 };
