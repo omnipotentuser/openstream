@@ -8,7 +8,7 @@ function RTCEngine(){
   var shiftKeyCode = {'192':'126', '49':'33', '50':'64', '51':'35', '52':'36', '53':'37', '54':'94', '55':'38', '56':'42', '57':'40', '48':'41', '189':'95', '187':'43', '219':'123', '221':'125', '220':'124', '186':'58', '222':'34', '188':'60', '190':'62', '191':'63'};
   var specialCharCode = {'8':'8', '13':'13', '32':'32', '186':'58', '187':'61', '188':'44', '189':'45', '190':'46', '191':'47', '192':'96', '219':'91', '220':'92', '221':'93', '222':'39'};
 
-  function startMedia(room){
+  function startMedia(){
     var media_constraints = {
       video : {mandatory: {minFrameRate: 20, minAspectRatio: 1.334}},
       audio : true
@@ -27,7 +27,7 @@ function RTCEngine(){
             console.log(prop + ' in ' + e[prop]);
           }
         }
-        socket.emit('join', {room:room});
+        socket.emit('join', {room:roomName});
       },
       logError
     );
@@ -40,10 +40,10 @@ function RTCEngine(){
     socket.emit('exit');
   };
 
-  function sendChar(socket, code, room){
-    if (room){
+  function sendChar(socket, code){
+    if (roomName){
       var message = {
-        room: room,
+        room: roomName,
         code: code
       };
       socket.emit('code', message);
@@ -55,53 +55,36 @@ function RTCEngine(){
     socket.on('id', function(message){
       localId = message.yourId;
       console.log('localId: ' + localId);
-      callback('id', {id:localId})/
+      callback('id', {id:localId});
     });
   };
 
-  function handleCreatePeers(socket, room, callback) {
+  function handleCreatePeers(socket,callback) {
     if (typeof callback === 'undefined') callback = function(){};
     socket.on('createPeers', function(message){
 	    console.log('createPeers');
 	    var users = message.users;
 	    if(users.length > 0)
-        createPeers(users, room, callback);
+        createPeers(users, callback);
     });
   }
 
-  function createPeers(users, room, callback) {
-
+  function createPeers(users, callback) {
 	  var pid = users.shift();
-    /* needs to be moved to views script
-    $('<div/>', {class:'media-layout'})
-      .append('<video id=\"'+pid+'\" autoplay="autoplay" controls="controls" muted>')
-      .append('<textarea id=\"'+pid+'-ta\"></textarea>')
-      .appendTo('#video-container');
-    */
-	    
     callback('create', {id:pid});
-
-	  var peer = new Peer(socket, pid, room);
+	  var peer = new Peer(socket, pid, roomName);
 	  peers.push(peer);
 	  if(users.length > 0){
-      createPeers(users, room);
+      createPeers(users, callback);
     }
 
   }
 
-  function handleCreateOffer(socket, room, callback) {
+  function handleCreateOffer(socket, callback) {
     if (typeof callback === 'undefined') callback = function(){};
     socket.on('createOffer', function(message){
-      /* needs to be moved to views script via callback
-      $('<div/>', {class:'media-layout'})
-        .append('<video id=\"'+pid+'\" autoplay="autoplay" controls="controls">')
-        .append('<textarea id=\"'+pid+'-ta\"></textarea>')
-        .appendTo('#video-container');
-      */
-
       callback('create', {id:pid});
-
-	    var peer = new Peer(socket, message.id, room);
+	    var peer = new Peer(socket, message.id, roomName);
 	    peer.buildClient(true);
 	    peers.push(peer);
 	    peer.peerCreateOffer();
@@ -183,7 +166,6 @@ function RTCEngine(){
         if (peers[i].getid() === message.from_id){
           if (!peers[i].hasPC()){
             console.log('Message received: PC not ready.');
-            return {};
           } else {
             /* needs to be moved to views script via callback
             var $ta = $('#'+message.from_id+'_ta');
@@ -195,23 +177,28 @@ function RTCEngine(){
             }
             $ta.scrollTop($ta[0].scrollHeight);
             */
-            callback('readchar', {id:peers[i].getid(), code:code});
+            callback('readchar', {id:message.from_id, code:message.code});
           };
+          return {};
         }
 	    };
     });
   }
 
   var connect = function(room, callback) {
+    roomName = room;
     socket = io('/'); 
-    handleJoinRoom(socket, callback);
-    handleCreatePeers(socket, room, callback);
-    handleCreateOffer(socket, room, callback);
-    handleIceCandidate(socket);
-    handleSetRemoteDescription(socket);
-    handleReceiveCode(socket, callback);
-    handleClientDisconnected(socket, callback);
-    handleErrorCode(socket, callback);
+    socket.on('connected', function(){
+      handleJoinRoom(socket, callback);
+      handleCreatePeers(socket, callback);
+      handleCreateOffer(socket, callback);
+      handleIceCandidate(socket);
+      handleSetRemoteDescription(socket);
+      handleReceiveCode(socket, callback);
+      handleClientDisconnected(socket, callback);
+      handleErrorCode(socket, callback);
+      callback('connected');
+    });
   }
 
   function S4() {

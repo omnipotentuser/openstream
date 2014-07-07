@@ -3,32 +3,32 @@ function HallwayViews(){
 
   var localId;
 
-  var handleSocketEvents(signaler, data){
-    if (signaler){
-      switch signaler :
-        case 'id':
-          localId = data.id;
-          break;
-        case 'create':
-          var pid = data.id;
-          break;
-        case 'peerDisconnect':
-          var pid = data.id;
-          break;
-        case 'readchar':
-          var pid = data.id;
-          var c = data.code;
-          break;
-        case 'error':
-          console.log(data.msg);
-          break;
-        default:
-          break;
-    }
+  this.openMediaViews = function(){
+    $('#room-input').css('display','none');
+    $('#video-container').css('display','block');
   };
 
-  this.start = function( engine ){
-    console.log('starting rtc engine');
-    engine.connect(handleSocketEvents);
+  this.closeMediaViews = function(destroyCallback){
+    $('#video-container').fadeOut(function(){
+      $('#room-input').fadeIn(200, destroyCallback);
+    });
+  };
+
+  this.appendMedia = function(pid){
+    $('<div/>', {class:'media-layout'})
+      .append('<video id=\"'+pid+'\" autoplay="autoplay" controls="controls">')
+      .append('<textarea id=\"'+pid+'-ta\"></textarea>')
+      .appendTo('#video-container');
+  }
+
+  this.updateTextArea = function(pid, code){
+    var $ta = $('#'+pid+'_ta');
+    if (code == '8'){
+      $ta.val( val( $ta.val().slice(0,-1) );); 
+    } else{
+      var ch = String.fromCharCode(code);
+      $ta.val($ta.val() + ch);
+    }
+    $ta.scrollTop($ta[0].scrollHeight);
   }
 };

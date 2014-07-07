@@ -1,6 +1,7 @@
 $(document).ready(function(){
 
-  var hallway = null,
+  var currentApp = null,
+      hallway = null,
       lavatory = null,
       conference = null,
       lounge = null,
@@ -8,27 +9,38 @@ $(document).ready(function(){
       modular = null;
 
   var observer = function(action){
-    destroy();
+    if (currentApp){
+      currentApp.leave(destroy);
+    }
     if (action === 'lobby'){
       console.log('observer calls lobby');
+      currentApp = null;
     } else if (action === 'hallway'){
       hallway = new Hallway();
+      currentApp = hallway;
     } else if (action === 'lavatory'){
       lavatory = new Lavatory();
+      currentApp = lavatory;
     } else if (action === 'conference'){
       conference = new Conference();
+      currentApp = conference;
     } else if (action === 'lounge'){
       lounge = new Lounge();
+      currentApp = lounge;
     } else if (action === 'stage'){
       stage = new Stage();
+      currentApp = stage;
     } else if (action === 'modular'){
       modular = new Modular();
+      currentApp = modular;
     } else {
       console.log('unrecognized action');
+      currentApp = null;
     }
   };
 
   var destroy = function(){
+    console.log('cleaning up');
     hallway = null;
     lavatory = null;
     conference = null;
