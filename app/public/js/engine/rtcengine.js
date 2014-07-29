@@ -8,9 +8,12 @@ function RTCEngine(){
   var shiftKeyCode = {'192':'126', '49':'33', '50':'64', '51':'35', '52':'36', '53':'37', '54':'94', '55':'38', '56':'42', '57':'40', '48':'41', '189':'95', '187':'43', '219':'123', '221':'125', '220':'124', '186':'58', '222':'34', '188':'60', '190':'62', '191':'63'};
   var specialCharCode = {'8':'8', '13':'13', '32':'32', '186':'58', '187':'61', '188':'44', '189':'45', '190':'46', '191':'47', '192':'96', '219':'91', '220':'92', '221':'93', '222':'39'};
 
-  function startMedia(room){
+  function startMedia(){
     var media_constraints = {
-      video : {mandatory: {minFrameRate: 20, minAspectRatio: 1.334}},
+      video : {
+        mandatory: {
+        }
+      },
       audio : true
     };
 
@@ -22,11 +25,12 @@ function RTCEngine(){
         var video = $('#local-video');
         video.attr('src', window.URL.createObjectURL(localStream));
         localStream.onloadedmetadata = function(e){
+          console.log('onloadedmetadata called, properties:');
           for(prop in e){
             console.log(prop + ' in ' + e[prop]);
           }
         }
-        socket.emit('join', {room:room});
+        socket.emit('join', {room:roomName});
       },
       logError
     );
@@ -39,53 +43,51 @@ function RTCEngine(){
     socket.emit('exit');
   };
 
-  function sendMsg(socket, code, room){
-    if (room){
+  function sendChar(socket, code){
+    if (roomName){
       var message = {
-        room: room,
+        room: roomName,
         code: code
       };
       socket.emit('code', message);
     }
   };
 
-  function handleJoinRoom(socket) {
+  function handleJoinRoom(socket, callback) {
+    if (typeof callback === 'undefined') callback = function(){};
     socket.on('id', function(message){
       localId = message.yourId;
       console.log('localId: ' + localId);
+      callback('id', {id:localId});
     });
   };
 
-  function handleCreatePeers(socket, room) {
+  function handleCreatePeers(socket,callback) {
+    if (typeof callback === 'undefined') callback = function(){};
     socket.on('createPeers', function(message){
 	    console.log('createPeers');
 	    var users = message.users;
 	    if(users.length > 0)
-        createPeers(users, room);
+        createPeers(users, callback);
     });
   }
 
-  function createPeers(users, room) {
+  function createPeers(users, callback) {
 	  var pid = users.shift();
-    $('<div/>', {class:'media-layout'})
-      .append('<video id='+pid+' autoplay="autoplay" controls="controls" muted>')
-      .append('<textarea id='+pid+'-ta></textarea>')
-      .appendTo('#video-container');
-	    
-	  var peer = new Peer(socket, pid, room);
+    callback('create', {id:pid});
+	  var peer = new Peer(socket, pid, roomName);
 	  peers.push(peer);
 	  if(users.length > 0){
-      createPeers(users, room);
+      createPeers(users, callback);
     }
+
   }
 
-  function handleCreateOffer(socket, room) {
+  function handleCreateOffer(socket, callback) {
+    if (typeof callback === 'undefined') callback = function(){};
     socket.on('createOffer', function(message){
-      $('<div/>', {class:'media-layout'})
-        .append('<video id='+pid+' autoplay="autoplay" controls="controls">')
-        .append('<textarea id='+pid+'-ta></textarea>')
-        .appendTo('#video-container');
-	    var peer = new Peer(socket, message.id, room);
+      callback('create', {id:pid});
+	    var peer = new Peer(socket, message.id, roomName);
 	    peer.buildClient(true);
 	    peers.push(peer);
 	    peer.peerCreateOffer();
@@ -122,7 +124,8 @@ function RTCEngine(){
     });
   }
 
-  function handleClientDisconnected(socket) {
+  function handleClientDisconnected(socket, callback) {
+    if (typeof callback === 'undefined') callback = function(){};
     socket.on('exit', function (message) {
 	    console.log('handleClientDisconnected');
       var id = message.from_id;
@@ -131,6 +134,7 @@ function RTCEngine(){
           if(peers[i].hasPC()){
             $('#'+id).parent().remove();
             peers.splice(i, 1);
+            callback('peerDisconnect', {id:message.from_id});
             return;
           };
         }
@@ -138,77 +142,84 @@ function RTCEngine(){
     });
   }
 
-  function handleErrorCode(socket) {
+  function handleErrorCode(socket, callback) {
+    if (typeof callback === 'undefined') callback = function(){};
     socket.on('error', function(message) {
+      var errcode;
 	    switch (message.error) {
         case 'room full': 
-          alert('Room is full');
+          errcode = 'Room is full';
           break;
         case 'room empty':
-          alert('Room is empty');
+          errcode = 'Room is empty';
           break;
         default:
-          console.log('Error of some sort');
+          errcode = 'Unknown Error';
           break;
 	    }
+      callback('error', {msg:errcode});
     });
   }
 
-  function handleReceiveCode(socket) {
+  function handleReceiveCode(socket, callback) {
+    if (typeof callback === 'undefined') callback = function(){};
+
     socket.on('code', function(message) {
-	    var code = String.fromCharCode(message.code);
-	    for(var i = 0; i < peers.length; i++) {
-        //console.log(peers[i].getid() + ' == ' + message.from_id);
-        if(peers[i].getid() == message.from_id){
-          if(!peers[i].hasPC()){
+	    for (var i = 0; i < peers.length; i++) {
+        if (peers[i].getid() === message.from_id){
+          if (!peers[i].hasPC()){
             console.log('Message received: PC not ready.');
-            return;
           } else {
-            if( peers[i].getOrientation() ){
-              var orient = peers[i].getOrientation();
-              if(orient == 'two'){
-                if(message.code == '8')
-                  $('#_openvri_message-src-two').val( $('#_openvri_message-src-two').val().slice(0,-1) );
-                else
-                  $('#_openvri_message-src-two').val($('#_openvri_message-src-two').val() + code);
-
-                $('#_openvri_message-src-two').scrollTop($('#_openvri_message-src-two')[0].scrollHeight);
-              } else {
-                if(message.code == '8')
-                  $('#_openvri_message-src-three').val( $('#_openvri_message-src-three').val().slice(0,-1) );
-                else
-                  $('#_openvri_message-src-three').val($('#_openvri_message-src-three').val() + code);
-
-                $('#_openvri_message-src-three').scrollTop($('#_openvri_message-src-three')[0].scrollHeight);
-              }
-            }
+            callback('readchar', {id:message.from_id, code:message.code});
           };
-          return;
+          return {};
         }
 	    };
     });
   }
 
-  var connect = function(room) {
+  var connect = function(room, callback) {
+    roomName = room;
     socket = io('/'); 
-    handleJoinRoom(socket);
-    handleCreatePeers(socket, room);
-    handleCreateOffer(socket, room);
-    handleIceCandidate(socket);
-    handleSetRemoteDescription(socket);
-    handleReceiveCode(socket);
-    handleClientDisconnected(socket);
-    handleErrorCode(socket);
+    console.log('socket connecting');
+    //socket.on('connected', function(){
+      handleJoinRoom(socket, callback);
+      handleCreatePeers(socket, callback);
+      handleCreateOffer(socket, callback);
+      handleIceCandidate(socket);
+      handleSetRemoteDescription(socket);
+      handleReceiveCode(socket, callback);
+      handleClientDisconnected(socket, callback);
+      handleErrorCode(socket, callback);
+      callback('connected');
+    //});
   }
 
-  var join = function(room){
-    room = room;
-    startMedia(room);
-  };
+  function S4() {
+    return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
+  }
 
-  var hangup = function(){
-  };
+  function generateID () {
+    return (S4() + S4() + '-' + S4() + '-' + S4() + '-' + S4() + '-' + S4() + S4() + S4());
+  }
 
+  function getURL () {
+    var pathArray = window.location.href.split('/');
+    var protocol = pathArray[0];
+    var host = pathArray[2];
+    var url = protocol + '//' + host;
+    for(var i = 3; i < pathArray.length; i++){
+      url += '/' + pathArray[i];
+    }
+    return url;
+  }
+
+  return {connect:connect, join:startMedia, leave:stopMedia, sendChar:sendChar};
+};
+
+
+
+/*
   function doMedia(p_socket, p_roomName) {
     setTimeout( function() {
 	    if(startMedia) {
@@ -264,25 +275,38 @@ function RTCEngine(){
 	    };
     }
   })
+  function handleReceiveCode(socket) {
+    socket.on('code', function(message) {
+	    var code = String.fromCharCode(message.code);
+	    for(var i = 0; i < peers.length; i++) {
+        //console.log(peers[i].getid() + ' == ' + message.from_id);
+        if(peers[i].getid() == message.from_id){
+          if(!peers[i].hasPC()){
+            console.log('Message received: PC not ready.');
+            return;
+          } else {
+            if( peers[i].getOrientation() ){
+              var orient = peers[i].getOrientation();
+              if(orient == 'two'){
+                if(message.code == '8')
+                  $('#_openvri_message-src-two').val( $('#_openvri_message-src-two').val().slice(0,-1) );
+                else
+                  $('#_openvri_message-src-two').val($('#_openvri_message-src-two').val() + code);
 
-  function S4() {
-    return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
+                $('#_openvri_message-src-two').scrollTop($('#_openvri_message-src-two')[0].scrollHeight);
+              } else {
+                if(message.code == '8')
+                  $('#_openvri_message-src-three').val( $('#_openvri_message-src-three').val().slice(0,-1) );
+                else
+                  $('#_openvri_message-src-three').val($('#_openvri_message-src-three').val() + code);
+
+                $('#_openvri_message-src-three').scrollTop($('#_openvri_message-src-three')[0].scrollHeight);
+              }
+            }
+          };
+          return;
+        }
+	    };
+    });
   }
-
-  function generateID () {
-    return (S4() + S4() + '-' + S4() + '-' + S4() + '-' + S4() + '-' + S4() + S4() + S4());
-  }
-
-  function getURL () {
-    var pathArray = window.location.href.split('/');
-    var protocol = pathArray[0];
-    var host = pathArray[2];
-    var url = protocol + '//' + host;
-    for(var i = 3; i < pathArray.length; i++){
-      url += '/' + pathArray[i];
-    }
-    return url;
-  }
-
-  return {connect:connect};
-};
+*/
