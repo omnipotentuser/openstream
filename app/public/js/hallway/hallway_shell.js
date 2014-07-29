@@ -7,7 +7,7 @@ function Hallway(){
       switch (signaler) {
         case 'connected':
           console.log('rtc engine connected');
-          engine.join();
+          rtc_engine.join();
           break;
         case 'id':
           localId = data.id;
@@ -33,7 +33,7 @@ function Hallway(){
   var handleJoinBtn = function(event){
 
     $input = $('#roomnameinput');
-    console.log($input.val());
+    console.log('room name:',$input.val());
     
     if ($input.val() === ''){
 

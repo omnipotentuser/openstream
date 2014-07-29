@@ -10,7 +10,10 @@ function RTCEngine(){
 
   function startMedia(){
     var media_constraints = {
-      video : {mandatory: {minFrameRate: 20, minAspectRatio: 1.334}},
+      video : {
+        mandatory: {
+        }
+      },
       audio : true
     };
 
@@ -167,16 +170,6 @@ function RTCEngine(){
           if (!peers[i].hasPC()){
             console.log('Message received: PC not ready.');
           } else {
-            /* needs to be moved to views script via callback
-            var $ta = $('#'+message.from_id+'_ta');
-            if (message.code == '8'){
-              $ta.val( val( $ta.val().slice(0,-1) );); 
-            } else{
-              var code = String.fromCharCode(message.code);
-              $ta.val($ta.val() + code);
-            }
-            $ta.scrollTop($ta[0].scrollHeight);
-            */
             callback('readchar', {id:message.from_id, code:message.code});
           };
           return {};
@@ -188,7 +181,8 @@ function RTCEngine(){
   var connect = function(room, callback) {
     roomName = room;
     socket = io('/'); 
-    socket.on('connected', function(){
+    console.log('socket connecting');
+    //socket.on('connected', function(){
       handleJoinRoom(socket, callback);
       handleCreatePeers(socket, callback);
       handleCreateOffer(socket, callback);
@@ -198,7 +192,7 @@ function RTCEngine(){
       handleClientDisconnected(socket, callback);
       handleErrorCode(socket, callback);
       callback('connected');
-    });
+    //});
   }
 
   function S4() {

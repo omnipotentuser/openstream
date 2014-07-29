@@ -24,7 +24,7 @@ function HallwayViews(){
   this.updateTextArea = function(pid, code){
     var $ta = $('#'+pid+'_ta');
     if (code == '8'){
-      $ta.val( val( $ta.val().slice(0,-1) );); 
+      $ta.val( val( $ta.val().slice(0,-1) )); 
     } else{
       var ch = String.fromCharCode(code);
       $ta.val($ta.val() + ch);
