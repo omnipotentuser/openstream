@@ -7,6 +7,7 @@ function logError(error) {
 function Peer(p_socket, p_id, p_roomName) {
   var pc = null,
       peerid = p_id,
+      socket = p_socket,
       localStream = null,
       roomName = p_roomName,
       ice_config = {iceServers:[]},
@@ -34,6 +35,10 @@ function Peer(p_socket, p_id, p_roomName) {
   this.hasPC = function () {
     return (pc) ? true : false ;
   }
+
+  this.close = function(){
+    if (pc) pc.close();
+  };
 
   this.buildClient = function(stream){
     for (var i = 0; i<credentials.length; i++){
@@ -64,12 +69,15 @@ function Peer(p_socket, p_id, p_roomName) {
   };
 
   var onIceCandidate = function(evt){
-    var message = {
-      room: roomName,
-      candidate:evt.candidate,
-      to_id: peerid
-    };
-    socket.emit('candidate', message);
+    if (evt.candidate){
+      var message = {
+        room: roomName,
+        candidate:evt.candidate,
+        to_id: peerid
+      };
+      console.log('sending candidate', message.candidate.candidate);
+      socket.emit('candidate', message);
+    }
   };
 
   var onIceConnectionStateChange = function(){
@@ -111,6 +119,7 @@ function Peer(p_socket, p_id, p_roomName) {
   };
 
   this.peerCreateOffer = function () {
+    console.log('peerCreateOffer called');
     pc.createOffer(localDescCreated, logError); 
   };
 

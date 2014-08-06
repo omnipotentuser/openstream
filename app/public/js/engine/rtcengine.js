@@ -30,6 +30,7 @@ function RTCEngine(){
             console.log(prop + ' in ' + e[prop]);
           }
         }
+        console.log('joining', roomName);
         socket.emit('join', {room:roomName});
       },
       logError
@@ -40,7 +41,13 @@ function RTCEngine(){
     if (localStream){
       localStream.stop();
     }
-    socket.emit('exit');
+    while (peers.length > 0){
+      peer = peers.pop();
+      peer.close();
+    }
+    if(socket){
+      socket.emit('exit');
+    }
   };
 
   function sendChar(socket, code){
@@ -65,7 +72,7 @@ function RTCEngine(){
   function handleCreatePeers(socket,callback) {
     if (typeof callback === 'undefined') callback = function(){};
     socket.on('createPeers', function(message){
-	    console.log('createPeers');
+	    console.log('socket received createPeers signal');
 	    var users = message.users;
 	    if(users.length > 0)
         createPeers(users, callback);
@@ -76,6 +83,7 @@ function RTCEngine(){
 	  var pid = users.shift();
     callback('create', {id:pid});
 	  var peer = new Peer(socket, pid, roomName);
+    peer.buildClient(localStream);
 	  peers.push(peer);
 	  if(users.length > 0){
       createPeers(users, callback);
@@ -86,10 +94,10 @@ function RTCEngine(){
   function handleCreateOffer(socket, callback) {
     if (typeof callback === 'undefined') callback = function(){};
     socket.on('createOffer', function(message){
-      callback('create', {id:pid});
 	    var peer = new Peer(socket, message.id, roomName);
-	    peer.buildClient(true);
+	    peer.buildClient(localStream);
 	    peers.push(peer);
+      callback('create', {id:message.id});
 	    peer.peerCreateOffer();
     });
   }
@@ -100,7 +108,7 @@ function RTCEngine(){
         if(peers[i].getid() == message.from_id) {
           if(!peers[i].hasPC()){
             console.log('ICE Candidate received: PC not ready. Building.');
-            peers[i].buildClient(false);
+            peers[i].buildClient(localStream);
           };
           console.log('Remote ICE candidate ' + message.candidate.candidate);
           peers[i].addIceCandidate(message.candidate);
@@ -116,7 +124,7 @@ function RTCEngine(){
         if(peers[i].getid() == message.from_id){
           if(!peers[i].hasPC()){
             console.log('SDP received: PC not ready. Building.');
-            peers[i].buildClient(false);
+            peers[i].buildClient(localStream);
           };
           peers[i].setRemoteDescription(message.sdp);
         }
@@ -126,15 +134,13 @@ function RTCEngine(){
 
   function handleClientDisconnected(socket, callback) {
     if (typeof callback === 'undefined') callback = function(){};
-    socket.on('exit', function (message) {
-	    console.log('handleClientDisconnected');
-      var id = message.from_id;
+    socket.on('leave', function (from_id) {
+	    console.log('handleClientDisconnected', from_id);
 	    for(var i = 0; i < peers.length; i++) {
-        if(peers[i].getid() === id){
+        if(peers[i].getid() === from_id){
           if(peers[i].hasPC()){
-            $('#'+id).parent().remove();
             peers.splice(i, 1);
-            callback('peerDisconnect', {id:message.from_id});
+            callback('peerDisconnect', {id:from_id});
             return;
           };
         }
@@ -142,22 +148,32 @@ function RTCEngine(){
     });
   }
 
-  function handleErrorCode(socket, callback) {
+  function handleSysCode(socket, callback) {
     if (typeof callback === 'undefined') callback = function(){};
     socket.on('error', function(message) {
       var errcode;
+      console.log('handleSysCode', message);
 	    switch (message.error) {
         case 'room full': 
           errcode = 'Room is full';
-          break;
-        case 'room empty':
-          errcode = 'Room is empty';
           break;
         default:
           errcode = 'Unknown Error';
           break;
 	    }
       callback('error', {msg:errcode});
+    });
+    socket.on('info', function(message){
+      var code;
+	    switch (message.info) {
+        case 'room empty': 
+          code = 'Room is empty';
+          break;
+        default:
+          code = 'Unknown Error';
+          break;
+	    }
+      callback('info', {msg:code});
     });
   }
 
@@ -190,7 +206,7 @@ function RTCEngine(){
       handleSetRemoteDescription(socket);
       handleReceiveCode(socket, callback);
       handleClientDisconnected(socket, callback);
-      handleErrorCode(socket, callback);
+      handleSysCode(socket, callback);
       callback('connected');
     //});
   }
@@ -214,7 +230,12 @@ function RTCEngine(){
     return url;
   }
 
-  return {connect:connect, join:startMedia, leave:stopMedia, sendChar:sendChar};
+  return {
+    connect:connect, 
+    join:startMedia, 
+    leave:stopMedia, 
+    sendChar:sendChar
+  };
 };
 
 
