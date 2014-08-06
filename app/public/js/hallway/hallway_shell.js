@@ -1,6 +1,7 @@
 function Hallway(){
   var rtc_engine = new RTCEngine();
 	var hallwayViews = new HallwayViews();
+  var localId = null;
 
   var handleSocketEvents = function(signaler, data){
     if (signaler){
@@ -13,15 +14,26 @@ function Hallway(){
           localId = data.id;
           break;
         case 'create':
-          hallwayViews.appendMedia(data.id);
+          var pid = data.id;
+          console.log(
+            'creating new media element', 
+            pid
+          );
+          hallwayViews.appendPeerMedia(pid);
           break;
         case 'peerDisconnect':
           var pid = data.id;
+          hallwayViews.deletePeerMedia(data.id);
           break;
         case 'readchar':
           hallwayViews.updateTextArea(data.id, data.code);
           break;
+        case 'info':
+          console.log(data.msg);
+          break;
         case 'error':
+          // need to handle error for room full
+          // by exiting room
           console.log(data.msg);
           break;
         default:
@@ -32,10 +44,10 @@ function Hallway(){
 
   var handleJoinBtn = function(event){
 
-    $input = $('#roomnameinput');
-    console.log('room name:',$input.val());
+    var $input = $('#roomnameinput');
+    var room = $input.val();
     
-    if ($input.val() === ''){
+    if (room === ''){
 
       alert('Cannot have empty name');
 
@@ -46,14 +58,18 @@ function Hallway(){
       (function(room, engine){
         console.log('starting rtc engine');
         engine.connect(room, handleSocketEvents);
-      })($input.text, rtc_engine);
+      })(room, rtc_engine);
       
     }
   };
 
   this.leave = function(destroyCallback){
-    hallwayViews.closeMediaViews(destroyCallback);
+    $('#roomnameinput').val('');
     $('#joinroombtn').unbind('click', handleJoinBtn);
+    rtc_engine.leave();
+    hallwayViews.closeMediaViews(destroyCallback);
+    hallwayViews = null;
+    rtc_engine = null;
   };
 
   $('#joinroombtn').bind('click', handleJoinBtn);
