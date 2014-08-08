@@ -1,6 +1,14 @@
 
 function HallwayViews(){
 
+  var initialize = function(){
+    $('<div/>', {id:'local-container', class:'media-layout'})
+      .append('<video id=\"local-video\" autoplay controls muted>')
+      .append('<textarea id=\"local-ta\"></textarea>')
+      .appendTo('#video-container');
+
+  };
+
   this.openMediaViews = function(){
     $('#room-input').css('display','none');
     $('#video-container').css('display','inline-block');
@@ -12,12 +20,13 @@ function HallwayViews(){
         destroyCallback(next);
       });
     });
+    this.deleteAllMedia();
   };
 
   this.appendPeerMedia = function(pid){
     console.log('appendPeerMedia', pid);
     $('<div/>', {class:'media-layout'})
-      .append('<video id=\"'+pid+'\" autoplay="autoplay" controls="controls">')
+      .append('<video id=\"'+pid+'\" autoplay controls>')
       .append('<textarea id=\"'+pid+'-ta\"></textarea>')
       .appendTo('#video-container');
     var $ml = $('.media-layout');
@@ -33,6 +42,10 @@ function HallwayViews(){
     console.log('deletePeerMedia', pid);
   }
 
+  this.deleteAllMedia = function(){
+    $('#video-container').empty(); 
+  }
+
   this.updateTextArea = function(pid, code){
     var $ta = $('\"#'+pid+'_ta\"');
     if (code == '8'){
@@ -43,4 +56,6 @@ function HallwayViews(){
     }
     $ta.scrollTop($ta[0].scrollHeight);
   }
+
+  initialize();
 };
