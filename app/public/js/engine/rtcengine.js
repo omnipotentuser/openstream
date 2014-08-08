@@ -196,9 +196,9 @@ function RTCEngine(){
 
   var connect = function(room, callback) {
     roomName = room;
-    socket = io('/'); 
+    socket = io('/', {'forceNew': true}); 
     console.log('socket connecting');
-    //socket.on('connected', function(){
+    socket.on('connect', function(){
       handleJoinRoom(socket, callback);
       handleCreatePeers(socket, callback);
       handleCreateOffer(socket, callback);
@@ -208,7 +208,7 @@ function RTCEngine(){
       handleClientDisconnected(socket, callback);
       handleSysCode(socket, callback);
       callback('connected');
-    //});
+    });
   }
 
   function S4() {
