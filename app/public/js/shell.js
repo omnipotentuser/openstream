@@ -8,38 +8,15 @@ $(document).ready(function(){
       stage = null,
       modular = null;
 
-  var observer = function(action){
+  var observer = function(next){
     if (currentApp){
-      currentApp.leave(destroy);
-    }
-    if (action === 'lobby'){
-      console.log('observer calls lobby');
-      currentApp = null;
-    } else if (action === 'hallway'){
-      hallway = new Hallway();
-      currentApp = hallway;
-    } else if (action === 'lavatory'){
-      lavatory = new Lavatory();
-      currentApp = lavatory;
-    } else if (action === 'conference'){
-      conference = new Conference();
-      currentApp = conference;
-    } else if (action === 'lounge'){
-      lounge = new Lounge();
-      currentApp = lounge;
-    } else if (action === 'stage'){
-      stage = new Stage();
-      currentApp = stage;
-    } else if (action === 'modular'){
-      modular = new Modular();
-      currentApp = modular;
+      currentApp.leave(destroy, next);
     } else {
-      console.log('unrecognized action');
-      currentApp = null;
+      start(next);
     }
   };
 
-  var destroy = function(){
+  var destroy = function(next){
     console.log('cleaning up');
     hallway = null;
     lavatory = null;
@@ -47,6 +24,35 @@ $(document).ready(function(){
     lounge = null;
     stage = null;
     modular = null;
+    start(next);
+  };
+
+  var start = function(next){
+    if (next === 'lobby'){
+      console.log('observer calls lobby');
+      currentApp = null;
+    } else if (next === 'hallway'){
+      hallway = new Hallway();
+      currentApp = hallway;
+    } else if (next === 'lavatory'){
+      lavatory = new Lavatory();
+      currentApp = lavatory;
+    } else if (next === 'conference'){
+      conference = new Conference();
+      currentApp = conference;
+    } else if (next === 'lounge'){
+      lounge = new Lounge();
+      currentApp = lounge;
+    } else if (next === 'stage'){
+      stage = new Stage();
+      currentApp = stage;
+    } else if (next === 'modular'){
+      modular = new Modular();
+      currentApp = modular;
+    } else {
+      console.log('start: unrecognized command');
+      currentApp = null;
+    }
   };
 
   var lobby = new Lobby(observer);
