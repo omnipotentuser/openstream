@@ -6,9 +6,11 @@ function HallwayViews(){
     $('#video-container').css('display','inline-block');
   };
 
-  this.closeMediaViews = function(destroyCallback){
+  this.closeMediaViews = function(destroyCallback, next){
     $('#video-container').fadeOut(function(){
-      $('#room-input').fadeIn(200, destroyCallback);
+      $('#room-input').fadeIn( 200, function destroyCB(){
+        destroyCallback(next);
+      });
     });
   };
 

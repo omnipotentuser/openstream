@@ -63,11 +63,11 @@ function Hallway(){
     }
   };
 
-  this.leave = function(destroyCallback){
+  this.leave = function(destroyCallback, next){
     $('#roomnameinput').val('');
     $('#joinroombtn').unbind('click', handleJoinBtn);
     rtc_engine.leave();
-    hallwayViews.closeMediaViews(destroyCallback);
+    hallwayViews.closeMediaViews(destroyCallback, next);
     hallwayViews = null;
     rtc_engine = null;
   };
