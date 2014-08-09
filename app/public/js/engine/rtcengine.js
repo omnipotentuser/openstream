@@ -50,13 +50,13 @@ function RTCEngine(){
     }
   };
 
-  function sendChar(socket, code){
+  function sendChar(code){
     if (roomName){
       var message = {
         room: roomName,
         code: code
       };
-      socket.emit('code', message);
+      socket.emit('byteChar', message);
     }
   };
 
@@ -179,13 +179,13 @@ function RTCEngine(){
 
   function handleReceiveCode(socket, callback) {
     if (typeof callback === 'undefined') callback = function(){};
-    socket.on('bytechar', function(message) {
+    socket.on('byteChar', function(message) {
 	    for (var i = 0; i < peers.length; i++) {
         if (peers[i].getid() === message.from_id){
           if (!peers[i].hasPC()){
             console.log('Message received: PC not ready.');
           } else {
-            callback('readbytechar', {id:message.from_id, bytechar:message.code});
+            callback('readbytechar', message);
           };
           return {};
         }
