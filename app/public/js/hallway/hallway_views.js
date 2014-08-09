@@ -60,8 +60,8 @@ function HallwayViews(){
   this.appendPeerMedia = function(pid){
     console.log('appendPeerMedia', pid);
     $('<div/>', {class:'media-layout'})
-      .append('<video id=\"'+pid+'\" autoplay controls>')
-      .append('<textarea id=\"'+pid+'-ta\"></textarea>')
+      .append('<video id="'+pid+'" autoplay controls>')
+      .append('<textarea id="'+pid+'-ta" class="remote-textarea" readonly></textarea>')
       .appendTo('#video-container');
     var $ml = $('.media-layout');
     var percent = (100 / $ml.length);
@@ -81,19 +81,16 @@ function HallwayViews(){
   }
 
   this.updateTextArea = function(pid, bytechar){
-    console.log('updateTextArea');
-    var $ta = $('#'+pid+'_ta');
-    console.log('nick 1');
+    var $ta = $('#'+pid+'-ta');
+    console.log('updateTextArea',String.fromCharCode(bytechar));
     if (bytechar == '8'){
       $ta.val( $ta.val().slice(0,-1)); 
     } else{
-    console.log('nick 2');
       var ch = String.fromCharCode(bytechar);
-    console.log('nick 3');
       $ta.val($ta.val() + ch);
     console.log('nick 4');
     }
-    //$ta.scrollTop($ta[0].scrollHeight);
+    $ta.scrollTop($ta[0].scrollHeight);
     console.log('nick 5');
   }
 
