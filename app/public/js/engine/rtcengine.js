@@ -179,14 +179,13 @@ function RTCEngine(){
 
   function handleReceiveCode(socket, callback) {
     if (typeof callback === 'undefined') callback = function(){};
-
-    socket.on('code', function(message) {
+    socket.on('bytechar', function(message) {
 	    for (var i = 0; i < peers.length; i++) {
         if (peers[i].getid() === message.from_id){
           if (!peers[i].hasPC()){
             console.log('Message received: PC not ready.');
           } else {
-            callback('readchar', {id:message.from_id, code:message.code});
+            callback('readbytechar', {id:message.from_id, bytechar:message.code});
           };
           return {};
         }

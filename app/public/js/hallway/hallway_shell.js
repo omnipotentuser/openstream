@@ -25,8 +25,8 @@ function Hallway(){
           var pid = data.id;
           hallwayViews.deletePeerMedia(data.id);
           break;
-        case 'readchar':
-          hallwayViews.updateTextArea(data.id, data.code);
+        case 'readbytechar':
+          hallwayViews.updateTextArea(data.id, data.bytechar);
           break;
         case 'info':
           console.log(data.msg);

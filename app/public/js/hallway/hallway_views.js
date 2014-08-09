@@ -46,12 +46,12 @@ function HallwayViews(){
     $('#video-container').empty(); 
   }
 
-  this.updateTextArea = function(pid, code){
+  this.updateTextArea = function(pid, bytechar){
     var $ta = $('\"#'+pid+'_ta\"');
-    if (code == '8'){
+    if (bytechar == '8'){
       $ta.val( val( $ta.val().slice(0,-1) )); 
     } else{
-      var ch = String.fromCharCode(code);
+      var ch = String.fromCharCode(bytechar);
       $ta.val($ta.val() + ch);
     }
     $ta.scrollTop($ta[0].scrollHeight);
