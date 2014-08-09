@@ -3,6 +3,13 @@ function Hallway(){
 	var hallwayViews = new HallwayViews();
   var localId = null;
 
+  /*
+  var doSendByteChar = function(byteChar){
+    console.log('doSendByteChar', byteChar);
+    if (rtc_engine) rtc_engine.sendChar(byteChar);
+  };
+  */
+
   var handleSocketEvents = function(signaler, data){
     if (signaler){
       switch (signaler) {
@@ -26,7 +33,7 @@ function Hallway(){
           hallwayViews.deletePeerMedia(data.id);
           break;
         case 'readbytechar':
-          hallwayViews.updateTextArea(data.id, data.bytechar);
+          hallwayViews.updateTextArea(data.from_id, data.code);
           break;
         case 'info':
           console.log(data.msg);
@@ -74,4 +81,5 @@ function Hallway(){
 
   $('#joinroombtn').bind('click', handleJoinBtn);
 
+  hallwayViews.setListeners(rtc_engine);
 };

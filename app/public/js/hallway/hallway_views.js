@@ -1,12 +1,46 @@
 
 function HallwayViews(){
 
+  var shiftKeyCode = {'192':'126', '49':'33', '50':'64', '51':'35', '52':'36', '53':'37', '54':'94', '55':'38', '56':'42', '57':'40', '48':'41', '189':'95', '187':'43', '219':'123', '221':'125', '220':'124', '186':'58', '222':'34', '188':'60', '190':'62', '191':'63'};
+  var specialCharCode = {'8':'8', '13':'13', '32':'32', '186':'58', '187':'61', '188':'44', '189':'45', '190':'46', '191':'47', '192':'96', '219':'91', '220':'92', '221':'93', '222':'39'};
+
   var initialize = function(){
     $('<div/>', {id:'local-container', class:'media-layout'})
       .append('<video id=\"local-video\" autoplay controls muted>')
       .append('<textarea id=\"local-ta\"></textarea>')
       .appendTo('#video-container');
+  };
 
+  this.setListeners = function(engine){
+    var sc = engine.sendChar;
+    $('#local-ta').on('keydown', function textareaByteChar(e) {
+      var code = (e.keyCode ? e.keyCode : e.which);
+      console.log(e.type, e.which, e.keyCode);
+
+      if( code == '37' || code == '38' || code == '39' || code == '40' ){
+        e.preventDefault();
+        return;
+      }
+
+      if( code  != 16 ) {// ignore shift
+        if( code >= 65 && code <= 90 ) {
+          if(!e.shiftKey){
+            code = code + 32;
+          }
+          sc(code);
+        } else if(e.shiftKey && (shiftKeyCode[code] !== undefined) ){
+          code = shiftKeyCode[code];
+          sc(code);
+        } else if(specialCharCode[code] !== undefined){
+          code = specialCharCode[code];
+          sc(code);
+        } else if ( code >= 48 && code <= 57 ) {
+          sc(code);
+        } else {
+          console.log('keycode not accepted');
+        };
+      }
+    })
   };
 
   this.openMediaViews = function(){
@@ -47,14 +81,20 @@ function HallwayViews(){
   }
 
   this.updateTextArea = function(pid, bytechar){
-    var $ta = $('\"#'+pid+'_ta\"');
+    console.log('updateTextArea');
+    var $ta = $('#'+pid+'_ta');
+    console.log('nick 1');
     if (bytechar == '8'){
-      $ta.val( val( $ta.val().slice(0,-1) )); 
+      $ta.val( $ta.val().slice(0,-1)); 
     } else{
+    console.log('nick 2');
       var ch = String.fromCharCode(bytechar);
+    console.log('nick 3');
       $ta.val($ta.val() + ch);
+    console.log('nick 4');
     }
-    $ta.scrollTop($ta[0].scrollHeight);
+    //$ta.scrollTop($ta[0].scrollHeight);
+    console.log('nick 5');
   }
 
   initialize();
