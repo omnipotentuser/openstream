@@ -82,16 +82,13 @@ function HallwayViews(){
 
   this.updateTextArea = function(pid, bytechar){
     var $ta = $('#'+pid+'-ta');
-    console.log('updateTextArea',String.fromCharCode(bytechar));
     if (bytechar == '8'){
       $ta.val( $ta.val().slice(0,-1)); 
     } else{
       var ch = String.fromCharCode(bytechar);
       $ta.val($ta.val() + ch);
-    console.log('nick 4');
     }
     $ta.scrollTop($ta[0].scrollHeight);
-    console.log('nick 5');
   }
 
   initialize();
