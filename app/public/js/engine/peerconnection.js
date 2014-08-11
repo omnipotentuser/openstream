@@ -7,6 +7,7 @@ function logError(error) {
 function Peer(p_socket, p_id, p_roomName) {
   var pc = null,
       peerid = p_id,
+      dc = null,
       socket = p_socket,
       localStream = null,
       roomName = p_roomName,
@@ -42,25 +43,61 @@ function Peer(p_socket, p_id, p_roomName) {
 
   this.buildClient = function(stream){
     for (var i = 0; i<credentials.length; i++){
-        var iceServer = {};
-        iceServer = createIceServer(credentials[i].url,
-        credentials[i].username,
-        credentials[i].credential);	
-        ice_config.iceServers.push(iceServer);
+      var iceServer = {};
+      iceServer = createIceServer(credentials[i].url,
+      credentials[i].username,
+      credentials[i].credential);	
+      ice_config.iceServers.push(iceServer);
     }
-    pc = new RTCPeerConnection(ice_config, {'mandatory': [{'DtlsSrtpKeyAgreement': 'true'}]});
+    pc = new RTCPeerConnection(
+      ice_config, 
+      {
+        'mandatory': [{'DtlsSrtpKeyAgreement': 'true'}], 
+        'optional':[{RtpDataChannels: true}]
+      }
+    );
     pc.onaddstream = onAddStream;
     pc.onicecandidate = onIceCandidate;
     pc.oniceconnectionstatechange = onIceConnectionStateChange;
     pc.onnegotiationneeded = onNegotiationNeeded;
     pc.onremovestream = onRemoveStream;
     pc.onsignalingstatechange = onSignalingStateChange;
+
+    // datachannel
+    dc = pc.createDataChannel("test". dataChannelOptions);
+    dc.onerror = onDCError;
+    dc.onmessage = onDCMessage;
+    dc.onopen = onDCOpen;
+    dc.onclose = onDCClose;
+
     if (stream){
       localStream = stream;
 	    pc.addStream(localStream);
     }else{
 	    alert('Media device is not detected.');
     }
+  };
+
+  var onDCError = function (err){
+    console.log('data channel error:', err);
+  };
+
+  var onDCMessage = function(event){
+    console.log('data channel message:', event.data);
+  };
+
+  var onDCOpen = function(event){
+    console.log('the data channel is opened');
+  };
+
+  var onDCClose = function(){
+    console.log('the data channel is closed');
+  };
+
+  var dataChannelOptions = {
+    reliable: true,
+    ordred: true,
+    maxRetransmistTime:500
   };
 
   var onAddStream = function(evt) {
