@@ -7,7 +7,7 @@ function HallwayViews(){
   var initialize = function(){
     $('<div/>', {id:'local-container', class:'media-layout'})
       .append('<video id=\"local-video\" autoplay controls muted>')
-      .append('<textarea id=\"local-ta\"></textarea>')
+      .append('<textarea id=\"local-ta\" placeholder="Being typing in real time"></textarea>')
       .appendTo('#video-container');
   };
 
