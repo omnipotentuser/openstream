@@ -1,14 +1,13 @@
 {
   "name":"openstream",
   "main":"server.js",
-  "type":"git",
-  "url":"git@github.com:omnipotentuser/openstream.git",
   "license":"MIT",
   "author":"Nicholas Buchanan",
-  "version":"0.1.0",
+  "version":"0.2.0",
+  "url":"https://github.com/omnipotentuser/openstream/issues"
   "repository": {
     "type": "git",
-    "url": "git://github.com/omnipotentuser/openstream"
+    "url": "https://github.com/omnipotentuser/openstream.git"
   },
   "dependencies":{
     "express":"~4.0.0",
