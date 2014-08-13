@@ -56,7 +56,10 @@ function RTCEngine(){
         room: roomName,
         code: code
       };
-      socket.emit('byteChar', message);
+      for(var i = 0; i < peers.length; i++){
+        peers[i].sendData(code);
+      }
+      //socket.emit('byteChar', message);
     }
   };
 
@@ -83,7 +86,7 @@ function RTCEngine(){
 	  var pid = users.shift();
     callback('create', {id:pid});
 	  var peer = new Peer(socket, pid, roomName);
-    peer.buildClient(localStream);
+    peer.buildClient(localStream, handleByteChar);
 	  peers.push(peer);
 	  if(users.length > 0){
       createPeers(users, callback);
@@ -95,7 +98,7 @@ function RTCEngine(){
     if (typeof callback === 'undefined') callback = function(){};
     socket.on('createOffer', function(message){
 	    var peer = new Peer(socket, message.id, roomName);
-	    peer.buildClient(localStream);
+	    peer.buildClient(localStream, handleByteChar);
 	    peers.push(peer);
       callback('create', {id:message.id});
 	    peer.peerCreateOffer();
@@ -108,7 +111,7 @@ function RTCEngine(){
         if(peers[i].getid() == message.from_id) {
           if(!peers[i].hasPC()){
             console.log('ICE Candidate received: PC not ready. Building.');
-            peers[i].buildClient(localStream);
+            peers[i].buildClient(localStream, handleByteChar);
           };
           console.log('Remote ICE candidate ' + message.candidate.candidate);
           peers[i].addIceCandidate(message.candidate);
@@ -124,7 +127,7 @@ function RTCEngine(){
         if(peers[i].getid() == message.from_id){
           if(!peers[i].hasPC()){
             console.log('SDP received: PC not ready. Building.');
-            peers[i].buildClient(localStream);
+            peers[i].buildClient(localStream, handleByteChar);
           };
           peers[i].setRemoteDescription(message.sdp);
         }
@@ -177,6 +180,23 @@ function RTCEngine(){
     });
   }
 
+  // message consists of:
+  // message.from_id
+  // message.code
+  function handleByteChar(message){
+    for (var i = 0; i < peers.length; i++) {
+      if (peers[i].getid() === message.from_id){
+        if (!peers[i].hasPC()){
+          console.log('Message received: PC not ready.');
+        } else {
+          callback('readbytechar', message);
+        };
+        return {};
+      }
+    };
+  }
+
+  /*
   function handleReceiveCode(socket, callback) {
     if (typeof callback === 'undefined') callback = function(){};
     socket.on('byteChar', function(message) {
@@ -185,13 +205,15 @@ function RTCEngine(){
           if (!peers[i].hasPC()){
             console.log('Message received: PC not ready.');
           } else {
-            callback('readbytechar', message);
+      //      callback('readbytechar', message);
+            console.log('handleReceiveCode', message.code);
           };
           return {};
         }
 	    };
     });
   }
+  */
 
   var connect = function(room, callback) {
     roomName = room;
@@ -203,7 +225,7 @@ function RTCEngine(){
       handleCreateOffer(socket, callback);
       handleIceCandidate(socket);
       handleSetRemoteDescription(socket);
-      handleReceiveCode(socket, callback);
+     // handleReceiveCode(socket, callback);
       handleClientDisconnected(socket, callback);
       handleSysCode(socket, callback);
       callback('connected');

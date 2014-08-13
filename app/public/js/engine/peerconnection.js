@@ -6,6 +6,7 @@ function logError(error) {
 function Peer(p_socket, p_id, p_roomName) {
   var pc = null,
       peerid = p_id,
+      onByteChar = null,
       dc = null,
       socket = p_socket,
       localStream = null,
@@ -38,9 +39,10 @@ function Peer(p_socket, p_id, p_roomName) {
 
   this.close = function(){
     if (pc) pc.close();
+    if (dc) dc.close();
   };
 
-  this.buildClient = function(stream){
+  this.buildClient = function(stream, bytecharCallback){
     for (var i = 0; i<credentials.length; i++){
       var iceServer = {};
       iceServer = createIceServer(credentials[i].url,
@@ -63,11 +65,13 @@ function Peer(p_socket, p_id, p_roomName) {
     pc.onsignalingstatechange = onSignalingStateChange;
 
     // datachannel
-    dc = pc.createDataChannel("test". dataChannelOptions);
+    dc = pc.createDataChannel(peerid+'ta'. dataChannelOptions);
     dc.onerror = onDCError;
     dc.onmessage = onDCMessage;
     dc.onopen = onDCOpen;
     dc.onclose = onDCClose;
+
+    onByteChar = bytecharCallback;
 
     if (stream){
       localStream = stream;
@@ -83,6 +87,13 @@ function Peer(p_socket, p_id, p_roomName) {
 
   var onDCMessage = function(event){
     console.log('data channel message:', event.data);
+    if (onByteChar && peerid){
+      var message = {
+        from_id: peerid,
+        code: event.data
+      };
+      onByteChar(message);
+    }
   };
 
   var onDCOpen = function(event){
@@ -93,10 +104,8 @@ function Peer(p_socket, p_id, p_roomName) {
     console.log('the data channel is closed');
   };
 
+  // since we are not setting any value, it defaults to reliable
   var dataChannelOptions = {
-    reliable: true,
-    ordred: true,
-    maxRetransmistTime:500
   };
 
   var onAddStream = function(evt) {
@@ -167,5 +176,12 @@ function Peer(p_socket, p_id, p_roomName) {
         pc.createAnswer(localDescCreated, logError);
       }
 		}, logError);
+  };
+
+  this.sendData = function(byteChar){
+    console.log('sendData', byteChar);
+    if (dc){
+      dc.send(byteChar);
+    }
   };
 };
