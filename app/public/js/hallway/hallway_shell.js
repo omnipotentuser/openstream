@@ -3,13 +3,6 @@ function Hallway(){
 	var hallwayViews = new HallwayViews();
   var localId = null;
 
-  /*
-  var doSendByteChar = function(byteChar){
-    console.log('doSendByteChar', byteChar);
-    if (rtc_engine) rtc_engine.sendChar(byteChar);
-  };
-  */
-
   var handleSocketEvents = function(signaler, data){
     if (signaler){
       switch (signaler) {
@@ -78,6 +71,7 @@ function Hallway(){
     hallwayViews = null;
     rtc_engine = null;
   };
+
 
   $('#joinroombtn').bind('click', handleJoinBtn);
 

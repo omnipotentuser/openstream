@@ -9,6 +9,8 @@ function HallwayViews(){
       .append('<video id=\"local-video\" autoplay controls muted>')
       .append('<textarea id=\"local-ta\" placeholder="Being typing in real time"></textarea>')
       .appendTo('#video-container');
+
+    $('#roomnameinput').focus();
   };
 
   this.setListeners = function(engine){
