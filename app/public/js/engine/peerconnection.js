@@ -1,7 +1,6 @@
 
 function logError(error) {
-    console.log('error: ' + error);
-    console.log(error.name + ': ' + error.message);
+  console.log('error: ' + error.name);
 }
 
 function Peer(p_socket, p_id, p_roomName) {

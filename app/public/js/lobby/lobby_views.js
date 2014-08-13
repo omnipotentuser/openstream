@@ -68,7 +68,9 @@ function LobbyViews(cb){
   var hallwayPage = function(){
     currentPage = $('#hallway-main');
     lobbyMain.fadeOut(function(){
-      currentPage.fadeIn();
+      currentPage.fadeIn(function(){
+        $('#roomnameinput').focus();
+      });
       lobby.fadeIn();
     });
     cb('hallway');
