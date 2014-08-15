@@ -197,7 +197,9 @@ function RTCEngine(){
     };
   }
 
-  /*
+  // obsolete websocket way of passing text
+  // perhaps enable it later for backward compatibility
+  /*  
   function handleReceiveCode(socket, callback) {
     if (typeof callback === 'undefined') callback = function(){};
     socket.on('byteChar', function(message) {
