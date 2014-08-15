@@ -58,6 +58,7 @@ function HallwayViews(){
   };
 
   this.closeMediaViews = function(destroyCallback, next){
+    $('#hallway-room-title').empty();
     $('#video-container').fadeOut(function(){
       $('#room-input').fadeIn( 200, function destroyCB(){
         destroyCallback(next);
@@ -98,6 +99,10 @@ function HallwayViews(){
       $ta.val($ta.val() + ch);
     }
     $ta.scrollTop($ta[0].scrollHeight);
+  }
+
+  this.updateTitle = function(room){
+    $('#hallway-room-title').append('<p>Room: '+room+'</p>');
   }
 
   initialize();

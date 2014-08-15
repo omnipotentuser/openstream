@@ -59,6 +59,8 @@ function Hallway(){
         console.log('starting rtc engine');
         engine.connect(room, handleSocketEvents);
       })(room, rtc_engine);
+
+      hallwayViews.updateTitle(room);
       
     }
   };
