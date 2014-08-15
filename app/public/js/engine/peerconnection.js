@@ -6,6 +6,7 @@ function logError(error) {
 function Peer(p_socket, p_id, p_roomName) {
   var pc = null,
       peerid = p_id,
+      onByteChar = null,
       dc = null,
       socket = p_socket,
       localStream = null,
@@ -38,9 +39,10 @@ function Peer(p_socket, p_id, p_roomName) {
 
   this.close = function(){
     if (pc) pc.close();
+    if (dc) dc.close();
   };
 
-  this.buildClient = function(stream){
+  this.buildClient = function(stream, bytecharCallback, requestType){
     for (var i = 0; i<credentials.length; i++){
       var iceServer = {};
       iceServer = createIceServer(credentials[i].url,
@@ -48,26 +50,26 @@ function Peer(p_socket, p_id, p_roomName) {
       credentials[i].credential);	
       ice_config.iceServers.push(iceServer);
     }
-    pc = new RTCPeerConnection(
-      ice_config, 
-      {
-        'mandatory': [{'DtlsSrtpKeyAgreement': 'true'}], 
-        'optional':[{RtpDataChannels: true}]
-      }
-    );
+    pc = new RTCPeerConnection(ice_config);
     pc.onaddstream = onAddStream;
     pc.onicecandidate = onIceCandidate;
     pc.oniceconnectionstatechange = onIceConnectionStateChange;
     pc.onnegotiationneeded = onNegotiationNeeded;
     pc.onremovestream = onRemoveStream;
     pc.onsignalingstatechange = onSignalingStateChange;
+    if (requestType === 'offer'){
+        dc = pc.createDataChannel('chat'. dataChannelOptions);
+        dc.onerror = onDCError;
+        dc.onmessage = onDCMessage;
+        dc.onopen = onDCOpen;
+        dc.onclose = onDCClose;
+        console.log('readyState', dc.readyState);
+    } else {
+      pc.ondatachannel = onCreateDataChannel;
+      console.log('DataChannel - listening');
+    }
 
-    // datachannel
-    dc = pc.createDataChannel("test". dataChannelOptions);
-    dc.onerror = onDCError;
-    dc.onmessage = onDCMessage;
-    dc.onopen = onDCOpen;
-    dc.onclose = onDCClose;
+    onByteChar = bytecharCallback;
 
     if (stream){
       localStream = stream;
@@ -83,6 +85,13 @@ function Peer(p_socket, p_id, p_roomName) {
 
   var onDCMessage = function(event){
     console.log('data channel message:', event.data);
+    if (onByteChar && peerid){
+      var message = {
+        from_id: peerid,
+        code: event.data
+      };
+      onByteChar(message);
+    }
   };
 
   var onDCOpen = function(event){
@@ -93,10 +102,8 @@ function Peer(p_socket, p_id, p_roomName) {
     console.log('the data channel is closed');
   };
 
+  // since we are not setting any value, it defaults to reliable
   var dataChannelOptions = {
-    reliable: true,
-    ordred: true,
-    maxRetransmistTime:500
   };
 
   var onAddStream = function(evt) {
@@ -111,7 +118,7 @@ function Peer(p_socket, p_id, p_roomName) {
         candidate:evt.candidate,
         to_id: peerid
       };
-      console.log('sending candidate', message.candidate.candidate);
+      //console.log('sending candidate', message.candidate.candidate);
       socket.emit('candidate', message);
     }
   };
@@ -134,7 +141,6 @@ function Peer(p_socket, p_id, p_roomName) {
 
   this.addIceCandidate = function (p_candidate) {
     if(pc){
-	    console.log('Create new Ice Candidate for peer');
 	    pc.addIceCandidate(new RTCIceCandidate(p_candidate));
     } else {
 	    console.log('No peer candidate instance');
@@ -154,9 +160,23 @@ function Peer(p_socket, p_id, p_roomName) {
     }, logError);
   };
 
+  var onCreateDataChannel = function(event){
+    if (dc && dc.readyState !== 'closed'){
+      console.log('dataChannel channel already created');
+    } else {
+      dc = event.channel;
+      dc.onmessage = onDCMessage;
+      dc.onopen = onDCOpen;
+      dc.onclose = onDCClose;
+      console.log('DataChannel remote connection status', dc.readyState);
+    }
+  };
+
   this.peerCreateOffer = function () {
+
     console.log('peerCreateOffer called');
     pc.createOffer(localDescCreated, logError); 
+
   };
 
   this.setRemoteDescription = function (p_remote_sdp) {
@@ -167,5 +187,17 @@ function Peer(p_socket, p_id, p_roomName) {
         pc.createAnswer(localDescCreated, logError);
       }
 		}, logError);
+  };
+
+  this.sendData = function(byteChar){
+    console.log('sendData', byteChar);
+    dc.send(byteChar);
+    /*
+    if (dc && dc.readyState.toLowerCase() == 'open'){
+      dc.send(byteChar);
+    } else {
+      console.log('DataChannel not ready');
+    }
+    */
   };
 };

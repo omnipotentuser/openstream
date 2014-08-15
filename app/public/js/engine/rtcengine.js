@@ -3,7 +3,8 @@ function RTCEngine(){
       socket = null,
       roomName = null,
       localStream = null,
-      localId = null;
+      localId = null
+      appCB = function(){}; // holds the callback from external app
 
   var shiftKeyCode = {'192':'126', '49':'33', '50':'64', '51':'35', '52':'36', '53':'37', '54':'94', '55':'38', '56':'42', '57':'40', '48':'41', '189':'95', '187':'43', '219':'123', '221':'125', '220':'124', '186':'58', '222':'34', '188':'60', '190':'62', '191':'63'};
   var specialCharCode = {'8':'8', '13':'13', '32':'32', '186':'58', '187':'61', '188':'44', '189':'45', '190':'46', '191':'47', '192':'96', '219':'91', '220':'92', '221':'93', '222':'39'};
@@ -56,7 +57,10 @@ function RTCEngine(){
         room: roomName,
         code: code
       };
-      socket.emit('byteChar', message);
+      for(var i = 0; i < peers.length; i++){
+        peers[i].sendData(code);
+      }
+      //socket.emit('byteChar', message);
     }
   };
 
@@ -83,7 +87,7 @@ function RTCEngine(){
 	  var pid = users.shift();
     callback('create', {id:pid});
 	  var peer = new Peer(socket, pid, roomName);
-    peer.buildClient(localStream);
+    peer.buildClient(localStream, handleByteChar, 'answer');
 	  peers.push(peer);
 	  if(users.length > 0){
       createPeers(users, callback);
@@ -95,7 +99,7 @@ function RTCEngine(){
     if (typeof callback === 'undefined') callback = function(){};
     socket.on('createOffer', function(message){
 	    var peer = new Peer(socket, message.id, roomName);
-	    peer.buildClient(localStream);
+	    peer.buildClient(localStream, handleByteChar, 'offer');
 	    peers.push(peer);
       callback('create', {id:message.id});
 	    peer.peerCreateOffer();
@@ -108,9 +112,9 @@ function RTCEngine(){
         if(peers[i].getid() == message.from_id) {
           if(!peers[i].hasPC()){
             console.log('ICE Candidate received: PC not ready. Building.');
-            peers[i].buildClient(localStream);
+            peers[i].buildClient(localStream, handleByteChar, 'answer');
           };
-          console.log('Remote ICE candidate ' + message.candidate.candidate);
+          //console.log('Remote ICE candidate',message.candidate.candidate);
           peers[i].addIceCandidate(message.candidate);
         };
 	    };
@@ -124,7 +128,7 @@ function RTCEngine(){
         if(peers[i].getid() == message.from_id){
           if(!peers[i].hasPC()){
             console.log('SDP received: PC not ready. Building.');
-            peers[i].buildClient(localStream);
+            peers[i].buildClient(localStream, handleByteChar, 'answer');
           };
           peers[i].setRemoteDescription(message.sdp);
         }
@@ -177,6 +181,23 @@ function RTCEngine(){
     });
   }
 
+  // message consists of:
+  // message.from_id
+  // message.code
+  function handleByteChar(message){
+    for (var i = 0; i < peers.length; i++) {
+      if (peers[i].getid() === message.from_id){
+        if (!peers[i].hasPC()){
+          console.log('Message received: PC not ready.');
+        } else {
+          appCB('readbytechar', message);
+        };
+        return {};
+      }
+    };
+  }
+
+  /*
   function handleReceiveCode(socket, callback) {
     if (typeof callback === 'undefined') callback = function(){};
     socket.on('byteChar', function(message) {
@@ -185,16 +206,19 @@ function RTCEngine(){
           if (!peers[i].hasPC()){
             console.log('Message received: PC not ready.');
           } else {
-            callback('readbytechar', message);
+      //      callback('readbytechar', message);
+            console.log('handleReceiveCode', message.code);
           };
           return {};
         }
 	    };
     });
   }
+  */
 
   var connect = function(room, callback) {
     roomName = room;
+    appCB = callback;
     socket = io('/', {'forceNew': true}); 
     console.log('socket connecting');
     socket.on('connect', function(){
@@ -203,7 +227,7 @@ function RTCEngine(){
       handleCreateOffer(socket, callback);
       handleIceCandidate(socket);
       handleSetRemoteDescription(socket);
-      handleReceiveCode(socket, callback);
+     // handleReceiveCode(socket, callback);
       handleClientDisconnected(socket, callback);
       handleSysCode(socket, callback);
       callback('connected');
