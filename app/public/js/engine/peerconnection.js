@@ -84,7 +84,6 @@ function Peer(p_socket, p_id, p_roomName) {
   };
 
   var onDCMessage = function(event){
-    console.log('data channel message:', event.data);
     if (onByteChar && peerid){
       var message = {
         from_id: peerid,
@@ -190,14 +189,10 @@ function Peer(p_socket, p_id, p_roomName) {
   };
 
   this.sendData = function(byteChar){
-    console.log('sendData', byteChar);
-    dc.send(byteChar);
-    /*
     if (dc && dc.readyState.toLowerCase() == 'open'){
       dc.send(byteChar);
     } else {
       console.log('DataChannel not ready');
     }
-    */
   };
 };
