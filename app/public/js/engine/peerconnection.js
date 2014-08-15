@@ -42,7 +42,7 @@ function Peer(p_socket, p_id, p_roomName) {
     if (dc) dc.close();
   };
 
-  this.buildClient = function(stream, bytecharCallback){
+  this.buildClient = function(stream, bytecharCallback, requestType){
     for (var i = 0; i<credentials.length; i++){
       var iceServer = {};
       iceServer = createIceServer(credentials[i].url,
@@ -50,26 +50,24 @@ function Peer(p_socket, p_id, p_roomName) {
       credentials[i].credential);	
       ice_config.iceServers.push(iceServer);
     }
-    pc = new RTCPeerConnection(
-      ice_config, 
-      {
-        'mandatory': [{'DtlsSrtpKeyAgreement': 'true'}], 
-        'optional':[{RtpDataChannels: true}]
-      }
-    );
+    pc = new RTCPeerConnection(ice_config);
     pc.onaddstream = onAddStream;
     pc.onicecandidate = onIceCandidate;
     pc.oniceconnectionstatechange = onIceConnectionStateChange;
     pc.onnegotiationneeded = onNegotiationNeeded;
     pc.onremovestream = onRemoveStream;
     pc.onsignalingstatechange = onSignalingStateChange;
-
-    // datachannel
-    dc = pc.createDataChannel(peerid+'ta'. dataChannelOptions);
-    dc.onerror = onDCError;
-    dc.onmessage = onDCMessage;
-    dc.onopen = onDCOpen;
-    dc.onclose = onDCClose;
+    if (requestType === 'offer'){
+        dc = pc.createDataChannel('chat'. dataChannelOptions);
+        dc.onerror = onDCError;
+        dc.onmessage = onDCMessage;
+        dc.onopen = onDCOpen;
+        dc.onclose = onDCClose;
+        console.log('readyState', dc.readyState);
+    } else {
+      pc.ondatachannel = onCreateDataChannel;
+      console.log('DataChannel - listening');
+    }
 
     onByteChar = bytecharCallback;
 
@@ -120,7 +118,7 @@ function Peer(p_socket, p_id, p_roomName) {
         candidate:evt.candidate,
         to_id: peerid
       };
-      console.log('sending candidate', message.candidate.candidate);
+      //console.log('sending candidate', message.candidate.candidate);
       socket.emit('candidate', message);
     }
   };
@@ -143,7 +141,6 @@ function Peer(p_socket, p_id, p_roomName) {
 
   this.addIceCandidate = function (p_candidate) {
     if(pc){
-	    console.log('Create new Ice Candidate for peer');
 	    pc.addIceCandidate(new RTCIceCandidate(p_candidate));
     } else {
 	    console.log('No peer candidate instance');
@@ -163,9 +160,23 @@ function Peer(p_socket, p_id, p_roomName) {
     }, logError);
   };
 
+  var onCreateDataChannel = function(event){
+    if (dc && dc.readyState !== 'closed'){
+      console.log('dataChannel channel already created');
+    } else {
+      dc = event.channel;
+      dc.onmessage = onDCMessage;
+      dc.onopen = onDCOpen;
+      dc.onclose = onDCClose;
+      console.log('DataChannel remote connection status', dc.readyState);
+    }
+  };
+
   this.peerCreateOffer = function () {
+
     console.log('peerCreateOffer called');
     pc.createOffer(localDescCreated, logError); 
+
   };
 
   this.setRemoteDescription = function (p_remote_sdp) {
@@ -180,8 +191,13 @@ function Peer(p_socket, p_id, p_roomName) {
 
   this.sendData = function(byteChar){
     console.log('sendData', byteChar);
-    if (dc){
+    dc.send(byteChar);
+    /*
+    if (dc && dc.readyState.toLowerCase() == 'open'){
       dc.send(byteChar);
+    } else {
+      console.log('DataChannel not ready');
     }
+    */
   };
 };
