@@ -14,8 +14,8 @@ function HallwayViews(){
     $input.focus();
     $input.keypress(function(event){
       if (event.which === 13){
-        $('#joinroombtn').trigger("click");
         event.preventDefault();
+        $('#joinroombtn').trigger("click");
       }
     });
   };

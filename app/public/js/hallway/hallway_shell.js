@@ -52,7 +52,7 @@ function Hallway(){
       alert('Cannot have empty name');
 
     } else {
-
+      event.preventDefault();
       hallwayViews.openMediaViews();
 
       (function(room, engine){
@@ -61,7 +61,7 @@ function Hallway(){
       })(room, rtc_engine);
 
       hallwayViews.updateTitle(room);
-      
+      $('#joinroombtn').unbind('click', handleJoinBtn);
     }
   };
 
