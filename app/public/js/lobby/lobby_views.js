@@ -9,14 +9,11 @@ function LobbyViews(cb){
 
   window.addEventListener('resize', function(){
     var wwidth = window.innerWidth;
-    console.log('innerWidth', wwidth);
     if ( wwidth < MID ){
-      console.log('width is less than MID');
       $body.css('left',0);
       $body.css('right',0);
       $banner.css('right', 0);
     } else {
-      console.log('width is greater than MID');
       $body.css('left',200);
       $body.css('right',200);
       $banner.css('right', -150);
