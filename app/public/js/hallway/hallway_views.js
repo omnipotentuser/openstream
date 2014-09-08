@@ -12,9 +12,10 @@ function HallwayViews(){
       .appendTo('#video-container');
 
     $input.focus();
-    $input.keypress(function(){
-      if (event.keyCode === 13){
+    $input.keypress(function(event){
+      if (event.which === 13){
         $('#joinroombtn').trigger("click");
+        event.preventDefault();
       }
     });
   };
