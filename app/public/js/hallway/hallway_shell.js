@@ -2,6 +2,8 @@ function Hallway(){
   var rtc_engine = new RTCEngine();
 	var hallwayViews = new HallwayViews();
   var localId = null;
+  var roomName = '';
+  var joinRoomBtn = $('#joinroombtn');
 
   var handleSocketEvents = function(signaler, data){
     if (signaler){
@@ -45,9 +47,11 @@ function Hallway(){
   var handleJoinBtn = function(event){
 
     var $input = $('#roomnameinput');
-    var room = $input.val();
+    if (roomName === ''){
+      roomName = $input.val();
+    }
     
-    if (room === ''){
+    if (roomName === ''){
 
       alert('Cannot have empty name');
 
@@ -58,16 +62,16 @@ function Hallway(){
       (function(room, engine){
         console.log('starting rtc engine');
         engine.connect(room, handleSocketEvents);
-      })(room, rtc_engine);
+      })(roomName, rtc_engine);
 
-      hallwayViews.updateTitle(room);
-      $('#joinroombtn').unbind('click', handleJoinBtn);
+      hallwayViews.updateTitle(roomName);
+      joinRoomBtn.unbind('click', handleJoinBtn);
     }
   };
 
   this.leave = function(destroyCallback, next){
     $('#roomnameinput').val('');
-    $('#joinroombtn').unbind('click', handleJoinBtn);
+    joinRoomBtn.unbind('click', handleJoinBtn);
     rtc_engine.leave();
     hallwayViews.closeMediaViews(destroyCallback, next);
     hallwayViews = null;
@@ -75,7 +79,25 @@ function Hallway(){
   };
 
 
-  $('#joinroombtn').bind('click', handleJoinBtn);
+  joinRoomBtn.bind('click', handleJoinBtn);
 
   hallwayViews.setListeners(rtc_engine);
+  (function queryUrl(){
+    var hashurl = window.location.hash;
+    var hashpos = hashurl.lastIndexOf('#');
+    if (hashpos != -1){
+      hashurl = hashurl.substring(hashpos + 1);
+    }
+    if (hashpos == -1){
+      roomName = '';
+    } else if (hashurl.length > 0){
+      roomName = hashurl;
+    } else {
+      roomName = '';
+    }
+    console.log('roomName',roomName);
+    if (roomName != ''){
+      joinRoomBtn.trigger('click');
+    }
+  })();
 };
