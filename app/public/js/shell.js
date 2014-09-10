@@ -58,9 +58,14 @@ $(document).ready(function(){
   var lobby = new Lobby(observer);
 
   var updatePage = function(event){
+    var urlpath = window.location.pathname.substring(1);
     var hashurl = window.location.hash.substring(1);
-    console.log('updating page');
-    switch ( hashurl ){
+    var url = '';
+    url = urlpath ? urlpath : hashurl;
+    console.log('urlpath',urlpath);
+    console.log('hashurl', hashurl);
+    console.log('url',url);
+    switch ( url ){
       case 'hallway': 
         lobby.hallway();
         break;
