@@ -3,10 +3,13 @@ function Hallway(){
 	var hallwayViews = new HallwayViews();
   var localId = null;
   var roomName = '';
+  var $input = $('#roomnameinput');
   var joinRoomBtn = $('#joinroombtn');
+  var randGenBtn = $('#randomgeneratorbtn');
 
   var handleSocketEvents = function(signaler, data){
     if (signaler){
+      var pid = '';
       switch (signaler) {
         case 'connected':
           console.log('rtc engine connected');
@@ -16,7 +19,7 @@ function Hallway(){
           localId = data.id;
           break;
         case 'create':
-          var pid = data.id;
+          pid = data.id;
           console.log(
             'creating new media element', 
             pid
@@ -24,7 +27,7 @@ function Hallway(){
           hallwayViews.appendPeerMedia(pid);
           break;
         case 'peerDisconnect':
-          var pid = data.id;
+          pid = data.id;
           hallwayViews.deletePeerMedia(data.id);
           break;
         case 'readbytechar':
@@ -40,13 +43,12 @@ function Hallway(){
           break;
         default:
           break;
-      };
+      }
     }
   };
 
   var handleJoinBtn = function(event){
 
-    var $input = $('#roomnameinput');
     if (roomName === ''){
       roomName = $input.val();
     }
@@ -66,20 +68,35 @@ function Hallway(){
 
       hallwayViews.updateTitle(roomName);
       joinRoomBtn.unbind('click', handleJoinBtn);
+      randGenBtn.unbind('click', handleRandGenBtn);
     }
   };
 
   this.leave = function(destroyCallback, next){
-    $('#roomnameinput').val('');
+    $input.val('');
     joinRoomBtn.unbind('click', handleJoinBtn);
+    randGenBtn.unbind('click', handleRandGenBtn);
     rtc_engine.leave();
     hallwayViews.closeMediaViews(destroyCallback, next);
     hallwayViews = null;
     rtc_engine = null;
   };
 
+  var S4 = function(){
+    return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
+  };
+
+  var  generateID = function(){
+    return (S4() + S4() + '-' + S4() + '-' + S4() + '-' + S4() + '-' + S4() + S4() + S4());
+  };
+
+  var handleRandGenBtn = function(event){
+    $input.val(generateID());
+    joinRoomBtn.trigger('click');
+  };
 
   joinRoomBtn.bind('click', handleJoinBtn);
+  randGenBtn.bind('click', handleRandGenBtn);
 
   hallwayViews.setListeners(rtc_engine);
   (function queryUrl(){
@@ -96,8 +113,8 @@ function Hallway(){
       roomName = '';
     }
     console.log('roomName',roomName);
-    if (roomName != ''){
+    if (roomName !== ''){
       joinRoomBtn.trigger('click');
     }
   })();
-};
+}
