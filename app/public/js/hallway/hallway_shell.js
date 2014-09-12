@@ -67,6 +67,7 @@ function Hallway(){
       })(roomName, rtc_engine);
 
       hallwayViews.updateTitle(roomName);
+      window.history.replaceState({}, "OpenStream "+roomName, "#"+roomName);
       joinRoomBtn.unbind('click', handleJoinBtn);
       randGenBtn.unbind('click', handleRandGenBtn);
     }
