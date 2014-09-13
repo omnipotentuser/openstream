@@ -22,7 +22,9 @@ function HallwayViews(){
 
   this.setListeners = function(engine){
     var sc = engine.sendChar;
-    $('#local-ta').on('keydown', function textareaByteChar(e) {
+    var ta = $('#local-ta');
+    //ta.addEventListener('paste');
+    ta.on('keydown', function textareaByteChar(e) {
       var code = (e.keyCode ? e.keyCode : e.which);
       //console.log(e.type, e.which, e.keyCode);
 
@@ -50,7 +52,7 @@ function HallwayViews(){
         };
       }
     })
-
+    
   };
 
   this.openMediaViews = function(){
