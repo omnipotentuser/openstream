@@ -91,6 +91,17 @@ $(document).ready(function(){
   };
 
   $(window).bind('hashchange', updatePage).trigger('hashchange');
-
+  $('#href-lobby').on('click', function(event){
+    window.history.replaceState({}, "OpenStream - Lobby", "/");
+    updatePage(event);
+  });
+  $('#href-hallway').on('click', function(event){
+    window.history.replaceState({}, "OpenStream - Hallway", "/hallway");
+    updatePage(event);
+  });
+  $('#href-lavatory').on('click', function(event){
+    window.history.replaceState({}, "OpenStream - Lavatory", "/lavatory");
+    updatePage(event);
+  });
 });
 

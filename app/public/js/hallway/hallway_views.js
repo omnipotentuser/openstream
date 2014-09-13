@@ -22,9 +22,22 @@ function HallwayViews(){
 
   this.setListeners = function(engine){
     var sc = engine.sendChar;
-    var ta = $('#local-ta');
-    //ta.addEventListener('paste');
-    ta.on('keydown', function textareaByteChar(e) {
+    /*
+    ta.on('paste', function(e){
+      e.preventDefault();
+      var text = '';
+      if (e.clipboardData){
+        text = (e.originalEvent || e).clipboardData.getData('text/plain');
+      } else if (window.clipboardData){
+        //http://stackoverflow.com/questions/12027137/javascript-trick-for-paste-as-plain-text-in-execcommand
+        //for more info on pasting html text to dom
+        text = window.clipboardData.getData('Text');
+      }
+      console.log('clipboard', text);
+
+    });
+    */
+    $('local-ta').on('keydown', function textareaByteChar(e) {
       var code = (e.keyCode ? e.keyCode : e.which);
       //console.log(e.type, e.which, e.keyCode);
 
