@@ -8,7 +8,7 @@ function HallwayViews(){
 
     var clip = $('<div/>', {class:'hallway-layout-options'})
       .append('<input type="text" class="hallway-input-text-clip" placeholder="Paste from clipboard"/>')
-      .append('<button class="hallway-btn-clip" title="Send to peers"/>');
+      .append('<button class="hallway-btn-clip" title="Send to peers" type="submit"> send </button>');
     $('<div/>', {id:'local-container', class:'media-layout'})
       .append('<video id=\"local-video\" autoplay controls muted>')
       .append(clip)
@@ -26,23 +26,8 @@ function HallwayViews(){
   };
 
   this.setListeners = function(engine){
-    var sc = engine.sendChar;
-    /*
-    ta.on('paste', function(e){
-      e.preventDefault();
-      var text = '';
-      if (e.clipboardData){
-        text = (e.originalEvent || e).clipboardData.getData('text/plain');
-      } else if (window.clipboardData){
-        //http://stackoverflow.com/questions/12027137/javascript-trick-for-paste-as-plain-text-in-execcommand
-        //for more info on pasting html text to dom
-        text = window.clipboardData.getData('Text');
-      }
-      console.log('clipboard', text);
-
-    });
-    */
     $('#local-ta').on('keydown', function textareaByteChar(e) {
+      var sc = engine.sendChar;
       var code = (e.keyCode ? e.keyCode : e.which);
       //console.log(e.type, e.which, e.keyCode);
 
@@ -70,7 +55,17 @@ function HallwayViews(){
         };
       }
     })
-    
+    $('.hallway-btn-clip').on('click', function(event){
+      var ss = engine.sendString;
+      var $clipinput = $('.hallway-input-text-clip');
+      var word = $clipinput.val();
+      if (word && word.length < 4){
+        alert('Word is too short. Must be at least 4 characters long.');
+      } else if (word){
+        ss(word);
+        $clipinput.val('');
+      }
+    });
   };
 
   this.openMediaViews = function(){
@@ -116,7 +111,9 @@ function HallwayViews(){
 
   this.updateTextArea = function(pid, bytechar){
     var $ta = $('#'+pid+'-ta');
-    if (bytechar == '8'){
+    if (bytechar.length > 3){
+      $ta.val( $ta.val() + '\n' + bytechar + '\n');
+    } else if (bytechar == '8'){
       $ta.val( $ta.val().slice(0,-1)); 
     } else{
       var ch = String.fromCharCode(bytechar);
