@@ -64,6 +64,18 @@ function RTCEngine(){
     }
   };
 
+  function sendString(word){
+    if (roomName){
+      var message = {
+        room: roomName,
+        word: word
+      };
+      for(var i = 0; i < peers.length; i++){
+        peers[i].sendData(word);
+      }
+    }
+  };
+
   function handleJoinRoom(socket, callback) {
     if (typeof callback === 'undefined') callback = function(){};
     socket.on('id', function(message){
@@ -259,6 +271,7 @@ function RTCEngine(){
     connect:connect, 
     join:startMedia, 
     leave:stopMedia, 
-    sendChar:sendChar
+    sendChar:sendChar,
+    sendString:sendString
   };
 };
