@@ -2,8 +2,9 @@
   h1 Lavatory
     label.lavatory-subtitle self check bandwidth and NAT traversal utility
   #lavatory-container
-    #lavatory-local
-      #lavatory-local-menu
+    #lavatory-local.lavatory-container-location
+      #lavatory-local-menu.lavatory-menu
+        .lavatory-menu-title Local Video
         button#lavatory-toggle-audio Disable audio
         button#lavatory-toggle-video Disable video
         #lavatory-bitrate-control
@@ -24,12 +25,13 @@
             li
               a(href='#', id='2000') Cap to 2mbit
 
-      #lavatory-local-video
+      #lavatory-video-local
         video
       #lavatory-bitrate-local
         input#lavatory-input-datasend(type='text', placeholder='Write a DataChannel message', disabled)
-    #lavatory-remote
-      #lavaltory-remote-menu Remote Video
+    #lavatory-remote.lavatory-container-location
+      #lavatory-remote-menu.lavatory-menu 
+        .lavatory-menu-title Remote Video
         label#lavatory-label-curbitrate
       #lavatory-remote-video
         video
