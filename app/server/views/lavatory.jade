@@ -2,9 +2,10 @@
   h1 Lavatory
     label.lavatory-subtitle self check bandwidth and NAT traversal utility
   #lavatory-container
+    button.lavatory-engage start
     #lavatory-local.lavatory-container-location
       #lavatory-menu-local.lavatory-menu
-        .lavatory-menu-title Local Video
+        .lavatory-menu-title Local video
         .lavatory-controls-menu
           button#lavatory-toggle-audio Disable audio
           button#lavatory-toggle-video Disable video
@@ -25,7 +26,7 @@
                 a(href='#', id='1500') Cap to 1.5mbit
               li
                 a(href='#', id='2000') Cap to 2mbit
-      #lavatory-video-local
+      #lavatory-video-local.lavatory-container-video
         video
       #lavatory-bitrate-local
         input#lavatory-input-datasend(type='text', placeholder='Write a DataChannel message')
@@ -33,9 +34,9 @@
           button.lavatory-btn-bitrate-send send
     #lavatory-remote.lavatory-container-location
       #lavatory-menu-remote.lavatory-menu 
-        .lavatory-menu-title Remote Video
+        .lavatory-menu-title What the remote client sees
         label#lavatory-label-curbitrate
-      #lavatory-remote-video
+      #lavatory-video-remote.lavatory-container-video
         video
       #lavatory-bitrate-remote
-        label#lavatory-label-datarecv(disabled)
+        label#lavatory-label-datarecv Sent message goes here
