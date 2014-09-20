@@ -3,34 +3,36 @@
     label.lavatory-subtitle self check bandwidth and NAT traversal utility
   #lavatory-container
     #lavatory-local.lavatory-container-location
-      #lavatory-local-menu.lavatory-menu
+      #lavatory-menu-local.lavatory-menu
         .lavatory-menu-title Local Video
-        button#lavatory-toggle-audio Disable audio
-        button#lavatory-toggle-video Disable video
-        #lavatory-bitrate-control
-          button#lavatory-bitrate-btn(data-toggle='dropdown') Bandwidth
-          ul#lavatory-bitrate-dropdown.lavatory-bitrate-dropdown-menu(role='menu')
-            li
-              a(href='#', id='0') No Limit
-            li
-              a(href='#', id='128') Cap to 128kbit
-            li
-              a(href='#', id='256') Cap to 256kbit
-            li
-              a(href='#', id='512') Cap to 512kbit
-            li
-              a(href='#', id='1024') Cap to 1mbit
-            li
-              a(href='#', id='1500') Cap to 1.5mbit
-            li
-              a(href='#', id='2000') Cap to 2mbit
-
+        .lavatory-controls-menu
+          button#lavatory-toggle-audio Disable audio
+          button#lavatory-toggle-video Disable video
+          #lavatory-controls-bitrate
+            button#lavatory-bitrate-btn(data-toggle='dropdown') Bandwidth
+            ul#lavatory-dropdown-bitrate.lavatory-bitrate-dropdown-menu(role='menu')
+              li
+                a(href='#', id='0') No Limit
+              li
+                a(href='#', id='128') Cap to 128kbit
+              li
+                a(href='#', id='256') Cap to 256kbit
+              li
+                a(href='#', id='512') Cap to 512kbit
+              li
+                a(href='#', id='1024') Cap to 1mbit
+              li
+                a(href='#', id='1500') Cap to 1.5mbit
+              li
+                a(href='#', id='2000') Cap to 2mbit
       #lavatory-video-local
         video
       #lavatory-bitrate-local
-        input#lavatory-input-datasend(type='text', placeholder='Write a DataChannel message', disabled)
+        input#lavatory-input-datasend(type='text', placeholder='Write a DataChannel message')
+        .lavatory-container-btn-bitrate-local
+          button.lavatory-btn-bitrate-send send
     #lavatory-remote.lavatory-container-location
-      #lavatory-remote-menu.lavatory-menu 
+      #lavatory-menu-remote.lavatory-menu 
         .lavatory-menu-title Remote Video
         label#lavatory-label-curbitrate
       #lavatory-remote-video

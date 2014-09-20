@@ -14,68 +14,95 @@ border-scheme1()
     color #565656
     padding-left 20px
   #lavatory-container
-    border-scheme1()
     width 768px
     height 500px
     margin 0 auto
   .lavatory-container-location
     vertical-align top
     width 340px
-    height 280px
-    background-color white
+    height 340px
+    border-scheme1()
     display inline-block
     margin 20px
 
   // menus
-  #lavatory-local-menu
+  #lavatory-menu-local
     width 100%
-    background-color blue
     background-color rgba(110,120,130, 1.0)
-    height 60px
-    display inline-block
-    display block
-  #lavatory-remote-menu
+  #lavatory-menu-remote
     width 100%
     background-color rgba(90,100,120, 1.0)
-    height 60px
-    display inline-block
-    display block
   .lavatory-menu
-    display inline
+    height 50px
+    margin-top 1px
   .lavatory-menu-title
-    color rgba(200,200,200,1.0)
+    color white
     font-size 14px
-    padding 1px 0px 2px 15px
-
-
+    margin 1px 0px 0px 15px
+    width 100%
+  .lavatory-controls-menu
+    width 100%
+    margin-left 13px
+    margin-top -5px
+  #lavatory-controls-bitrate
+    display inline-block
+    height 20px
+    width 93px
 
   // videos
-  #lavatory-local-video
+  #lavatory-video-local
     background-color black
+    border 2px solid black
     width 320px
     height 240px
+    margin 2px 8px
     video
-      background-color black
       height 100%
+      -o-object-fit contain
+      -moz-object-fit contain
+      -webkit-object-fit contain
 
   // inputs
   #lavatory-bitrate-local
-    input#lavatory-input-datasend
-      width 200px
-      height 25px
+    width 325px
+    height 25px
+    margin-left 8px
+  input#lavatory-input-datasend
+    width 275px
+    height 25px
+  .lavatory-container-btn-bitrate-local
+    width 40px
+    height 25px
+    display inline-block
+  .lavatory-btn-bitrate-send
+    vertical-align middle
+    width 40px
+    height 25px
 
   // buttons
   button
-    width 90px
-    height 20px
+    width 100px
+    height 25px
+    border-radius 3px
+    border-width 0px
     background-color rgba(102, 139, 150, 1.0)
     margin-left 3px
     color white
+    cursor pointer
+    box-shadow: 0 1px 0 #666, 0 2px 0 #444, 0 6px 2px rgba(0,0,0,0.6);
+    transition: all 150ms ease
+  button:active
+    background-color rgba(152, 189, 200, 1.0)
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 #666, 0 2px 0 #444, 0 2px 2px rgba(0,0,0,0.9);
+    border 0px
+  button:focus
+    background-color rgba(132, 169, 180, 1.0)
+  button:hover
+    background-color rgba(122, 159, 170, 1.0)
 
-  #lavatory-bitrate-control
-    display block
-
-  ul#lavatory-bitrate-dropdown
+  // dropdowns
+  ul#lavatory-dropdown-bitrate
     font-size 12px
     list-style none
     text-decoration none
