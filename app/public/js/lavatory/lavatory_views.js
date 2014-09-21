@@ -2,23 +2,31 @@
 function LavatoryViews(){
   // todo build echo app!
   var $startbtn = $('.lavatory-engage');
-  var $local = $('#lavatory-local');
-  var $remote = $('#lavatory-remote');
+  var $bitratebtn = $('#lavatory-btn-bitrate');
+  var $container = $('.lavatory-container-location'); 
+  var $bitratedropdown = $('#lavatory-dropdown-bitrate');
   var engage = false;
+  var bitratevisible = false;
 
   $startbtn.on('click', function(e){
     engage = !engage;
     if (engage){
       $startbtn.html('stop');
-      $('.lavatory-container-location').css('display','inline-block');
-      //$local.css('display','inline-block');
-      //$remote.css('display','inline-block');
+      $container.css('display','inline-block');
     } else {
       $startbtn.html('start');
-      $('.lavatory-container-location').css('display','none');
-      //$local.css('display','none');
-      //$remote.css('display','none');
+      $container.css('display','none');
     }
     console.log('engaged', engage);
+  });
+
+  $bitratebtn.on('click', function(e){
+    bitratevisible = !bitratevisible;
+    if (bitratevisible){
+      $bitratedropdown.css('display','block');
+    } else {
+      $bitratedropdown.css('display','none');
+    }
+    console.log('bitratevisible', bitratevisible);
   });
 };
