@@ -1,6 +1,9 @@
 color-scheme1()
   rgba(172, 186, 203, 0.2)
 
+color-scheme2()
+  rgba(222, 236, 253, 0.35)
+
 border-scheme1()
   background-color color-scheme1() 
 
@@ -121,11 +124,18 @@ border-scheme1()
     background-color rgba(122, 159, 170, 1.0)
 
   // dropdowns
-  ul#lavatory-dropdown-bitrate
-    font-size 12px
+  ul.lavatory-dropdown-menu
+    position absolute
+    margin-left -50px
+    width 100px
+    background-color color-scheme2()
     list-style none
     text-decoration none
+    font-size 1em
     display none
-    li
+    li a
+      margin: 0 0 10px 0;
+      font-size 12px
       list-style none
       text-decoration none
+      color white

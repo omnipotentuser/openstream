@@ -56,7 +56,6 @@ var janus = null;
 var echotest = null;
 var started = false;
 var bitrateTimer = null;
-var spinner = null;
 
 var audioenabled = false;
 var videoenabled = false;
@@ -65,7 +64,7 @@ $(document).ready(function() {
 	// Initialize the library (console debug enabled)
 	Janus.init({debug: true, callback: function() {
 		// Use a button to start the demo
-		$('#start').click(function() {
+		$('#lavatory-engage').click(function() {
 			if(started)
 				return;
 			started = true;
@@ -113,7 +112,7 @@ $(document).ready(function() {
 												bootbox.alert("WebRTC error... " + JSON.stringify(error));
 											}
 										});
-									$('#start').removeAttr('disabled').html("Stop")
+									$('#lavatory-engage').removeAttr('disabled').html("stop")
 										.click(function() {
 											$(this).attr('disabled', true);
 											clearInterval(bitrateTimer);
@@ -125,23 +124,6 @@ $(document).ready(function() {
 									bootbox.alert("Error attaching plugin... " + error);
 								},
 								consentDialog: function(on) {
-									console.log("Consent dialog should be " + (on ? "on" : "off") + " now");
-									if(on) {
-										// Darken screen and show hint
-										$.blockUI({ 
-											message: '<div><img src="up_arrow.png"/></div>',
-											css: {
-												border: 'none',
-												padding: '15px',
-												backgroundColor: 'transparent',
-												color: '#aaa',
-												top: '10px',
-												left: (navigator.mozGetUserMedia ? '-100px' : '300px')
-											} });
-									} else {
-										// Restore screen
-										$.unblockUI();
-									}
 								},
 								onmessage: function(msg, jsep) {
 									console.log(" ::: Got a message :::");
@@ -156,86 +138,69 @@ $(document).ready(function() {
 										if(result === "done") {
 											// The plugin closed the echo test
 											bootbox.alert("The Echo Test is over");
-											if(spinner !== null && spinner !== undefined)
-												spinner.stop();
-											spinenr = null;
-											$('#myvideo').remove();
-											$('#waitingvideo').remove();
-											$('#peervideo').remove();
-											$('#toggleaudio').attr('disabled', true);
-											$('#togglevideo').attr('disabled', true);
-											$('#bitrate').attr('disabled', true);
-											$('#curbitrate').hide();
-											$('#curres').hide();
+											$('#lavatory-myvideo').remove();
+											$('#lavatory-peervideo').remove();
+											$('#lavatory-toggle-audio').attr('disabled', true);
+											$('#lavatory-toggle-video').attr('disabled', true);
+											$('#lavatory-dropdown-bitrate').attr('disabled', true);
+											$('#lavatory-label-curbitrate').hide();
 										}
 									}
 								},
 								onlocalstream: function(stream) {
 									console.log(" ::: Got a local stream :::");
 									console.log(JSON.stringify(stream));
-									if($('#myvideo').length === 0) {
-										$('#videos').removeClass('hide').show();
-										$('#videoleft').append('<video class="rounded centered" id="myvideo" width=320 height=240 autoplay muted="muted"/>');
+									if($('#lavatory-myvideo').length === 0) {
+										$('#lavatory-video-local').append('<video class="rounded centered" id="lavatory-myvideo" width=320 height=240 autoplay muted="muted"/>');
 									}
-									attachMediaStream($('#myvideo').get(0), stream);
-									$("#myvideo").get(0).muted = "muted";
-									// No remote video yet
-									$('#videoright').append('<video class="rounded centered" id="waitingvideo" width=320 height=240 />');
-									if(spinner == null) {
-										var target = document.getElementById('videoright');
-										spinner = new Spinner({top:100}).spin(target);
-									} else {
-										spinner.spin();
-									}
+									attachMediaStream($('#lavatory-myvideo').get(0), stream);
+									$("#lavatory-myvideo").get(0).muted = "muted";
 								},
 								onremotestream: function(stream) {
 									console.log(" ::: Got a remote stream :::");
 									console.log(JSON.stringify(stream));
-									if($('#peervideo').length === 0) {
-										spinner.stop();
-										$('#waitingvideo').remove();
-										$('#videos').removeClass('hide').show();
-										$('#videoright').append('<video class="rounded centered" id="peervideo" width=320 height=240 autoplay/>');
+									if($('#lavatory-peervideo').length === 0) {
+										$('#lavatory-video-remote').append('<video class="rounded centered" id="lavatory-peervideo" width=320 height=240 autoplay/>');
 										// Detect resolution
-										$("#peervideo").bind("loadedmetadata", function () {
+										$("#lavatory-peervideo").bind("loadedmetadata", function () {
 											if(webrtcDetectedBrowser == "chrome") {
 												var width = this.videoWidth;
 												var height = this.videoHeight;
-												$('#curres').removeClass('hide').text(width+'x'+height).show();
+												$('#lavatory-label-resolution').text(width+' x '+height);
 											} else {
 												// Firefox has a bug: width and height are not immediately available after a loadedmetadata
 												setTimeout(function() {
-													var width = $("#peervideo").get(0).videoWidth;
-													var height = $("#peervideo").get(0).videoHeight;
-													$('#curres').removeClass('hide').text(width+'x'+height).show();
+													var width = $("#lavatory-peervideo").get(0).videoWidth;
+													var height = $("#lavatory-peervideo").get(0).videoHeight;
+													$('#lavatory-label-resolution').text(width+' x '+height).show();
 												}, 2000);
 											}
 										});
 									}
-									attachMediaStream($('#peervideo').get(0), stream);
+									attachMediaStream($('#lavatory-peervideo').get(0), stream);
 									// Enable audio/video buttons and bitrate limiter
 									audioenabled = true;
 									videoenabled = true;
-									$('#toggleaudio').click(
+									$('#lavatory-toggle-audio').click(
 										function() {
 											audioenabled = !audioenabled;
 											if(audioenabled)
-												$('#toggleaudio').html("Disable audio").removeClass("btn-success").addClass("btn-danger");
+												$('#lavatory-toggle-audio').html("Disable audio");
 											else
-												$('#toggleaudio').html("Enable audio").removeClass("btn-danger").addClass("btn-success");
+												$('#lavatory-toggle-audio').html("Enable audio");
 											echotest.send({"message": { "audio": audioenabled }});
 										});
-									$('#togglevideo').click(
+									$('#lavatory-toggle-video').click(
 										function() {
 											videoenabled = !videoenabled;
 											if(videoenabled)
-												$('#togglevideo').html("Disable video").removeClass("btn-success").addClass("btn-danger");
+												$('#lavatory-toggle-video').html("Disable video");
 											else
-												$('#togglevideo').html("Enable video").removeClass("btn-danger").addClass("btn-success");
+												$('#lavatory-toggle-video').html("Enable video");
 											echotest.send({"message": { "video": videoenabled }});
 										});
-									$('#toggleaudio').parent().removeClass('hide').show();
-									$('#bitrate a').click(function() {
+									$('#lavatory-toggle-audio').parent().removeClass('hide').show();
+									$('#lavatory-dropdown-bitrate a').click(function() {
 										var id = $(this).attr("id");
 										var bitrate = parseInt(id)*1000;
 										if(bitrate === 0) {
@@ -243,43 +208,37 @@ $(document).ready(function() {
 										} else {
 											console.log("Capping bandwidth to " + bitrate + " via REMB");
 										}
-										$('#bitrateset').html($(this).html()).parent().removeClass('open');
 										echotest.send({"message": { "bitrate": bitrate }});
 										return false;
 									});
 									if(webrtcDetectedBrowser == "chrome") {
 										// Only Chrome supports the way we interrogate getStats for the bitrate right now
-										$('#curbitrate').removeClass('hide').show();
+										$('#lavatory-label-curbitrate').removeClass('hide').show();
 										bitrateTimer = setInterval(function() {
 											// Display updated bitrate, if supported
 											var bitrate = echotest.getBitrate();
 											//~ console.log("Current bitrate is " + echotest.getBitrate());
-											$('#curbitrate').text(bitrate);
+											$('#lavatory-label-curbitrate').text(bitrate);
 										}, 1000);
 									}
 								},
 								ondataopen: function(data) {
 									console.log("The DataChannel is available!");
-									$('#datasend').removeAttr('disabled');
+									$('#lavatory-input-datasend').removeAttr('disabled');
 								},
 								ondata: function(data) {
 									console.log("We got data from the DataChannel! " + data);
-									$('#datarecv').val(data);
+									$('#lavatory-input-datarecv').val(data);
 								},
 								oncleanup: function() {
 									console.log(" ::: Got a cleanup notification :::");
-									if(spinner !== null && spinner !== undefined)
-										spinner.stop();
-									spinenr = null;
-									$('#myvideo').remove();
-									$('#waitingvideo').remove();
-									$('#peervideo').remove();
-									$('#toggleaudio').attr('disabled', true);
-									$('#togglevideo').attr('disabled', true);
-									$('#bitrate').attr('disabled', true);
-									$('#curbitrate').hide();
-									$('#curres').hide();
-									$('#datasend').attr('disabled', true);
+									$('#lavatory-myvideo').remove();
+									$('#lavatory-peervideo').remove();
+									$('#lavatory-toggle-audio').attr('disabled', true);
+									$('#lavatory-toggle-video').attr('disabled', true);
+									$('#lavatory-dropdown-bitrate').attr('disabled', true);
+									$('#lavatory-label-curbitrate').hide();
+									$('#lavatory-input-datasend').attr('disabled', true);
 								}
 							});
 					},
@@ -308,14 +267,14 @@ function checkEnter(event) {
 }
 
 function sendData() {
-	var data = $('#datasend').val();
+	var data = $('#lavatory-input-datasend').val();
 	if(data === "") {
-		bootbox.alert('Insert a message to send on the DataChannel');
+		alert('Insert a message to send on the DataChannel');
 		return;
 	}
 	echotest.data({
 		text: data,
 		error: function(reason) { bootbox.alert(reason); },
-		success: function() { $('#datasend').val(''); },
+		success: function() { $('#lavatory-input-datasend').val(''); },
 	});
 }
