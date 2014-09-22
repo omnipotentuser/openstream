@@ -8,6 +8,7 @@ function LavatoryViews(){
   var engage = false;
   var bitratevisible = false;
 
+  /*
   $startbtn.on('click', function(e){
     engage = !engage;
     if (engage){
@@ -19,6 +20,7 @@ function LavatoryViews(){
     }
     console.log('engaged', engage);
   });
+  */
 
   $bitratebtn.on('click', function(e){
     bitratevisible = !bitratevisible;

@@ -27,9 +27,8 @@
               li
                 a(href='#', id='2000') Cap to 2mbit
       #lavatory-video-local.lavatory-container-video
-        video
       #lavatory-bitrate-local
-        input#lavatory-input-datasend(type='text', placeholder='Write a DataChannel message')
+        input#lavatory-input-datasend(type='text', placeholder='Write a DataChannel message', onkeypress="return checkEnter(event);")
         .lavatory-container-btn-bitrate-local
           button.lavatory-btn-bitrate-send send
     #lavatory-remote.lavatory-container-location
@@ -38,6 +37,5 @@
         label#lavatory-label-resolution 640x480
         label#lavatory-label-curbitrate 128kbps
       #lavatory-video-remote.lavatory-container-video
-        video
       #lavatory-bitrate-remote
         input#lavatory-input-datarecv(placeholder="Sent message goes here" disabled)
