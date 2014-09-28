@@ -22,16 +22,20 @@ function LavatoryViews(){
   var audioenabled = false;
   var videoenabled = false;
 
+  // Using Nginx to reverse proxy the connection to Janus. Lavatory
+  // is connected to Node.js through Nginx and for connections
+  // to Janus the directive '/janus' is used to point to Janus 
+  // server.
   var server = '/janus';
 
   console.log('creating LavatoryViews');
 
   var stopLavatory = function(){
+
+    // clear up Janus
     if (janus){
       clearInterval(bitrateTimer);
       janus.destroy();
-      $container.css('display','none');
-      $startbtn.removeAttr('disabled').html("start");
       janus = null;
       echotest = null;
       started = false;
@@ -39,25 +43,23 @@ function LavatoryViews(){
       audioenabled = false;
       videoenabled = false;
     }
+
+    // reset DOM
+    $container.css('display','none');
+    $startbtn
+      .removeClass('pressed')
+      .addClass('lifted')
+      .html('start');
   };
 
   function startLavatory(){
     if (started){
-      clearInterval(bitrateTimer);
-      janus.destroy();
-      $container.css('display','none');
-      $startbtn.removeAttr('disabled').html("start");
-      janus = null;
-      echotest = null;
-      started = false;
-      bitrateTimer = null;
-
-      audioenabled = false;
-      videoenabled = false;
-      console.log('nick - stopping');
+      stopLavatory();
     } else {
-      $startbtn.removeAttr('disabled').html("stop");
-      console.log('nick - startin');
+      $startbtn
+        .removeClass('lifted')
+        .addClass('pressed')
+        .html('stop');
       startJanus();
       started = true;
     }
@@ -66,7 +68,6 @@ function LavatoryViews(){
   function startJanus(){
     // Initialize the library (console debug enabled)
     Janus.init({debug: true, callback: function() {
-			$(this).attr('disabled', true).unbind('click');
 			// Make sure the browser supports WebRTC
 			if(!Janus.isWebrtcSupported()) {
 				return;
@@ -128,9 +129,6 @@ function LavatoryViews(){
 											// The plugin closed the echo test
 											$('#lavatory-myvideo').remove();
 											$('#lavatory-peervideo').remove();
-											$('#lavatory-toggle-audio').attr('disabled', true);
-											$('#lavatory-toggle-video').attr('disabled', true);
-											$('#lavatory-btn-bitrate').attr('disabled', true);
 											$('#lavatory-label-curbitrate').hide();
 										}
 									}
@@ -172,19 +170,33 @@ function LavatoryViews(){
 									$('#lavatory-toggle-audio').click(
 										function() {
 											audioenabled = !audioenabled;
-											if(audioenabled)
-												$('#lavatory-toggle-audio').html("Disable audio");
-											else
-												$('#lavatory-toggle-audio').html("Enable audio");
+											if(audioenabled){
+												$('#lavatory-toggle-audio')
+                          .removeClass("pressed")
+                          .addClass("lifted")
+                          .html("Disable audio");
+                      } else {
+												$('#lavatory-toggle-audio')
+                          .removeClass("lifted")
+                          .addClass("pressed")
+                          .html("Enable audio");
+                      }
 											echotest.send({"message": { "audio": audioenabled }});
 										});
 									$('#lavatory-toggle-video').click(
 										function() {
 											videoenabled = !videoenabled;
-											if(videoenabled)
-												$('#lavatory-toggle-video').html("Disable video");
-											else
-												$('#lavatory-toggle-video').html("Enable video");
+											if(videoenabled){
+												$('#lavatory-toggle-video')
+                          .removeClass("pressed")
+                          .addClass("lifted")
+                          .html("Disable video");
+                      } else {
+												$('#lavatory-toggle-video')
+                          .removeClass("lifted")
+                          .addClass("pressed")
+                          .html("Enable video");
+                      }
 											echotest.send({"message": { "video": videoenabled }});
 										});
 									$('#lavatory-dropdown-bitrate a').click(function() {
@@ -211,7 +223,6 @@ function LavatoryViews(){
 								},
 								ondataopen: function(data) {
 									console.log("The DataChannel is available!");
-									$('#lavatory-input-datasend').removeAttr('disabled');
 								},
 								ondata: function(data) {
 									console.log("We got data from the DataChannel! " + data);
@@ -221,30 +232,18 @@ function LavatoryViews(){
 									console.log(" ::: Got a cleanup notification :::");
 									$('#lavatory-myvideo').remove();
 									$('#lavatory-peervideo').remove();
-									$('#lavatory-toggle-audio').attr('disabled', true);
-									$('#lavatory-toggle-video').attr('disabled', true);
-									$('#lavatory-dropdown-bitrate').attr('disabled', true);
 									$('#lavatory-label-curbitrate').hide();
-									$('#lavatory-input-datasend').attr('disabled', true);
 								}
 							});
 					},
 					error: function(error) {
 						console.log(error);
 						alert(error, function() {
-              $container.css('display','none');
-              $(this).attr('disabled', true);
-              clearInterval(bitrateTimer);
-              janus.destroy();
-              $startbtn.removeAttr('disabled').html("start");
+              startLavatory();
 						});
 					},
 					destroyed: function() {
-            $container.css('display','none');
-            $(this).attr('disabled', true);
-            clearInterval(bitrateTimer);
-            janus.destroy();
-            $startbtn.removeAttr('disabled').html("start");
+            startLavatory();
 					}
 				});
     }});

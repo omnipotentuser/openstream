@@ -32,7 +32,7 @@ border-scheme1()
   .lavatory-container-location
     vertical-align top
     width 340px
-    height 340px
+    height 330px
     border-scheme1()
     margin 20px
     display none
@@ -45,7 +45,7 @@ border-scheme1()
     width 100%
     background-color rgba(110,120,130, 1.0)
   .lavatory-menu
-    height 50px
+    height 70px
     margin-top 1px
   .lavatory-menu-title
     color white
@@ -54,8 +54,9 @@ border-scheme1()
     width 100%
   .lavatory-controls-menu
     width 100%
+    height 35px
     margin-left 13px
-    margin-top -5px
+    margin-top 0px
   #lavatory-controls-bitrate
     display inline-block
     height 20px
@@ -111,17 +112,23 @@ border-scheme1()
     margin-left 3px
     color white
     cursor pointer
-    box-shadow: 0 1px 0 #666, 0 2px 0 #444, 0 6px 2px rgba(0,0,0,0.6);
-    transition: all 150ms ease
+    transition all 150ms ease
   button:active
     background-color rgba(152, 189, 200, 1.0)
-    transform: translateY(3px);
-    box-shadow: 0 1px 0 #666, 0 2px 0 #444, 0 2px 2px rgba(0,0,0,0.9);
+    transform translateY(3px)
+    box-shadow 0 1px 0 #666, 0 2px 0 #444, 0 2px 2px rgba(0,0,0,0.9)
     border 0px
   button:focus
     background-color rgba(132, 169, 180, 1.0)
   button:hover
     background-color rgba(122, 159, 170, 1.0)
+  button.lifted
+    margin-top 0px
+    box-shadow 0 1px 0 #666, 0 2px 0 #444, 0 6px 2px rgba(0,0,0,0.6)
+  button.pressed
+    margin-top 5px
+    box-shadow 0 1px 0 #666, 0 2px 0 #444, 0 4px 2px rgba(0,0,0,0.6)
+
 
   // dropdowns
   ul.lavatory-dropdown-menu
