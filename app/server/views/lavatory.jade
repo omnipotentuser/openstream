@@ -7,8 +7,10 @@
       #lavatory-menu-local.lavatory-menu
         .lavatory-menu-title Local video
         .lavatory-controls-menu
-          button#lavatory-toggle-audio.pressed Disable audio
-          button#lavatory-toggle-video.pressed Disable video
+          .lavatory-button-placeholder
+            button#lavatory-toggle-audio.pressed Disable audio
+          .lavatory-button-placeholder
+            button#lavatory-toggle-video.pressed Disable video
           #lavatory-controls-bitrate
             button#lavatory-btn-bitrate(data-toggle='dropdown') Bandwidth
             ul#lavatory-dropdown-bitrate.lavatory-dropdown-menu(role='menu')

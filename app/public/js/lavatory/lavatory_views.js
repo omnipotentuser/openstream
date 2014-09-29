@@ -11,6 +11,8 @@ else
 function LavatoryViews(){
   var $startbtn = $('.lavatory-engage');
   var $bitratebtn = $('#lavatory-btn-bitrate');
+  var $audiobtn = $('#lavatory-toggle-audio');
+  var $videobtn = $('#lavatory-toggle-video');
   var $container = $('.lavatory-container-location');
   var $bitratedropdown = $('#lavatory-dropdown-bitrate');
 
@@ -50,6 +52,10 @@ function LavatoryViews(){
       .removeClass('pressed')
       .addClass('lifted')
       .html('start');
+    $audiobtn.removeClass("lifted").addClass("pressed");
+    $audiobtn.html("Enable audio");
+    $videobtn.removeClass("lifted").addClass("pressed");
+    $videobtn.html("Enable video");
   };
 
   function startLavatory(){
@@ -171,15 +177,11 @@ function LavatoryViews(){
 										function() {
 											audioenabled = !audioenabled;
 											if(audioenabled){
-												$('#lavatory-toggle-audio')
-                          .removeClass("pressed")
-                          .addClass("lifted")
-                          .html("Disable audio");
+												$audiobtn.removeClass("lifted").addClass("pressed");
+                        $audiobtn.html("Enable audio");
                       } else {
-												$('#lavatory-toggle-audio')
-                          .removeClass("lifted")
-                          .addClass("pressed")
-                          .html("Enable audio");
+												$audiobtn.removeClass("pressed").addClass("lifted");
+                        $audiobtn.html("Disable audio");
                       }
 											echotest.send({"message": { "audio": audioenabled }});
 										});
@@ -187,15 +189,11 @@ function LavatoryViews(){
 										function() {
 											videoenabled = !videoenabled;
 											if(videoenabled){
-												$('#lavatory-toggle-video')
-                          .removeClass("pressed")
-                          .addClass("lifted")
-                          .html("Disable video");
+												$videobtn.removeClass("lifted").addClass("pressed");
+                        $videobtn.html("Enable video");
                       } else {
-												$('#lavatory-toggle-video')
-                          .removeClass("lifted")
-                          .addClass("pressed")
-                          .html("Enable video");
+												$videobtn.removeClass("pressed").addClass("lifted");
+                        $videobtn.html("Disable video");
                       }
 											echotest.send({"message": { "video": videoenabled }});
 										});
