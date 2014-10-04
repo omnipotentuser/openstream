@@ -1,13 +1,4 @@
 
-// NICK - need to proxy the linode nginx to bovav.com
-//
-/*
-if(window.location.protocol === 'http:')
-  server = "http://" + window.location.hostname + ":9999/janus";
-else
-  server = "https://" + window.location.hostname + ":9999/janus";
-  */
-
 function LavatoryViews(){
   var $startbtn = $('.lavatory-engage');
   var $bitratebtn = $('#lavatory-btn-bitrate');
