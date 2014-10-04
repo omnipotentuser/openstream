@@ -1,11 +1,12 @@
 
 function LavatoryViews(){
+  var $bitratelist = $('#lavatory-dropdown-bitrate a');
+  var $bitratedropdown = $('.lavatory-dropdown-menu');
   var $startbtn = $('.lavatory-engage');
   var $bitratebtn = $('#lavatory-btn-bitrate');
   var $audiobtn = $('#lavatory-toggle-audio');
   var $videobtn = $('#lavatory-toggle-video');
   var $container = $('.lavatory-container-location');
-  var $bitratedropdown = $('#lavatory-dropdown-bitrate');
 
   var janus = null;
   var echotest = null;
@@ -14,7 +15,7 @@ function LavatoryViews(){
 
   var audioenabled = false;
   var videoenabled = false;
-
+  var bitratevisible = false;
   // Using Nginx to reverse proxy the connection to Janus. Lavatory
   // is connected to Node.js through Nginx and for connections
   // to Janus the directive '/janus' is used to point to Janus 
@@ -35,6 +36,7 @@ function LavatoryViews(){
       bitrateTimer = null;
       audioenabled = false;
       videoenabled = false;
+      bitratevisible = false;
     }
 
     // reset DOM
@@ -49,6 +51,9 @@ function LavatoryViews(){
     $videobtn.removeClass("lifted").addClass("pressed");
     $videobtn.html("Video Enabled");
     $videobtn.unbind('click');
+    $bitratebtn.unbind('click');
+    $bitratelist.unbind('click');
+    $bitratedropdown.css('display', 'none');
   };
 
   function startLavatory(){
@@ -166,7 +171,7 @@ function LavatoryViews(){
                   // Enable audio/video buttons and bitrate limiter
                   audioenabled = true;
                   videoenabled = true;
-                  $('#lavatory-toggle-audio').bind('click', function() {
+                  $audiobtn.bind('click', function() {
                       audioenabled = !audioenabled;
                       if(audioenabled){
                         console.log('\n\nNICK audio pressed \n\n');
@@ -179,7 +184,7 @@ function LavatoryViews(){
                       }
                       echotest.send({"message": { "audio": audioenabled }});
                     });
-                  $('#lavatory-toggle-video').bind('click', function() {
+                  $videobtn.bind('click', function() {
                       videoenabled = !videoenabled;
                       if(videoenabled){
                         $videobtn.removeClass("lifted").addClass("pressed");
@@ -190,7 +195,17 @@ function LavatoryViews(){
                       }
                       echotest.send({"message": { "video": videoenabled }});
                     });
-                  $('#lavatory-dropdown-bitrate a').bind('click',function() {
+                  $bitratebtn.bind('click', function(e){
+                    e.preventDefault();
+                    bitratevisible = !bitratevisible;
+                    if (bitratevisible){
+                      $bitratedropdown.css('display','block');
+                    } else {
+                      $bitratedropdown.css('display','none');
+                    }
+                  });
+                  $bitratelist.bind('click', function(e){
+                    e.preventDefault();
                     var id = $(this).attr("id");
                     var bitrate = parseInt(id)*1000;
                     if(bitrate === 0) {
