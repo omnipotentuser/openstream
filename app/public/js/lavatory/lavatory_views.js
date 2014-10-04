@@ -53,9 +53,9 @@ function LavatoryViews(){
       .addClass('lifted')
       .html('start');
     $audiobtn.removeClass("lifted").addClass("pressed");
-    $audiobtn.html("Enable audio");
+    $audiobtn.html("Audio Enabled");
     $videobtn.removeClass("lifted").addClass("pressed");
-    $videobtn.html("Enable video");
+    $videobtn.html("Video Enabled");
   };
 
   function startLavatory(){
@@ -178,10 +178,10 @@ function LavatoryViews(){
                       audioenabled = !audioenabled;
                       if(audioenabled){
                         $audiobtn.removeClass("lifted").addClass("pressed");
-                        $audiobtn.html("Enable audio");
+                        $audiobtn.html("Audio Enabled");
                       } else {
                         $audiobtn.removeClass("pressed").addClass("lifted");
-                        $audiobtn.html("Disable audio");
+                        $audiobtn.html("Audio Disabled");
                       }
                       echotest.send({"message": { "audio": audioenabled }});
                     });
@@ -190,10 +190,10 @@ function LavatoryViews(){
                       videoenabled = !videoenabled;
                       if(videoenabled){
                         $videobtn.removeClass("lifted").addClass("pressed");
-                        $videobtn.html("Enable video");
+                        $videobtn.html("Video Enabled");
                       } else {
                         $videobtn.removeClass("pressed").addClass("lifted");
-                        $videobtn.html("Disable video");
+                        $videobtn.html("Video Disabled");
                       }
                       echotest.send({"message": { "video": videoenabled }});
                     });
