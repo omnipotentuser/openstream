@@ -2,10 +2,22 @@ color-scheme1()
   rgba(172, 186, 203, 0.2)
 
 color-scheme2()
-  rgba(222, 236, 253, 0.35)
+  rgba(222, 236, 253, 0.95)
 
 border-scheme1()
   background-color color-scheme1() 
+
+z0()
+  0
+
+z1()
+  100
+
+z2()
+  200
+
+z3()
+  300
 
 #lavatory-main
   display none
@@ -131,7 +143,6 @@ border-scheme1()
   button.pressed
     box-shadow 0 1px 0 #666, 0 2px 0 #444, 0 2px 2px rgba(0,0,0,0.6)
 
-
   // dropdowns
   ul.lavatory-dropdown-menu
     position absolute
@@ -141,10 +152,11 @@ border-scheme1()
     list-style none
     text-decoration none
     font-size 1em
+    z-index z3()
     display none
     li a
       margin: 0 0 10px 0;
       font-size 12px
       list-style none
       text-decoration none
-      color white
+      color black
