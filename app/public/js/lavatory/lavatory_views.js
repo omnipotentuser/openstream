@@ -1,13 +1,4 @@
 
-// NICK - need to proxy the linode nginx to bovav.com
-//
-/*
-if(window.location.protocol === 'http:')
-  server = "http://" + window.location.hostname + ":9999/janus";
-else
-  server = "https://" + window.location.hostname + ":9999/janus";
-  */
-
 function LavatoryViews(){
   var $startbtn = $('.lavatory-engage');
   var $bitratebtn = $('#lavatory-btn-bitrate');
@@ -54,8 +45,10 @@ function LavatoryViews(){
       .html('start');
     $audiobtn.removeClass("lifted").addClass("pressed");
     $audiobtn.html("Audio Enabled");
+    $audiobtn.unbind('click');
     $videobtn.removeClass("lifted").addClass("pressed");
     $videobtn.html("Video Enabled");
+    $videobtn.unbind('click');
   };
 
   function startLavatory(){
@@ -173,8 +166,7 @@ function LavatoryViews(){
                   // Enable audio/video buttons and bitrate limiter
                   audioenabled = true;
                   videoenabled = true;
-                  $('#lavatory-toggle-audio').click(
-                    function() {
+                  $('#lavatory-toggle-audio').bind('click', function() {
                       audioenabled = !audioenabled;
                       if(audioenabled){
                         $audiobtn.removeClass("lifted").addClass("pressed");
@@ -185,8 +177,7 @@ function LavatoryViews(){
                       }
                       echotest.send({"message": { "audio": audioenabled }});
                     });
-                  $('#lavatory-toggle-video').click(
-                    function() {
+                  $('#lavatory-toggle-video').bind('click', function() {
                       videoenabled = !videoenabled;
                       if(videoenabled){
                         $videobtn.removeClass("lifted").addClass("pressed");
@@ -197,7 +188,7 @@ function LavatoryViews(){
                       }
                       echotest.send({"message": { "video": videoenabled }});
                     });
-                  $('#lavatory-dropdown-bitrate a').click(function() {
+                  $('#lavatory-dropdown-bitrate a').bind('click',function() {
                     var id = $(this).attr("id");
                     var bitrate = parseInt(id)*1000;
                     if(bitrate === 0) {
