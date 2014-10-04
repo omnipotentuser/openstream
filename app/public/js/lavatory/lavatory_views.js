@@ -54,8 +54,10 @@ function LavatoryViews(){
       .html('start');
     $audiobtn.removeClass("lifted").addClass("pressed");
     $audiobtn.html("Audio Enabled");
+    $audiobtn.unbind('click');
     $videobtn.removeClass("lifted").addClass("pressed");
     $videobtn.html("Video Enabled");
+    $videobtn.unbind('click');
   };
 
   function startLavatory(){
@@ -173,20 +175,20 @@ function LavatoryViews(){
                   // Enable audio/video buttons and bitrate limiter
                   audioenabled = true;
                   videoenabled = true;
-                  $('#lavatory-toggle-audio').click(
-                    function() {
+                  $('#lavatory-toggle-audio').bind('click', function() {
                       audioenabled = !audioenabled;
                       if(audioenabled){
+                        console.log('\n\nNICK audio pressed \n\n');
                         $audiobtn.removeClass("lifted").addClass("pressed");
                         $audiobtn.html("Audio Enabled");
                       } else {
+                        console.log('\n\nNICK audio lifted \n\n');
                         $audiobtn.removeClass("pressed").addClass("lifted");
                         $audiobtn.html("Audio Disabled");
                       }
                       echotest.send({"message": { "audio": audioenabled }});
                     });
-                  $('#lavatory-toggle-video').click(
-                    function() {
+                  $('#lavatory-toggle-video').bind('click', function() {
                       videoenabled = !videoenabled;
                       if(videoenabled){
                         $videobtn.removeClass("lifted").addClass("pressed");
@@ -197,7 +199,7 @@ function LavatoryViews(){
                       }
                       echotest.send({"message": { "video": videoenabled }});
                     });
-                  $('#lavatory-dropdown-bitrate a').click(function() {
+                  $('#lavatory-dropdown-bitrate a').bind('click',function() {
                     var id = $(this).attr("id");
                     var bitrate = parseInt(id)*1000;
                     if(bitrate === 0) {
