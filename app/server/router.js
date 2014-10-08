@@ -9,4 +9,7 @@ module.exports = function(app){
   app.get('/lavatory', function(req,res){
 	  res.render('index', {title: 'OpenStream - Lavatory'});
   });
+  app.get('/lounge', function(req,res){
+	  res.render('index', {title: 'OpenStream - Lounge'});
+  });
 };
