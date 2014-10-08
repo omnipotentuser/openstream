@@ -103,5 +103,9 @@ $(document).ready(function(){
     window.history.replaceState({}, "OpenStream - Lavatory", "/lavatory");
     updatePage(event);
   });
+  $('#href-lounge').on('click', function(event){
+    window.history.replaceState({}, "OpenStream - Lounge", "/lounge");
+    updatePage(event);
+  });
 });
 
