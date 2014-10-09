@@ -1,14 +1,40 @@
+z0()
+  z-index 0
+z1()
+  z-index 100
+z2()
+  z-index 200
+z3()
+  z-index 300
+
 #lounge-main
   display none
   h1
     font-size 24px
+  .lounge-overlay
+    position absolute
+    left 0px
+    top 60px
+    right 0px
+    bottom 0px
+  .lounge-inline-block
+    background-color rgba(100,100,100, 1)
+    display inline-block
+    position absolute
+    left 210px
+    top 0px
+    right 0
+    bottom 0
   #lounge-container-list
     background-color rgba(0,0,0,0.3)
-    height 500px
+    display inline-block
+    height 100%
     width 200px
     float left
   #lounge-container-setup
-    float right
-    width 700px
-    height 500px
-
+    width 400px
+    height 230px
+    background-color rgba(230,235,240,0.8)
+    margin 100px auto
+    vertical-align middle
+    width 50%
