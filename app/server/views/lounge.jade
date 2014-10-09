@@ -1,2 +1,17 @@
 #lounge-main
-  h1 Lounge App
+  h1 Lounge
+  #lounge-container-list
+    #lounge-list
+      ul#lounge-list-items
+  #lounge-container-setup
+    #lounge-layout-form
+      input#lounge-input-text(type='text', placeholder='room name')
+      button#lounge-button-roomname
+    #lounge-modal-confirm
+      #lounge-layout-permission
+        label#lounge-permission-label(tooltip='Allows room to be private') Lock Access?
+        input.lounge-permission-radio(type='radio', name='permission', value='Yes')
+        | Yes
+        input.lounge-permission-radio(type='radio', name='permission', value='No', checked)
+        | No
+  #lounge-container-session
