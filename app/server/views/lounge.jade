@@ -10,10 +10,14 @@
           input#lounge-input-roomname.lounge-form-comps(type='text', placeholder='room name')
           button#lounge-button-roomname.lounge-form-comps go
         #lounge-modal-confirm
-          #lounge-layout-permission
+          .lounge-boxed
             label#lounge-permission-label(tooltip='Allows room to be private') Lock Access?
             input.lounge-permission-radio(type='radio', name='permission', value='Yes')
             | Yes
             input.lounge-permission-radio(type='radio', name='permission', value='No', checked)
             | No
+          .lounge-boxed
+             button#lounge-button-password-accept.lounge-form-comps Accept
+             button#lounge-button-password-reject.lounge-form-comps Cancel
       #lounge-container-session
+        #video-container
