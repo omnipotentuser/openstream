@@ -3,7 +3,8 @@ function RTCEngine(){
       socket = null,
       roomName = null,
       localStream = null,
-      localId = null
+      localId = null,
+
       appCB = function(){}; // holds the callback from external app
 
   var shiftKeyCode = {'192':'126', '49':'33', '50':'64', '51':'35', '52':'36', '53':'37', '54':'94', '55':'38', '56':'42', '57':'40', '48':'41', '189':'95', '187':'43', '219':'123', '221':'125', '220':'124', '186':'58', '222':'34', '188':'60', '190':'62', '191':'63'};
@@ -51,27 +52,35 @@ function RTCEngine(){
     }
   };
 
-  function sendChar(code){
+  function sendChar(code, isrelay){
     if (roomName){
       var message = {
         room: roomName,
         code: code
       };
-      for(var i = 0; i < peers.length; i++){
-        peers[i].sendData(code);
+      if (isrelay){
+        console.log('relaying',message);
+        socket.emit('byteChar', message);
+      } else {
+        for(var i = 0; i < peers.length; i++){
+          peers[i].sendData(code);
+        }
       }
-      //socket.emit('byteChar', message);
     }
   };
 
-  function sendString(word){
+  function sendString(word, isrelay){
     if (roomName){
       var message = {
         room: roomName,
-        word: word
+        code: word
       };
-      for(var i = 0; i < peers.length; i++){
-        peers[i].sendData(word);
+      if (isrelay){
+        socket.emit('byteChar', message);
+      } else {
+        for(var i = 0; i < peers.length; i++){
+          peers[i].sendData(word);
+        }
       }
     }
   };
@@ -193,6 +202,7 @@ function RTCEngine(){
     });
   }
 
+  // DataChannel version of sending char code
   // message consists of:
   // message.from_id
   // message.code
@@ -209,9 +219,7 @@ function RTCEngine(){
     };
   }
 
-  // obsolete websocket way of passing text
-  // perhaps enable it later for backward compatibility
-  /*  
+  // WebSocket version of sending char code
   function handleReceiveCode(socket, callback) {
     if (typeof callback === 'undefined') callback = function(){};
     socket.on('byteChar', function(message) {
@@ -220,7 +228,7 @@ function RTCEngine(){
           if (!peers[i].hasPC()){
             console.log('Message received: PC not ready.');
           } else {
-      //      callback('readbytechar', message);
+            callback('readbytechar', message);
             console.log('handleReceiveCode', message.code);
           };
           return {};
@@ -228,7 +236,6 @@ function RTCEngine(){
 	    };
     });
   }
-  */
 
   var connect = function(room, callback) {
     roomName = room;
@@ -241,7 +248,7 @@ function RTCEngine(){
       handleCreateOffer(socket, callback);
       handleIceCandidate(socket);
       handleSetRemoteDescription(socket);
-     // handleReceiveCode(socket, callback);
+      handleReceiveCode(socket, callback);
       handleClientDisconnected(socket, callback);
       handleSysCode(socket, callback);
       callback('connected');
