@@ -3,7 +3,7 @@ function logError(error) {
   console.log('error: ' + error.name);
 }
 
-function Peer(p_socket, p_id, p_roomName) {
+function Peer(p_socket, p_id, p_roomName, iceConfig) {
   var pc = null,
       peerid = p_id,
       onByteChar = null,
@@ -12,9 +12,12 @@ function Peer(p_socket, p_id, p_roomName) {
       localStream = null,
       roomName = p_roomName,
       ice_config = {iceServers:[]},
-      credentials = {};
+      credentials = [];
 
-  if (navigator.mozGetUserMedia) {
+  if (iceConfig.length > 0){
+    //console.log('choosing turn server from post');
+    credentials = iceConfig;
+  } else if (navigator.mozGetUserMedia) {
     credentials = [ { url:"stun:stun.vline.com" } ];
   } else {
     credentials = [

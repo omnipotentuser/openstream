@@ -7,6 +7,23 @@ function Hallway(){
   var joinRoomBtn = $('#joinroombtn');
   var randGenBtn = $('#randomgeneratorbtn');
 
+  $.post("https://api.xirsys.com/getIceServers",{
+    ident:"openhack",
+    secret:"03150bbb-a1e7-49ff-862b-ab28688111a3",
+    domain:"www.openhack.net",
+    application:"default",
+    room:"default",
+    secure: "1"
+  },
+  function(data, status){
+    var icedata = JSON.parse(data);
+    //console.log('ice obtained:',icedata.d.iceServers);
+    if (status === "success"){
+      console.log('post success');
+      rtc_engine.updateIce(icedata.d.iceServers);
+    }
+  });
+
   var handleSocketEvents = function(signaler, data){
     if (signaler){
       var pid = '';
