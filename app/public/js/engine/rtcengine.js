@@ -4,7 +4,7 @@ function RTCEngine(){
       roomName = null,
       localStream = null,
       localId = null,
-
+      iceConfig = [],
       appCB = function(){}; // holds the callback from external app
 
   var shiftKeyCode = {'192':'126', '49':'33', '50':'64', '51':'35', '52':'36', '53':'37', '54':'94', '55':'38', '56':'42', '57':'40', '48':'41', '189':'95', '187':'43', '219':'123', '221':'125', '220':'124', '186':'58', '222':'34', '188':'60', '190':'62', '191':'63'};
@@ -59,7 +59,7 @@ function RTCEngine(){
         code: code
       };
       if (isrelay){
-        console.log('relaying',message);
+        //console.log('relaying',message);
         socket.emit('byteChar', message);
       } else {
         for(var i = 0; i < peers.length; i++){
@@ -107,7 +107,7 @@ function RTCEngine(){
   function createPeers(users, callback) {
 	  var pid = users.shift();
     callback('create', {id:pid});
-	  var peer = new Peer(socket, pid, roomName);
+	  var peer = new Peer(socket, pid, roomName, iceConfig);
     peer.buildClient(localStream, handleByteChar, 'answer');
 	  peers.push(peer);
 	  if(users.length > 0){
@@ -119,7 +119,7 @@ function RTCEngine(){
   function handleCreateOffer(socket, callback) {
     if (typeof callback === 'undefined') callback = function(){};
     socket.on('createOffer', function(message){
-	    var peer = new Peer(socket, message.id, roomName);
+	    var peer = new Peer(socket, message.id, roomName, iceConfig);
 	    peer.buildClient(localStream, handleByteChar, 'offer');
 	    peers.push(peer);
       callback('create', {id:message.id});
@@ -274,7 +274,15 @@ function RTCEngine(){
     return url;
   }
 
+  function updateIce(ice){
+    if (ice.length > 0){
+      //console.log('updating ice from post');
+      iceConfig = ice;
+    }
+  }
+
   return {
+    updateIce:updateIce,
     connect:connect, 
     join:startMedia, 
     leave:stopMedia, 
