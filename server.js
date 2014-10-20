@@ -14,7 +14,7 @@ var router	        = express.Router();
 var mcu		          = require(path.join(__dirname, './lib/mcu.js'));
 var pub		          = path.join(__dirname, './app/public');
 var views	          = path.join(__dirname, './app/server/views');
-var port	          = process.env.PORT || 9990;
+var port	          = process.env.PORT || 9999;
 
 function compile(str, path){
   return stylus(str)
