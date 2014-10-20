@@ -42,15 +42,15 @@ We have to keep in mind the hardware limitations for handling encoding and decod
 
 **Build and Development Tools**
 
-# Browserify
-# Gulp
-# Uglify
-# Karma
-# Jasmine
-# PhantomJS
-# PioneerJS
-# Nodemon
-# JSHint
+* Browserify
+* Gulp
+* Uglify
+* Karma
+* Jasmine
+* PhantomJS
+* PioneerJS
+* Nodemon
+* JSHint
 
 ---
 
