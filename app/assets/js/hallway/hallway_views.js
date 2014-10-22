@@ -1,4 +1,3 @@
-
 function HallwayViews(){
 
   // Enable data message passing through websocket
