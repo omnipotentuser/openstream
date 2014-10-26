@@ -731,13 +731,8 @@ function RTCEngine(){
             console.log('Message received: PC not ready.');
           } else {
             callback('readbytechar', message);
-<<<<<<< HEAD
-            console.log('handleReceiveCode', message.code);
-          }
-=======
             //console.log('handleReceiveCode', message.code);
-          };
->>>>>>> master
+          }
           return {};
         }
 	    }
