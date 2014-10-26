@@ -1,3 +1,4 @@
+/* globals ModularViews:true */
 function Modular(){
 	console.log('modular ready');
 	var modularViews = new ModularViews();
@@ -10,4 +11,4 @@ function Modular(){
     }
     destroyCallback(next);
   };
-};
+}

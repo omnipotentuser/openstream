@@ -110,4 +110,4 @@ function LobbyViews(cb){
   };
 
   return {pages: pages};
-};
+}

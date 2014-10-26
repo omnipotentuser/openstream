@@ -1,20 +1,35 @@
 var gulp = require('gulp');
 var nib = require('nib');
 var stylus = require('gulp-stylus');
+var jade = require('gulp-jade');
 var watch = require('gulp-watch');
 var rename = require('gulp-rename');
 var jshint = require('gulp-jshint');
 var concat = require('gulp-concat');
 var uglify = require('gulp-uglify');
-var nodemon = require('gulp-nodemon');
+var livereload = require('gulp-livereload');
+
+var HTML_SRC = 'app/server/views/**/*.jade';
+var HTML_DEST = 'app/server/views/';
 
 var CSS_ASSETS = 'app/assets/css/*.styl';
-var CSS_SRC = 'app/assets/css/style.styl';
+var CSS_SRC = 'app/assets/css/openstream.styl';
 var CSS_DEST = 'app/public/css';
 
 var JS_SRC = 'app/assets/js/**/*.js';
 var JS_DEST = 'app/public/js';
 
+var CSS_PUB = 'app/public/css/openstream.css';
+var JS_PUB = 'app/public/js/openstream.min.js';
+var HTML_PUB = 'app/server/views/index.html';
+
+
+gulp.task('html', function(){
+  return gulp.src(HTML_SRC)
+    .pipe(jade())
+    //.pipe(rename('openstream.html')
+    .pipe(gulp.dest(HTML_DEST));
+});
 gulp.task('css', function(){
   return gulp.src(CSS_SRC)
     .pipe(stylus({use:nib(), compress: true}))
@@ -36,17 +51,12 @@ gulp.task('lint', function(){
 gulp.task('watch', function(){
   gulp.watch(CSS_ASSETS, ['css']);
   gulp.watch(JS_SRC, ['lint', 'js']);
+  gulp.watch(HTML_SRC, ['html']);
+  gulp.watch(HTML_PUB).on('change', livereload.changed);
+  gulp.watch(CSS_PUB).on('change', livereload.changed);
+  gulp.wathch(JS_PUB).on('change', livereload.changed);
 });
-gulp.task('daemon', function(){
-  nodemon({
-    script: 'server.js',
-    ext: 'js',
-    env: {'NODE_ENV':'development'}
-  })
-    .on('start', ['watch'])
-    .on('change', ['watch'])
-    .on('restart', function(){
-      console.log('restarted!');
-    });
+gulp.task('livereload', function(){
+  livereload.listen();
 });
-gulp.task('default', ['daemon']);
+gulp.task('default', ['livereload', 'lint', 'js', 'css', 'html', 'watch']);
