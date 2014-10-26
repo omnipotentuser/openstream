@@ -1,3 +1,4 @@
+/* globals createIceServer:true, RTCIceCandidate:true, RTCPeerConnection:true, RTCSessionDescription:true */
 
 function logError(error) {
   console.log('error: ' + error.name);
@@ -146,11 +147,11 @@ function Peer(p_socket, p_id, p_roomName, iceConfig) {
 	    pc.addIceCandidate(new RTCIceCandidate(p_candidate));
     } else {
 	    console.log('No peer candidate instance');
-    };
+    }
   };
 
   var localDescCreated = function(desc){
-    if(pc.signalingState == 'closed')
+    if(pc.signalingState === 'closed')
 	    return;
     pc.setLocalDescription(desc, function() {
 	    var message = {
@@ -184,7 +185,7 @@ function Peer(p_socket, p_id, p_roomName, iceConfig) {
   this.setRemoteDescription = function (p_remote_sdp) {
 		console.log('setRemoteDescription signalingState ' + pc.signalingState);
 		pc.setRemoteDescription(new RTCSessionDescription(p_remote_sdp), function () {
-      if(pc.remoteDescription.type == 'offer') {
+      if(pc.remoteDescription.type === 'offer') {
         console.log('createAnswer to remote sdp offer');
         pc.createAnswer(localDescCreated, logError);
       }
@@ -192,10 +193,10 @@ function Peer(p_socket, p_id, p_roomName, iceConfig) {
   };
 
   this.sendData = function(byteChar){
-    if (dc && dc.readyState.toLowerCase() == 'open'){
+    if (dc && dc.readyState.toLowerCase() === 'open'){
       dc.send(byteChar);
     } else {
       console.log('DataChannel not ready');
     }
   };
-};
+}

@@ -1,3 +1,5 @@
+/* globals Lobby:true, Hallway:true, Lavatory:true, Conference: true, Lounge:true, Stage:true, Modular:true */
+
 $(document).ready(function(){
 
   var currentApp = null,
@@ -87,7 +89,7 @@ $(document).ready(function(){
       default:
         lobby.lobby();
         break;
-    };
+    }
   };
 
   $(window).bind('hashchange', updatePage).trigger('hashchange');

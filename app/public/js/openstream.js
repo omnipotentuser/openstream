@@ -1,3 +1,5 @@
+/* globals Lobby:true, Hallway:true, Lavatory:true, Conference: true, Lounge:true, Stage:true, Modular:true */
+
 $(document).ready(function(){
 
   var currentApp = null,
@@ -87,7 +89,7 @@ $(document).ready(function(){
       default:
         lobby.lobby();
         break;
-    };
+    }
   };
 
   $(window).bind('hashchange', updatePage).trigger('hashchange');
@@ -110,6 +112,8 @@ $(document).ready(function(){
 });
 
 
+/* globals ConferenceViews:true */
+
 function Conference(){
 	console.log('conference ready');
 	var conferenceViews = new ConferenceViews();
@@ -123,13 +127,15 @@ function Conference(){
     // TODO move destroyCallback to the last remaining callback in this call
     destroyCallback(next);
   };
-};
+}
 
 
 function ConferenceViews(){
   // todo build classroom model
 
-};
+}
+
+/* jshint ignore:start */
 
 var RTCPeerConnection = null;
 var getUserMedia = null;
@@ -286,6 +292,9 @@ if (navigator.mozGetUserMedia) {
   console.log("Browser does not appear to be WebRTC-capable");
 }
 
+/* jshint ignore:end */
+
+/* globals createIceServer:true, RTCIceCandidate:true, RTCPeerConnection:true, RTCSessionDescription:true */
 
 function logError(error) {
   console.log('error: ' + error.name);
@@ -434,11 +443,11 @@ function Peer(p_socket, p_id, p_roomName, iceConfig) {
 	    pc.addIceCandidate(new RTCIceCandidate(p_candidate));
     } else {
 	    console.log('No peer candidate instance');
-    };
+    }
   };
 
   var localDescCreated = function(desc){
-    if(pc.signalingState == 'closed')
+    if(pc.signalingState === 'closed')
 	    return;
     pc.setLocalDescription(desc, function() {
 	    var message = {
@@ -472,7 +481,7 @@ function Peer(p_socket, p_id, p_roomName, iceConfig) {
   this.setRemoteDescription = function (p_remote_sdp) {
 		console.log('setRemoteDescription signalingState ' + pc.signalingState);
 		pc.setRemoteDescription(new RTCSessionDescription(p_remote_sdp), function () {
-      if(pc.remoteDescription.type == 'offer') {
+      if(pc.remoteDescription.type === 'offer') {
         console.log('createAnswer to remote sdp offer');
         pc.createAnswer(localDescCreated, logError);
       }
@@ -480,16 +489,19 @@ function Peer(p_socket, p_id, p_roomName, iceConfig) {
   };
 
   this.sendData = function(byteChar){
-    if (dc && dc.readyState.toLowerCase() == 'open'){
+    if (dc && dc.readyState.toLowerCase() === 'open'){
       dc.send(byteChar);
     } else {
       console.log('DataChannel not ready');
     }
   };
-};
+}
+
+/* globals io:true, Peer:true, getUserMedia:true, logError:true, */
 
 function RTCEngine(){
   var peers = [],
+      peer = null,
       socket = null,
       roomName = null,
       localStream = null,
@@ -518,7 +530,7 @@ function RTCEngine(){
         video.attr('src', window.URL.createObjectURL(localStream));
         localStream.onloadedmetadata = function(e){
           console.log('onloadedmetadata called, properties:');
-          for(prop in e){
+          for(var prop in e){
             console.log(prop + ' in ' + e[prop]);
           }
         }
@@ -527,7 +539,7 @@ function RTCEngine(){
       },
       logError
     );
-  };
+  }
 
   function stopMedia(){
     if (localStream){
@@ -540,7 +552,7 @@ function RTCEngine(){
     if(socket){
       socket.emit('exit');
     }
-  };
+  }
 
   function sendChar(code, isrelay){
     if (roomName){
@@ -557,7 +569,7 @@ function RTCEngine(){
         }
       }
     }
-  };
+  }
 
   function sendString(word, isrelay){
     if (roomName){
@@ -573,7 +585,7 @@ function RTCEngine(){
         }
       }
     }
-  };
+  }
 
   function handleJoinRoom(socket, callback) {
     if (typeof callback === 'undefined') callback = function(){};
@@ -582,7 +594,7 @@ function RTCEngine(){
       console.log('localId: ' + localId);
       callback('id', {id:localId});
     });
-  };
+  }
 
   function handleCreatePeers(socket,callback) {
     if (typeof callback === 'undefined') callback = function(){};
@@ -620,15 +632,15 @@ function RTCEngine(){
   function handleIceCandidate(socket) {
     socket.on('candidate', function(message) {
 	    for(var i = 0; i < peers.length; i++){
-        if(peers[i].getid() == message.from_id) {
+        if(peers[i].getid() === message.from_id) {
           if(!peers[i].hasPC()){
             console.log('ICE Candidate received: PC not ready. Building.');
             peers[i].buildClient(localStream, handleByteChar, 'answer');
-          };
+          }
           //console.log('Remote ICE candidate',message.candidate.candidate);
           peers[i].addIceCandidate(message.candidate);
-        };
-	    };
+        }
+	    }
     });
   }
 
@@ -636,14 +648,14 @@ function RTCEngine(){
     socket.on('sdp', function (message) {
 	    console.log('sdp offer received');
 	    for(var i = 0; i < peers.length; i++) {
-        if(peers[i].getid() == message.from_id){
+        if(peers[i].getid() === message.from_id){
           if(!peers[i].hasPC()){
             console.log('SDP received: PC not ready. Building.');
             peers[i].buildClient(localStream, handleByteChar, 'answer');
-          };
+          }
           peers[i].setRemoteDescription(message.sdp);
         }
-	    };
+	    }
     });
   }
 
@@ -657,9 +669,9 @@ function RTCEngine(){
             peers.splice(i, 1);
             callback('peerDisconnect', {id:from_id});
             return;
-          };
+          }
         }
-      };
+      }
     });
   }
 
@@ -703,10 +715,10 @@ function RTCEngine(){
           console.log('Message received: PC not ready.');
         } else {
           appCB('readbytechar', message);
-        };
+        }
         return {};
       }
-    };
+    }
   }
 
   // WebSocket version of sending char code
@@ -719,11 +731,16 @@ function RTCEngine(){
             console.log('Message received: PC not ready.');
           } else {
             callback('readbytechar', message);
+<<<<<<< HEAD
             console.log('handleReceiveCode', message.code);
+          }
+=======
+            //console.log('handleReceiveCode', message.code);
           };
+>>>>>>> master
           return {};
         }
-	    };
+	    }
     });
   }
 
@@ -779,7 +796,9 @@ function RTCEngine(){
     sendChar:sendChar,
     sendString:sendString
   };
-};
+}
+
+/* globals RTCEngine:true, HallwayViews:true */
 
 function Hallway(){
   var rtc_engine = new RTCEngine();
@@ -903,10 +922,10 @@ function Hallway(){
   (function queryUrl(){
     var hashurl = window.location.hash;
     var hashpos = hashurl.lastIndexOf('#');
-    if (hashpos != -1){
+    if (hashpos !== -1){
       hashurl = hashurl.substring(hashpos + 1);
     }
-    if (hashpos == -1){
+    if (hashpos === -1){
       roomName = '';
     } else if (hashurl.length > 0){
       roomName = hashurl;
@@ -972,12 +991,12 @@ function HallwayViews(){
       var code = (e.keyCode ? e.keyCode : e.which);
       //console.log(e.type, e.which, e.keyCode);
 
-      if( code == '37' || code == '38' || code == '39' || code == '40' ){
+      if( code === '37' || code === '38' || code === '39' || code === '40' ){
         e.preventDefault();
         return;
       }
 
-      if( code  != 16 ) {// ignore shift
+      if( code  !== 16 ) {// ignore shift
         if( code >= 65 && code <= 90 ) {
           if(!e.shiftKey){
             code = code + 32;
@@ -993,7 +1012,7 @@ function HallwayViews(){
           sc(code, isrelay);
         } else {
           console.log('keycode not accepted');
-        };
+        }
       }
     })
     $('.hallway-btn-clip').on('click', function(event){
@@ -1061,7 +1080,7 @@ function HallwayViews(){
     var $ta = $('#'+pid+'-ta');
     if (bytechar.length > 3){
       $ta.val( $ta.val() + '\n' + bytechar + '\n');
-    } else if (bytechar == '8'){
+    } else if (bytechar === '8'){
       $ta.val( $ta.val().slice(0,-1)); 
     } else{
       var ch = String.fromCharCode(bytechar);
@@ -1075,8 +1094,9 @@ function HallwayViews(){
   }
 
   initialize();
-};
+}
 
+/* globals LavatoryViews:true */
 function Lavatory(){
 	console.log('lavatory ready');
 	var lavatoryViews = new LavatoryViews();
@@ -1091,9 +1111,9 @@ function Lavatory(){
     }
     destroyCallback(next);
   }
-};
+}
 
-
+/* globals echotest:true, Janus:true, attachMediaStream:true, webrtcDetectedBrowser:true,  */
 function LavatoryViews(){
   var $bitratelist = $('#lavatory-dropdown-bitrate a');
   var $bitratedropdown = $('.lavatory-dropdown-menu');
@@ -1248,7 +1268,7 @@ function LavatoryViews(){
                     $('#lavatory-video-remote').append('<video class="rounded centered" id="lavatory-peervideo" width=320 height=240 autoplay/>');
                     // Detect resolution
                     $("#lavatory-peervideo").bind("loadedmetadata", function () {
-                      if(webrtcDetectedBrowser == "chrome") {
+                      if(webrtcDetectedBrowser === "chrome") {
                         var width = this.videoWidth;
                         var height = this.videoHeight;
                         $('#lavatory-label-resolution').text(width+' x '+height);
@@ -1311,7 +1331,7 @@ function LavatoryViews(){
                     echotest.send({"message": { "bitrate": bitrate }});
                     return false;
                   });
-                  if(webrtcDetectedBrowser == "chrome") {
+                  if(webrtcDetectedBrowser === "chrome") {
                     // Only Chrome supports the way we interrogate getStats for the bitrate right now
                     $('#lavatory-label-curbitrate').removeClass('hide').show();
                     bitrateTimer = setInterval(function() {
@@ -1355,7 +1375,7 @@ function LavatoryViews(){
 
 function checkEnter(event) {
   var theCode = event.keyCode ? event.keyCode : event.which ? event.which : event.charCode;
-  if(theCode == 13) {
+  if(theCode === 13) {
     sendData();
     return false;
   } else {
@@ -1376,11 +1396,12 @@ function sendData() {
   });
 }
 
+/* globals LobbyViews:true */
 function Lobby(cb){
 	console.log('lobby ready');
 	var lobbyViews = new LobbyViews(cb);
   return lobbyViews.pages;
-};
+}
 
 
 function LobbyViews(cb){
@@ -1401,7 +1422,6 @@ function LobbyViews(cb){
       $body.css('left',200);
       $body.css('right',200);
       $banner.css('right', -150);
-      clean = true;
     }
   }, true)
   $(document).ready(function(){
@@ -1558,6 +1578,7 @@ function StageViews(){
 }
 
 /* jshint ignore:start */
+
 // List of sessions
 Janus.sessions = {};
 

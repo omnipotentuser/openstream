@@ -1,4 +1,4 @@
-
+/* globals echotest:true, Janus:true, attachMediaStream:true, webrtcDetectedBrowser:true,  */
 function LavatoryViews(){
   var $bitratelist = $('#lavatory-dropdown-bitrate a');
   var $bitratedropdown = $('.lavatory-dropdown-menu');
@@ -153,7 +153,7 @@ function LavatoryViews(){
                     $('#lavatory-video-remote').append('<video class="rounded centered" id="lavatory-peervideo" width=320 height=240 autoplay/>');
                     // Detect resolution
                     $("#lavatory-peervideo").bind("loadedmetadata", function () {
-                      if(webrtcDetectedBrowser == "chrome") {
+                      if(webrtcDetectedBrowser === "chrome") {
                         var width = this.videoWidth;
                         var height = this.videoHeight;
                         $('#lavatory-label-resolution').text(width+' x '+height);
@@ -216,7 +216,7 @@ function LavatoryViews(){
                     echotest.send({"message": { "bitrate": bitrate }});
                     return false;
                   });
-                  if(webrtcDetectedBrowser == "chrome") {
+                  if(webrtcDetectedBrowser === "chrome") {
                     // Only Chrome supports the way we interrogate getStats for the bitrate right now
                     $('#lavatory-label-curbitrate').removeClass('hide').show();
                     bitrateTimer = setInterval(function() {
@@ -260,7 +260,7 @@ function LavatoryViews(){
 
 function checkEnter(event) {
   var theCode = event.keyCode ? event.keyCode : event.which ? event.which : event.charCode;
-  if(theCode == 13) {
+  if(theCode === 13) {
     sendData();
     return false;
   } else {

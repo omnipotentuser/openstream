@@ -1,4 +1,5 @@
 /* jshint ignore:start */
+
 // List of sessions
 Janus.sessions = {};
 
