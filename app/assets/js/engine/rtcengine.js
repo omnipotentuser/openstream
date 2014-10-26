@@ -233,7 +233,7 @@ function RTCEngine(){
           } else {
             callback('readbytechar', message);
             //console.log('handleReceiveCode', message.code);
-          };
+          }
           return {};
         }
 	    }
