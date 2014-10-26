@@ -1494,8 +1494,9 @@ function LobbyViews(cb){
   };
 
   return {pages: pages};
-};
+}
 
+/* globals LoungeViews:true */
 function Lounge(){
 	console.log('lounge ready');
 	var loungeViews = new LoungeViews();
@@ -1508,13 +1509,13 @@ function Lounge(){
     }
     destroyCallback(next);
   }
-};
-
+}
 
 function LoungeViews(){
   // todo build public chatrooms!
-};
+}
 
+/* globals ModularViews:true */
 function Modular(){
 	console.log('modular ready');
 	var modularViews = new ModularViews();
@@ -1527,13 +1528,14 @@ function Modular(){
     }
     destroyCallback(next);
   };
-};
+}
 
 
 function ModularViews(){
   // todo build a gateway hub!
-};
+}
 
+/* global StageViews:true */
 function Stage(){
 	console.log('stage ready');
 	var stageViews = new StageViews();
@@ -1546,14 +1548,16 @@ function Stage(){
     }
     destroyCallback(next);
   };
-};
+}
 
+/* exported StageViews */
 
 function StageViews(){
   // todo build a streaming star topology app!
 
-};
+}
 
+/* jshint ignore:start */
 // List of sessions
 Janus.sessions = {};
 
@@ -2949,3 +2953,4 @@ function Janus(gatewayCallbacks) {
     return (trickle === true);
   }
 };
+/* jshint ignore:end */

@@ -1,3 +1,4 @@
+/* jshint ignore:start */
 // List of sessions
 Janus.sessions = {};
 
@@ -1393,3 +1394,4 @@ function Janus(gatewayCallbacks) {
     return (trickle === true);
   }
 };
+/* jshint ignore:end */

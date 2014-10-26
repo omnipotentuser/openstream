@@ -1,3 +1,4 @@
+/* global StageViews:true */
 function Stage(){
 	console.log('stage ready');
 	var stageViews = new StageViews();
@@ -10,4 +11,4 @@ function Stage(){
     }
     destroyCallback(next);
   };
-};
+}

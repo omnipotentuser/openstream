@@ -1,3 +1,4 @@
+/* globals LoungeViews:true */
 function Lounge(){
 	console.log('lounge ready');
 	var loungeViews = new LoungeViews();
@@ -10,4 +11,4 @@ function Lounge(){
     }
     destroyCallback(next);
   }
-};
+}
