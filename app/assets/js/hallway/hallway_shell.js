@@ -1,3 +1,5 @@
+/* globals RTCEngine:true, HallwayViews:true */
+
 function Hallway(){
   var rtc_engine = new RTCEngine();
 	var hallwayViews = new HallwayViews();
@@ -120,10 +122,10 @@ function Hallway(){
   (function queryUrl(){
     var hashurl = window.location.hash;
     var hashpos = hashurl.lastIndexOf('#');
-    if (hashpos != -1){
+    if (hashpos !== -1){
       hashurl = hashurl.substring(hashpos + 1);
     }
-    if (hashpos == -1){
+    if (hashpos === -1){
       roomName = '';
     } else if (hashurl.length > 0){
       roomName = hashurl;

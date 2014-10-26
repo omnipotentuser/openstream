@@ -1,3 +1,5 @@
+/* globals ConferenceViews:true */
+
 function Conference(){
 	console.log('conference ready');
 	var conferenceViews = new ConferenceViews();
@@ -11,4 +13,4 @@ function Conference(){
     // TODO move destroyCallback to the last remaining callback in this call
     destroyCallback(next);
   };
-};
+}

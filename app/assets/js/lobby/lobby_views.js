@@ -17,7 +17,6 @@ function LobbyViews(cb){
       $body.css('left',200);
       $body.css('right',200);
       $banner.css('right', -150);
-      clean = true;
     }
   }, true)
   $(document).ready(function(){

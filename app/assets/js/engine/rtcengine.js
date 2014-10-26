@@ -1,5 +1,8 @@
+/* globals io:true, Peer:true, getUserMedia:true, logError:true, */
+
 function RTCEngine(){
   var peers = [],
+      peer = null,
       socket = null,
       roomName = null,
       localStream = null,
@@ -28,7 +31,7 @@ function RTCEngine(){
         video.attr('src', window.URL.createObjectURL(localStream));
         localStream.onloadedmetadata = function(e){
           console.log('onloadedmetadata called, properties:');
-          for(prop in e){
+          for(var prop in e){
             console.log(prop + ' in ' + e[prop]);
           }
         }
@@ -37,7 +40,7 @@ function RTCEngine(){
       },
       logError
     );
-  };
+  }
 
   function stopMedia(){
     if (localStream){
@@ -50,7 +53,7 @@ function RTCEngine(){
     if(socket){
       socket.emit('exit');
     }
-  };
+  }
 
   function sendChar(code, isrelay){
     if (roomName){
@@ -67,7 +70,7 @@ function RTCEngine(){
         }
       }
     }
-  };
+  }
 
   function sendString(word, isrelay){
     if (roomName){
@@ -83,7 +86,7 @@ function RTCEngine(){
         }
       }
     }
-  };
+  }
 
   function handleJoinRoom(socket, callback) {
     if (typeof callback === 'undefined') callback = function(){};
@@ -92,7 +95,7 @@ function RTCEngine(){
       console.log('localId: ' + localId);
       callback('id', {id:localId});
     });
-  };
+  }
 
   function handleCreatePeers(socket,callback) {
     if (typeof callback === 'undefined') callback = function(){};
@@ -130,15 +133,15 @@ function RTCEngine(){
   function handleIceCandidate(socket) {
     socket.on('candidate', function(message) {
 	    for(var i = 0; i < peers.length; i++){
-        if(peers[i].getid() == message.from_id) {
+        if(peers[i].getid() === message.from_id) {
           if(!peers[i].hasPC()){
             console.log('ICE Candidate received: PC not ready. Building.');
             peers[i].buildClient(localStream, handleByteChar, 'answer');
-          };
+          }
           //console.log('Remote ICE candidate',message.candidate.candidate);
           peers[i].addIceCandidate(message.candidate);
-        };
-	    };
+        }
+	    }
     });
   }
 
@@ -146,14 +149,14 @@ function RTCEngine(){
     socket.on('sdp', function (message) {
 	    console.log('sdp offer received');
 	    for(var i = 0; i < peers.length; i++) {
-        if(peers[i].getid() == message.from_id){
+        if(peers[i].getid() === message.from_id){
           if(!peers[i].hasPC()){
             console.log('SDP received: PC not ready. Building.');
             peers[i].buildClient(localStream, handleByteChar, 'answer');
-          };
+          }
           peers[i].setRemoteDescription(message.sdp);
         }
-	    };
+	    }
     });
   }
 
@@ -167,9 +170,9 @@ function RTCEngine(){
             peers.splice(i, 1);
             callback('peerDisconnect', {id:from_id});
             return;
-          };
+          }
         }
-      };
+      }
     });
   }
 
@@ -213,10 +216,10 @@ function RTCEngine(){
           console.log('Message received: PC not ready.');
         } else {
           appCB('readbytechar', message);
-        };
+        }
         return {};
       }
-    };
+    }
   }
 
   // WebSocket version of sending char code
@@ -230,10 +233,10 @@ function RTCEngine(){
           } else {
             callback('readbytechar', message);
             console.log('handleReceiveCode', message.code);
-          };
+          }
           return {};
         }
-	    };
+	    }
     });
   }
 
@@ -289,4 +292,4 @@ function RTCEngine(){
     sendChar:sendChar,
     sendString:sendString
   };
-};
+}

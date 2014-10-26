@@ -50,12 +50,12 @@ function HallwayViews(){
       var code = (e.keyCode ? e.keyCode : e.which);
       //console.log(e.type, e.which, e.keyCode);
 
-      if( code == '37' || code == '38' || code == '39' || code == '40' ){
+      if( code === '37' || code === '38' || code === '39' || code === '40' ){
         e.preventDefault();
         return;
       }
 
-      if( code  != 16 ) {// ignore shift
+      if( code  !== 16 ) {// ignore shift
         if( code >= 65 && code <= 90 ) {
           if(!e.shiftKey){
             code = code + 32;
@@ -71,7 +71,7 @@ function HallwayViews(){
           sc(code, isrelay);
         } else {
           console.log('keycode not accepted');
-        };
+        }
       }
     })
     $('.hallway-btn-clip').on('click', function(event){
@@ -139,7 +139,7 @@ function HallwayViews(){
     var $ta = $('#'+pid+'-ta');
     if (bytechar.length > 3){
       $ta.val( $ta.val() + '\n' + bytechar + '\n');
-    } else if (bytechar == '8'){
+    } else if (bytechar === '8'){
       $ta.val( $ta.val().slice(0,-1)); 
     } else{
       var ch = String.fromCharCode(bytechar);
@@ -153,4 +153,4 @@ function HallwayViews(){
   }
 
   initialize();
-};
+}
