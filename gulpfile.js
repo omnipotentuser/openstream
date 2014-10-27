@@ -13,13 +13,13 @@ var HTML_SRC = 'app/server/views/**/*.jade';
 var HTML_DEST = 'app/server/views/';
 
 var CSS_ASSETS = 'app/assets/css/*.styl';
-var CSS_SRC = 'app/assets/css/openstream.styl';
+var CSS_SRC = 'app/assets/css/style.styl';
 var CSS_DEST = 'app/public/css';
 
 var JS_SRC = 'app/assets/js/**/*.js';
 var JS_DEST = 'app/public/js';
 
-var CSS_PUB = 'app/public/css/openstream.css';
+var CSS_PUB = 'app/public/css/style.css';
 var JS_PUB = 'app/public/js/openstream.min.js';
 var HTML_PUB = 'app/server/views/index.html';
 
@@ -51,12 +51,11 @@ gulp.task('lint', function(){
 gulp.task('watch', function(){
   gulp.watch(CSS_ASSETS, ['css']);
   gulp.watch(JS_SRC, ['lint', 'js']);
-  gulp.watch(HTML_SRC, ['html']);
-  gulp.watch(HTML_PUB).on('change', livereload.changed);
+  gulp.watch(HTML_SRC).on('change', livereload.changed);
   gulp.watch(CSS_PUB).on('change', livereload.changed);
-  gulp.wathch(JS_PUB).on('change', livereload.changed);
+  gulp.watch(JS_PUB).on('change', livereload.changed);
 });
 gulp.task('livereload', function(){
   livereload.listen();
 });
-gulp.task('default', ['livereload', 'lint', 'js', 'css', 'html', 'watch']);
+gulp.task('default', ['livereload', 'lint', 'js', 'css', 'watch']);

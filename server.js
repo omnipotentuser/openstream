@@ -5,6 +5,7 @@ var favicon	        = require('static-favicon');
 var methodOverride  = require('method-override');
 var cookieParser    = require('cookie-parser');
 var errorHandler    = require('errorhandler');
+var livereload      = require('connect-livereload');
 var morgan	        = require('morgan');
 var io              = require('socket.io');
 var app		          = express();
@@ -25,12 +26,13 @@ if (env === 'development'){
 };
 
 app.set('port', port);
-//app.set('views', views);
-//app.set('view engine', 'jade');
+app.set('views', views);
+app.set('view engine', 'jade');
 app.set(favicon());
 app.use(bodyParser(path.join(__dirname,'app/assets/favicon.ico')));
 app.use(cookieParser());
 app.use(methodOverride());
+app.use(livereload());
 app.use(express.static(pub));
 
 router.use(function(req, res, next){
