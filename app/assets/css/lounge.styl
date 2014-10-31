@@ -36,32 +36,34 @@ z3()
     height 230px
     background-color rgba(230,235,240,0.8)
     margin 100px auto
-    vertical-align middle
-    width 50%
-  .lounge-form
-    padding 2px
-    margin 50px
-    width auto
-    height 45px
-    background-color rgba(255,255,255,0.5)
-  .lounge-form-comps
+  .lounge-form-input
     height 35px
-    display inline-block
-    vertical-align middle
     font-size 24px
-    margin 2px
-  #lounge-input-roomname
-    width 70%
-  #lounge-button-roomname
-    width 20%
-  #lounge-modal-confirm
-    margin-left 15px
-    margin-right 15px
+    cursor pointer
+  .lounge-form-btn
+    height 35px
+    font-size 18px
+    cursor pointer
+    background-color rgba(100,100,100,.4)
+    border 0px solid
+    width 100px
+    &:hover
+      background-color rgba(100,100,100,.3)
+    &:last-of-type
+      margin-left 30px
+  #lounge-modal-create
+    height 200px
+    width 370px
+    margin 15px 15px
+    top 15px
+    vertical-align center
     text-align center
-    background-color white
-    border solid 1px black
-    display none
+    position relative
+    background-color rgba(50,50,50,.1)
+    display block
   .lounge-boxed
+    position relative
+    top 10px
     margin 10px 15px
     text-align center
   #lounge-container-session
