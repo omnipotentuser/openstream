@@ -6,19 +6,19 @@
         ul#lounge-list-items
     .lounge-inline-block
       #lounge-container-setup
-        #lounge-modal-create
-          .lounge-boxed
-            input#lounge-input-roomname.lounge-form-input(type='text', placeholder='room name')
-          .lounge-boxed
+        #lounge-modal-create.show
+          .lounge-boxed.show
+            input#lounge-input-roomname.in-l(type='text', placeholder='room name')
+          .lounge-boxed.show
             label#lounge-permission-label(title='Allows room to be private') Lock Access?
             input.lounge-permission-radio(type='radio', name='permission', value='Yes')
             | Yes
             input.lounge-permission-radio(type='radio', name='permission', value='No', checked)
             | No
-          .lounge-boxed
-            input#lounge-room-pw.lounge-form-input(type='text', placeholder='lock password')
-          .lounge-boxed
+          .lounge-boxed.hide
+            input#lounge-room-pw.in-m(type='password', placeholder='lock password')
+          .lounge-boxed.show
              button#lounge-btn-pw-accept.btn-m Create
              button#lounge-btn-pw-reject.btn-m.last-l Cancel
-      #lounge-container-session
+      #lounge-container-session.hide
         #lounge-video-container
