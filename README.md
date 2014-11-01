@@ -16,6 +16,20 @@ openstream
 
 Generic streaming with a MCU to control the connection type and data exchange using WebRTC.
 
+Follows the Single Page Web Application philosophy for building a full stack javascript to javascript front to back platform. In this platform, Videophone is used as the system that takes this philosophy into a good scenario showing that a full enterprise ready application is possible with pure JavaScript custom framework.
+
+I only chose to go pure JavaScript with custom framework my own way to demonstrate the very possibility of building an entire platform without using a popular framework WITHOUT TOO MUCH EFFORT. It takes discipline and organized structure of representing data before proceeding doing things yourself. The reasoning behind customizing is to have complete control of my MVC and easily swap out libraries for handling the smaller pieces.
+
+####Styling:
+---
+Each component shall be broken down into its own style file. For example, the button component shall be written in button.styl (rendered to button.css) and all view applications will use those style files to indicate the size and state such as show/hide and colors to represent meanings.
+
+####Views Logic:
+All DOM manipulation shall be written in the view.js where it belongs to each application in the platform. For example, in the Hallway app, assets/js/hallway/hallway_views.js, we place DOM logic using jquery to manipulate DOM.
+
+####Controller Logic:
+All event calls that handle data goes through the shell. I name it shell because it represents the layer that comes above view and model layer. Each of the MVC components is its own shell.
+
 ###Working apps:
 
 ---
