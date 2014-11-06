@@ -23,77 +23,77 @@ function LobbyViews(cb){
     window.dispatchEvent(new Event('resize'));
   });
 
-  var lobby = $('#lobby-banner'),
-      lavatory = $('#lavatory-link'),
-      conference = $('#conference-link'),
-      lounge = $('#lounge-link'),
-      stage = $('#stage-link'),
-      hallway = $('#hallway-link'),
-      modular = $('#modular-link'),
-      lobbyMain = $('#lobby-main'),
-      currentPage = lobbyMain;
+  var $lobby_banner = $('#lobby-banner'),
+      $lavatory = $('#lavatory-link'),
+      $conference = $('#conference-link'),
+      $lounge = $('#lounge-link'),
+      $stage = $('#stage-link'),
+      $hallway = $('#hallway-link'),
+      $modular = $('#modular-link'),
+      $lobbyPage = $('#lobby-main'),
+      currentPage = $lobbyPage;
 
   var lobbyPage = function(){
-    lobby.fadeOut();
+    $lobby_banner.fadeOut();
     currentPage.fadeOut( function(){
-      lobbyMain.fadeIn();
+      $lobbyPage.fadeIn();
     });
-    currentPage = lobbyMain;
+    currentPage = $lobbyPage;
     cb('lobby');
   };
 
   var conferencePage = function(){
     currentPage = $('#conference-main');
-    lobbyMain.fadeOut(function(){
+    $lobbyPage.fadeOut(function(){
       currentPage.fadeIn();
-      lobby.fadeIn();
+      $lobby_banner.fadeIn();
     });
     cb('conference');
   };
 
   var lavatoryPage = function(){
     currentPage = $('#lavatory-main');
-    lobbyMain.fadeOut(function(){
+    $lobbyPage.fadeOut(function(){
       currentPage.fadeIn();
-      lobby.fadeIn();
+      $lobby_banner.fadeIn();
     });
     cb('lavatory');
   };
 
   var loungePage = function(){
     currentPage = $('#lounge-main');
-    lobbyMain.fadeOut(function(){
+    $lobbyPage.fadeOut(function(){
       currentPage.fadeIn();
-      lobby.fadeIn();
+      $lobby_banner.fadeIn();
     });
     cb('lounge');
   };
 
   var stagePage = function(){
     currentPage = $('#stage-main');
-    lobbyMain.fadeOut(function(){
+    $lobbyPage.fadeOut(function(){
       currentPage.fadeIn();
-      lobby.fadeIn();
+      $lobby_banner.fadeIn();
     });
     cb('stage');
   };
 
   var modularPage = function(){
     currentPage = $('#modular-main');
-    lobbyMain.fadeOut(function(){
+    $lobbyPage.fadeOut(function(){
       currentPage.fadeIn();
-      lobby.fadeIn();
+      $lobby_banner.fadeIn();
     });
     cb('modular');
   };
 
   var hallwayPage = function(){
     currentPage = $('#hallway-main');
-    lobbyMain.fadeOut(function(){
+    $lobbyPage.fadeOut(function(){
       currentPage.fadeIn(function(){
         $('#roomnameinput').focus();
       });
-      lobby.fadeIn();
+      $lobby_banner.fadeIn();
     });
     cb('hallway');
   }

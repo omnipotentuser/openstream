@@ -9,14 +9,14 @@
         #lounge-modal-create
           .lounge-boxed.show
             input#lounge-input-roomname.in-l(type='text', placeholder='room name')
-          .lounge-boxed.show
-            label#lounge-permission-label(title='Allows room to be private') Lock Access?
+          .lounge-boxed.show(title='Privatize the room')
+            label#lounge-permission-label Lock Access?
             button.btn-xs.first-s Yes
             button.btn-xs.last-s.high No
-          .lounge-boxed
-            input#lounge-room-pw.in-m(type='password', placeholder='lock password', disabled)
           .lounge-boxed.show
-             button#lounge-btn-pw-accept.btn-m Create
-             button#lounge-btn-pw-reject.btn-m.last-l Cancel
+            input#lounge-input-pw.in-l(type='password', placeholder='lock password', disabled)
+          .lounge-boxed.show
+             button#lounge-btn-create.btn-m Create
+             button#lounge-btn-cancel.btn-m.last-l Cancel
       #lounge-container-session.hide
         #lounge-video-container
