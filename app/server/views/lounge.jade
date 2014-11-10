@@ -10,11 +10,10 @@
           .lounge-boxed.show
             input#lounge-input-roomname.in-l(type='text', placeholder='room name')
           .lounge-boxed.show(title='Privatize the room')
-            label#lounge-permission-label Lock Access?
-            button.btn-xs.first-s Yes
-            button.btn-xs.last-s.high No
-          .lounge-boxed.show
-            input#lounge-input-pw.in-l(type='password', placeholder='lock password', disabled)
+            input#lounge-ck-lock.in-ck-m(type='checkbox', value='lock', name'lock room')
+            |  Lock Access?
+          .lounge-boxed
+            input#lounge-input-pw.in-l.hide(type='password', placeholder='lock password', disabled)
           .lounge-boxed.show
              button#lounge-btn-create.btn-m Create
              button#lounge-btn-cancel.btn-m.last-l Cancel
