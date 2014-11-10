@@ -15,10 +15,19 @@ function LoungeViews(){
         $('#lounge-btn-create').trigger("click");
       }
     });
+    $('#lounge-ck-lock').bind('click', handleCreatePasswordCheck);
+  };
+
+  var handleCreatePasswordCheck = function(event){
+    if (event.target.checked){
+      $('#lounge-input-pw').fadeIn(200);
+    } else {
+      $('#lounge-input-pw').fadeOut(200);
+    }
   };
 
   this.setListeners = function(engine){
-    // todo set any event listeners to bind to at initialization of views
+    // todo set any RTC listeners to bind to at initialization of views
   };
 
   this.openMediaViews = function(){
@@ -54,6 +63,7 @@ function LoungeViews(){
 
   this.deleteAllMedia = function(){
     $('#video-container').empty(); 
+    $('#lounge-ck-lock').unbind('click', handleCreatePasswordCheck);
   }
 
   this.updateTitle = function(room){
@@ -61,4 +71,4 @@ function LoungeViews(){
   }
 
   initialize();
-};
+}

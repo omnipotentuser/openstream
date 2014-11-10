@@ -1,4 +1,4 @@
-/* globals LoungeViews:true */
+/* globals LoungeViews:true, RTCEngine:true */
 
 function Lounge(){
   var rtc_engine = new RTCEngine();
@@ -91,10 +91,10 @@ function Lounge(){
   (function queryUrl(){
     var hashurl = window.location.hash;
     var hashpos = hashurl.lastIndexOf('#');
-    if (hashpos != -1){
+    if (hashpos !== -1){
       hashurl = hashurl.substring(hashpos + 1);
     }
-    if (hashpos == -1){
+    if (hashpos === -1){
       roomName = '';
     } else if (hashurl.length > 0){
       roomName = hashurl;
