@@ -1616,7 +1616,7 @@ function Lounge(){
     }
     console.log('roomName',roomName);
     if (roomName !== ''){
-      joinRoomBtn.trigger('click');
+      $create.trigger('click');
     }
   })();
 
@@ -1629,7 +1629,7 @@ function LoungeViews(){
 
     $('<div/>', {id:'local-container', class:'media-layout'})
       .append('<video id=\"local-video\" autoplay controls muted>')
-      .appendTo('#video-container');
+      .appendTo('#lounge-video-container');
 
     var $input = $('#lounge-input-roomname');
     $input.focus();
@@ -1640,6 +1640,7 @@ function LoungeViews(){
       }
     });
     $('#lounge-ck-lock').bind('click', handleCreatePasswordCheck);
+    $('#lounge-btn-cancel').bind('click', handleCancelCreateRoom);
   };
 
   var handleCreatePasswordCheck = function(event){
@@ -1650,28 +1651,40 @@ function LoungeViews(){
     }
   };
 
+  var handleCancelCreateRoom = function(event){
+    console.log('closing create room modal');
+    $('#lounge-modal-create').removeClass('show').addClass('hide');
+  };
+
   this.setListeners = function(engine){
     // todo set any RTC listeners to bind to at initialization of views
   };
 
+  this.destroyListeners = function(engine){
+    // todo destroy any RTC listeners to bind to at initialization of views
+  };
+
   this.openMediaViews = function(){
-    $('#room-input').css('display','none');
-    $('#video-container').css('display','inline-block');
+    $('#lounge-modal-create').removeClass('show').addClass('hide');
+    //$('#lounge-video-container').removeClass('hide').addClass('show');
+    $('#lounge-video-container').fadeIn();
   };
 
   this.closeMediaViews = function(destroyCallback, next){
     $('#lounge-room-title').empty();
-    $('#video-container').fadeOut(function(){
-      this.deleteAllMedia();
+    $('#lounge-video-container').fadeOut(function(){
+      //$('#lounge-video-container').removeClass('show').addClass('hide');
+      $('#lounge-modal-create').removeClass('hide').addClass('show');
+      destroyCallback(next);
     });
-    destroyCallback(next);
+    this.deleteAllMedia();
   };
 
   this.appendPeerMedia = function(pid){
     console.log('appendPeerMedia', pid);
     $('<div/>', {class:'media-layout'})
       .append('<video id="'+pid+'" autoplay controls>')
-      .appendTo('#video-container');
+      .appendTo('#lounge-video-container');
     var $ml = $('.media-layout');
     var percent = (100 / $ml.length);
     $ml.css('width',percent+'%');
@@ -1686,8 +1699,9 @@ function LoungeViews(){
   }
 
   this.deleteAllMedia = function(){
-    $('#video-container').empty(); 
+    $('#lounge-video-container').empty(); 
     $('#lounge-ck-lock').unbind('click', handleCreatePasswordCheck);
+    $('#lounge-btn-cancel').unbind('click', handleCancelCreateRoom);
   }
 
   this.updateTitle = function(room){

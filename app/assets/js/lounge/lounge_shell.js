@@ -103,7 +103,7 @@ function Lounge(){
     }
     console.log('roomName',roomName);
     if (roomName !== ''){
-      joinRoomBtn.trigger('click');
+      $create.trigger('click');
     }
   })();
 
