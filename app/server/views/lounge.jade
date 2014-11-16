@@ -1,12 +1,12 @@
 #lounge-main
   h1 Lounge
-  .lounge-overlay
+  .lounge-body
     #lounge-container-list
       #lounge-list
         ul#lounge-list-items
-    .lounge-main.show-inline
-      #lounge-container-setup.show
-        #lounge-modal-create
+    .lounge-container-main.show-inline
+      #lounge-modal-create.show
+        #lounge-modal-inner
           .lounge-boxed.show
             input#lounge-input-roomname.in-l(type='text', placeholder='room name')
           .lounge-boxed.show(title='Privatize the room')
@@ -17,5 +17,4 @@
           .lounge-boxed.show
              button#lounge-btn-create.btn-m Create
              button#lounge-btn-cancel.btn-m.last-l Cancel
-      #lounge-container-session.hide
-        #lounge-video-container
+      #lounge-video-container.hide
