@@ -8,9 +8,12 @@ var errorHandler    = require('errorhandler');
 var livereload      = require('connect-livereload');
 var morgan	        = require('morgan');
 var io              = require('socket.io');
+var stylus          = require('stylus');
+var nib             = require('nib');
 var app		          = express();
 var router	        = express.Router();
 var mcu		          = require(path.join(__dirname, './lib/mcu.js'));
+var asset           = path.join(__dirname, './app/assets');
 var pub		          = path.join(__dirname, './app/public');
 var views	          = path.join(__dirname, './app/server/views');
 var port	          = process.env.PORT || 9999;
@@ -25,6 +28,12 @@ if (env === 'development'){
   console.log('production mode');
 };
 
+function compile(str, path){
+  return stylus(str)
+    .set('filename', path)
+    .set('compress', true)
+    .use(nib());
+}
 app.set('port', port);
 app.set('views', views);
 app.set('view engine', 'jade');
@@ -33,6 +42,12 @@ app.use(bodyParser(path.join(__dirname,'app/assets/favicon.ico')));
 app.use(cookieParser());
 app.use(methodOverride());
 app.use(livereload());
+app.use(stylus.middleware({
+  debug: true,
+  src: asset,
+  dest: pub,
+  compile: compile
+}));
 app.use(express.static(pub));
 
 router.use(function(req, res, next){
