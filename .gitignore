@@ -25,6 +25,7 @@ build/Release
 node_modules
 
 # stylus styl
-app/public/*
+app/public/js/*
+app/public/css/*
 *.css
 *.swp

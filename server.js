@@ -1,7 +1,6 @@
 var express	        = require('express');
 var path	          = require('path');
-var bodyParser	    = require('body-parser');
-var favicon	        = require('static-favicon');
+var favicon	        = require('serve-favicon');
 var methodOverride  = require('method-override');
 var cookieParser    = require('cookie-parser');
 var errorHandler    = require('errorhandler');
@@ -10,6 +9,7 @@ var morgan	        = require('morgan');
 var io              = require('socket.io');
 var stylus          = require('stylus');
 var nib             = require('nib');
+var compressor      = require('node-minify');
 var app		          = express();
 var router	        = express.Router();
 var mcu		          = require(path.join(__dirname, './lib/mcu.js'));
@@ -17,6 +17,11 @@ var asset           = path.join(__dirname, './app/assets');
 var pub		          = path.join(__dirname, './app/public');
 var views	          = path.join(__dirname, './app/server/views');
 var port	          = process.env.PORT || 9999;
+
+
+var jsIn = path.join(__dirname, './app/assets/js/**/*.js');
+var jsUgly = path.join(__dirname, './app/public/js/openstream.min.js');
+var jsGCC = path.join(__dirname, './app/public/js/openstream.min.gcc.js');
 
 var env = process.env.NODE_ENV || 'development';
 
@@ -37,8 +42,7 @@ function compile(str, path){
 app.set('port', port);
 app.set('views', views);
 app.set('view engine', 'jade');
-app.set(favicon());
-app.use(bodyParser(path.join(__dirname,'app/assets/favicon.ico')));
+app.use(favicon(path.join(__dirname,'app/assets/favicon.ico')));
 app.use(cookieParser());
 app.use(methodOverride());
 app.use(livereload());
@@ -63,3 +67,28 @@ var server = app.listen(port, function(){
 
 console.log('Magic happens on port ' + port);
 mcu.init(io(server));
+
+new compressor.minify({
+  type: 'uglifyjs',
+  fileIn: jsIn,
+  fileOut: jsUgly,
+  callback: function(err, min){
+    console.log('running compressor uglifying JS');
+    console.log('jsIn', jsIn);
+    console.log('jsUgly', jsUgly);
+    console.log(err);
+  }
+});
+
+new compressor.minify({
+  type: 'gcc',
+  fileIn: jsIn,
+  fileOut: jsGCC,
+  callback: function(err, min){
+    console.log('running compressor gcc');
+    console.log('jsIn', jsIn);
+    console.log('jsGCC', jsGCC);
+    console.log(err);
+  }
+});
+
