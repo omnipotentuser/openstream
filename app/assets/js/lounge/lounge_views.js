@@ -3,7 +3,7 @@ function LoungeViews(){
 
   var initialize = function(){
 
-    $('<div/>', {id:'local-container', class:'media-layout'})
+    $('<div/>', {id:'local-container', class:'lounge-media-layout'})
       .append('<video id=\"local-video\" autoplay controls muted>')
       .appendTo('#lounge-video-container');
 
