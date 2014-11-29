@@ -500,14 +500,16 @@ function Peer(p_socket, p_id, p_roomName, iceConfig) {
 /* globals io:true, Peer:true, getUserMedia:true, logError:true, */
 
 function RTCEngine(){
-  var peers = [],
-      peer = null,
-      socket = null,
-      roomName = null,
-      localStream = null,
-      localId = null,
-      iceConfig = [],
-      appCB = function(){}; // holds the callback from external app
+  var peers = []
+    , peer = null
+    , socket = null
+    , roomName = null
+    , isLocked = null
+    , password = null
+    , localStream = null
+    , localId = null
+    , iceConfig = []
+    , appCB = function(){}; // holds the callback from external app
 
   var shiftKeyCode = {'192':'126', '49':'33', '50':'64', '51':'35', '52':'36', '53':'37', '54':'94', '55':'38', '56':'42', '57':'40', '48':'41', '189':'95', '187':'43', '219':'123', '221':'125', '220':'124', '186':'58', '222':'34', '188':'60', '190':'62', '191':'63'};
   var specialCharCode = {'8':'8', '13':'13', '32':'32', '186':'58', '187':'61', '188':'44', '189':'45', '190':'46', '191':'47', '192':'96', '219':'91', '220':'92', '221':'93', '222':'39'};
@@ -678,17 +680,8 @@ function RTCEngine(){
   function handleSysCode(socket, callback) {
     if (typeof callback === 'undefined') callback = function(){};
     socket.on('error', function(message) {
-      var errcode;
-      console.log('handleSysCode', message);
-	    switch (message.error) {
-        case 'room full': 
-          errcode = 'Room is full';
-          break;
-        default:
-          errcode = 'Unknown Error';
-          break;
-	    }
-      callback('error', {msg:errcode});
+      console.log('handleSysCode', message.errcode);
+      callback('error', message);
     });
     socket.on('info', function(message){
       var code;
@@ -739,13 +732,29 @@ function RTCEngine(){
     });
   }
 
-  var connect = function(room, callback) {
-    roomName = room;
+  // data = {room:room, isLocked:isLocked, password:password}
+  //
+  var connect = function(data, callback) {
+    if (typeof data === 'undefined')
+      return;
+
+    if (data.create)
+      password = data.password;
+    if (data.isLocked)
+      isLocked = data.isLocked;
+    if (data.password)
+      password = data.password;
+    if (data.room)
+      roomName = data.room;
+
     appCB = callback;
     socket = io('/', {'forceNew': true}); 
     console.log('socket connecting');
     socket.on('connect', function(){
-      handleJoinRoom(socket, callback);
+      if (data.create)
+        handleCreateRoom(socket, callback);
+      else
+        handleJoinRoom(socket,  callback);
       handleCreatePeers(socket, callback);
       handleCreateOffer(socket, callback);
       handleIceCandidate(socket);
@@ -877,7 +886,7 @@ function Hallway(){
 
       (function(room, engine){
         console.log('starting rtc engine');
-        engine.connect(room, handleSocketEvents);
+        engine.connect({room:room}, handleSocketEvents);
       })(roomName, rtc_engine);
 
       hallwayViews.updateTitle(roomName);
@@ -1536,6 +1545,7 @@ function Lounge(){
           break;
         case 'create':
           pid = data.id;
+          loungeViews.openMediaViews();
           console.log(
             'creating new media element', 
             pid
@@ -1550,6 +1560,10 @@ function Lounge(){
           loungeViews.updateTextArea(data.from_id, data.code);
           break;
         case 'info':
+          console.log(data.msg);
+          break;
+        case 'roomExists':
+          alert("Room Exists. Please join the room instead.");
           console.log(data.msg);
           break;
         case 'error':
@@ -1571,10 +1585,15 @@ function Lounge(){
       alert('Cannot have empty name');
     } else {
       event.preventDefault();
-      loungeViews.openMediaViews();
       (function(room, engine){
         console.log('starting rtc engine');
-        engine.connect(room, handleSocketEvents);
+        var engineData = { 
+          room:room, 
+          create:true,
+          isLocked:isLocked, 
+          password:password 
+        };
+        engine.connect(engineData, handleSocketEvents);
       })(roomName, rtc_engine);
 
       loungeViews.updateTitle(roomName);
