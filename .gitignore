@@ -27,5 +27,7 @@ node_modules
 # stylus styl
 app/public/js/*.js
 app/public/css/*.css
+app/public/js/openstream.js
+app/public/js/openstream.min.js
 *.css
 *.swp

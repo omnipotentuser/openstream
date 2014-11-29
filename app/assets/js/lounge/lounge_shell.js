@@ -71,6 +71,7 @@ function Lounge(){
           isLocked:isLocked, 
           password:password 
         };
+
         engine.connect(engineData, handleSocketEvents);
       })(roomName, rtc_engine);
 
