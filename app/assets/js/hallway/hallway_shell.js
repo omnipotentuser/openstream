@@ -82,7 +82,7 @@ function Hallway(){
 
       (function(room, engine){
         console.log('starting rtc engine');
-        engine.connect(room, handleSocketEvents);
+        engine.connect({room:room}, handleSocketEvents);
       })(roomName, rtc_engine);
 
       hallwayViews.updateTitle(roomName);

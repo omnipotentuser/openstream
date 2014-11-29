@@ -23,6 +23,7 @@ function Lounge(){
           break;
         case 'create':
           pid = data.id;
+          loungeViews.openMediaViews();
           console.log(
             'creating new media element', 
             pid
@@ -37,6 +38,10 @@ function Lounge(){
           loungeViews.updateTextArea(data.from_id, data.code);
           break;
         case 'info':
+          console.log(data.msg);
+          break;
+        case 'roomExists':
+          alert("Room Exists. Please join the room instead.");
           console.log(data.msg);
           break;
         case 'error':
@@ -58,10 +63,16 @@ function Lounge(){
       alert('Cannot have empty name');
     } else {
       event.preventDefault();
-      loungeViews.openMediaViews();
       (function(room, engine){
         console.log('starting rtc engine');
-        engine.connect(room, handleSocketEvents);
+        var engineData = { 
+          room:room, 
+          create:true,
+          isLocked:isLocked, 
+          password:password 
+        };
+
+        engine.connect(engineData, handleSocketEvents);
       })(roomName, rtc_engine);
 
       loungeViews.updateTitle(roomName);
