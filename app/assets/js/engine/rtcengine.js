@@ -57,6 +57,10 @@ function RTCEngine(){
     }
   }
 
+  function createRoom(data){
+    socket.emit('createRoom', data);
+  }
+
   function sendChar(code, isrelay){
     if (roomName){
       var message = {
@@ -96,6 +100,14 @@ function RTCEngine(){
       localId = message.yourId;
       console.log('localId: ' + localId);
       callback('id', {id:localId});
+    });
+  }
+
+  function handleCreateRoom(socket, callback) {
+    if (typeof callback === 'undefined') callback = function(){};
+    socket.on('createRoom', function(message){
+      console.log('rtcengine - is room created? ' + message.created);
+      callback('createRoom', message);
     });
   }
 
@@ -236,11 +248,10 @@ function RTCEngine(){
   // data = {room:room, isLocked:isLocked, password:password}
   //
   var connect = function(data, callback) {
+
     if (typeof data === 'undefined')
       return;
 
-    if (data.create)
-      password = data.password;
     if (data.isLocked)
       isLocked = data.isLocked;
     if (data.password)
@@ -250,12 +261,14 @@ function RTCEngine(){
 
     appCB = callback;
     socket = io('/', {'forceNew': true}); 
-    console.log('socket connecting');
+
     socket.on('connect', function(){
-      if (data.create)
-        handleCreateRoom(socket, callback);
-      else
-        handleJoinRoom(socket,  callback);
+
+      console.log('socket connecting');
+
+      // establish socket callbacks
+      handleCreateRoom(socket, callback);
+      handleJoinRoom(socket,  callback);
       handleCreatePeers(socket, callback);
       handleCreateOffer(socket, callback);
       handleIceCandidate(socket);
@@ -263,7 +276,10 @@ function RTCEngine(){
       handleReceiveCode(socket, callback);
       handleClientDisconnected(socket, callback);
       handleSysCode(socket, callback);
-      callback('connected');
+
+      if (data.create) createRoom(data);
+      else callback('connected');
+
     });
   }
 

@@ -51,7 +51,7 @@ function LoungeViews(){
     $('#lounge-video-container').fadeOut(function(){
       //$('#lounge-video-container').removeClass('show').addClass('hide');
       $('#lounge-modal-create').removeClass('hide').addClass('show');
-      destroyCallback(next);
+      if (destroyCallback) destroyCallback(next);
     });
     this.deleteAllMedia();
   };
