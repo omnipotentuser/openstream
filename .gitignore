@@ -25,7 +25,5 @@ build/Release
 node_modules
 
 # stylus styl
-openstream.js
-openstream.min.js
 *.css
 *.swp

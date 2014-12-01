@@ -7,6 +7,10 @@ function Lounge(){
   var roomName = '';
   var $input = $('#lounge-input-roomname');
   var $create = $('#lounge-btn-create');
+  var $lock = $('#lounge-ck-lock');
+  var $password = $('#lounge-input-pw');
+  var isLocked = false;
+  var password = '';
 
   //var $join = $('#lounge-list .join');
 
@@ -21,7 +25,7 @@ function Lounge(){
         case 'id':
           localId = data.id;
           break;
-        case 'create':
+        case 'create': // creating peer user
           pid = data.id;
           loungeViews.openMediaViews();
           console.log(
@@ -40,9 +44,13 @@ function Lounge(){
         case 'info':
           console.log(data.msg);
           break;
-        case 'roomExists':
-          alert("Room Exists. Please join the room instead.");
-          console.log(data.msg);
+        case 'createRoom':
+          if (data.created === false){
+            alert("Room Exists. Please join the room instead.");
+            console.log(data.msg);
+            loungeViews.closeMediaViews();
+            destroyEngine();
+          }
           break;
         case 'error':
           // need to handle error for room full
@@ -56,15 +64,21 @@ function Lounge(){
   };
 
   var handleCreateBtn = function(event){
+
+    roomName = $input.val();
+    isLocked = $lock.is(':checked');
+    password = isLocked ? $password.val() : '';
+
     if (roomName === ''){
-      roomName = $input.val();
-    }
-    if (roomName === ''){
-      alert('Cannot have empty name');
+      alert('Cannot have empty room name');
     } else {
+
       event.preventDefault();
+
       (function(room, engine){
+
         console.log('starting rtc engine');
+
         var engineData = { 
           room:room, 
           create:true,
@@ -79,15 +93,19 @@ function Lounge(){
       window.history.replaceState({}, "OpenStream "+roomName, "#"+roomName);
       $create.unbind('click', handleCreateBtn);
     }
-  };
+  }
 
-  this.leave = function(destroyCallback, next){
-    $input.val('');
-    $create.unbind('click', handleCreateBtn);
+  var destroyEngine = function(){
     if (rtc_engine){
       rtc_engine.leave();
       rtc_engine = null;
     }
+  }
+
+  this.leave = function(destroyCallback, next){
+    $input.val('');
+    $create.unbind('click', handleCreateBtn);
+    destroyEngine();
     if (loungeViews){
       loungeViews.closeMediaViews(destroyCallback, next);
       loungeViews = null;
