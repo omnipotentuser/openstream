@@ -192,7 +192,7 @@ function RTCEngine(){
 
   function handleSysCode(socket, callback) {
     if (typeof callback === 'undefined') callback = function(){};
-    socket.on('error', function(message) {
+    socket.on('err', function(message) {
       console.log('handleSysCode', message.errcode);
       callback('error', message);
     });
