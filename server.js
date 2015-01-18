@@ -62,7 +62,7 @@ router.use(function(req, res, next){
 require(path.join(__dirname, './app/server/router.js'))(app);
 
 var server = app.listen(port, function(){
-    console.log('Express 4 listening on port ' + app.get('port'));
+  console.log('Express 4 listening on port ' + app.get('port'));
 });
 
 console.log('Magic happens on port ' + port);
@@ -79,16 +79,3 @@ new compressor.minify({
     console.log(err);
   }
 });
-
-new compressor.minify({
-  type: 'gcc',
-  fileIn: jsIn,
-  fileOut: jsGCC,
-  callback: function(err, min){
-    console.log('running compressor gcc');
-    console.log('jsIn', jsIn);
-    console.log('jsGCC', jsGCC);
-    console.log(err);
-  }
-});
-

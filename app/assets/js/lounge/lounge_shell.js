@@ -52,7 +52,7 @@ function Lounge(){
             destroyEngine();
           }
           break;
-        case 'error':
+        case 'err':
           // need to handle error for room full
           // by exiting room
           console.log(data.msg);

@@ -1,5 +1,9 @@
 module.exports = function(app){
   app.get('/', function(req, res){
+    var host = req.get('host');
+    var origin = req.get('origin');
+    console.log('HOST -- '+host);
+    //console.log('ORIGIN -- '+origin);
 	  res.render('index', {title: 'OpenStream - Lobby'});
   });
 
