@@ -57,10 +57,6 @@ function RTCEngine(){
     }
   }
 
-  function createRoom(data){
-    socket.emit('createRoom', data);
-  }
-
   function sendChar(code, isrelay){
     if (roomName){
       var message = {
@@ -105,9 +101,9 @@ function RTCEngine(){
 
   function handleCreateRoom(socket, callback) {
     if (typeof callback === 'undefined') callback = function(){};
-    socket.on('createRoom', function(message){
+    socket.on('roomCreated', function(message){
       console.log('rtcengine - is room created? ' + message.created);
-      callback('createRoom', message);
+      callback('roomCreated', message);
     });
   }
 
@@ -277,8 +273,7 @@ function RTCEngine(){
       handleClientDisconnected(socket, callback);
       handleSysCode(socket, callback);
 
-      if (data.create) createRoom(data);
-      else callback('connected');
+      (data.createRoom) ? socket.emit('createRoom', data) : callback('connected');
 
     });
   }
