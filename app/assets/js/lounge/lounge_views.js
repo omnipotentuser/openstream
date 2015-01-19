@@ -28,8 +28,8 @@ function LoungeViews(){
   };
 
   var handleCancelCreateRoom = function(event){
-    console.log('closing create room modal');
-    $('#lounge-modal-create').removeClass('show').addClass('hide');
+    console.log('handleCancelCreateRoom');
+    this.closeCreateModal();
   };
 
   this.setListeners = function(engine){
@@ -39,6 +39,11 @@ function LoungeViews(){
   this.destroyListeners = function(engine){
     // todo destroy any RTC listeners to bind to at initialization of views
   };
+
+  this.closeCreateModal = function(){
+    console.log('closing create room modal');
+    $('#lounge-modal-create').removeClass('show').addClass('hide');
+  }
 
   this.openMediaViews = function(){
     $('#lounge-modal-create').removeClass('show').addClass('hide');

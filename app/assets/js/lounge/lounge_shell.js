@@ -14,7 +14,7 @@ function Lounge(){
 
   //var $join = $('#lounge-list .join');
 
-  var handleSocketEvents = function(signaler, data){
+  var handleLoungeSocketEvents = function(signaler, data){
     if (signaler){
       var pid = '';
       switch (signaler) {
@@ -23,6 +23,7 @@ function Lounge(){
           rtc_engine.join();
           break;
         case 'id':
+          console.log('client id: '+data.id);
           localId = data.id;
           break;
         case 'create': // creating peer user
@@ -44,8 +45,11 @@ function Lounge(){
         case 'info':
           console.log(data.msg);
           break;
-        case 'createRoom':
-          if (data.created === false){
+        case 'roomCreated':
+          if (data.created){
+            loungeViews.closeCreateModal();
+            loungeViews.openMediaViews();
+          } else {
             alert("Room Exists. Please join the room instead.");
             console.log(data.msg);
             loungeViews.closeMediaViews();
@@ -81,12 +85,12 @@ function Lounge(){
 
         var engineData = { 
           room:room, 
-          create:true,
+          createRoom:true,
           isLocked:isLocked, 
           password:password 
         };
 
-        engine.connect(engineData, handleSocketEvents);
+        engine.connect(engineData, handleLoungeSocketEvents);
       })(roomName, rtc_engine);
 
       loungeViews.updateTitle(roomName);
