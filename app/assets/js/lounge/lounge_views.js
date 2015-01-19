@@ -21,9 +21,13 @@ function LoungeViews(){
 
   var handleCreatePasswordCheck = function(event){
     if (event.target.checked){
-      $('#lounge-input-pw').fadeIn(200);
+      $('#lounge-input-pw').fadeIn(200, function(){
+        $('#lounge-input-pw').removeProp('disabled');
+      });
     } else {
-      $('#lounge-input-pw').fadeOut(200);
+      $('#lounge-input-pw').fadeOut(200, function(){
+        $('#lounge-input-pw').prop('disabled');
+      });
     }
   };
 
@@ -43,6 +47,8 @@ function LoungeViews(){
   this.closeCreateModal = function(){
     console.log('closing create room modal');
     $('#lounge-modal-create').removeClass('show').addClass('hide');
+    $('#lounge-ck-lock').attr('checked',false);
+    $('#lounge-input-pw').val('').fadeOut();
   }
 
   this.openMediaViews = function(){
