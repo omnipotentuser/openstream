@@ -38,7 +38,12 @@ function RTCEngine(){
           }
         }
         console.log('joining', roomName);
-        socket.emit('join', {room:roomName});
+        var data = {
+          room: roomName,
+          isLocked: isLocked,
+          password: password
+        };
+        socket.emit('join', data);
       },
       logError
     );

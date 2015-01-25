@@ -28,7 +28,6 @@ function Lounge(){
           break;
         case 'create': // creating peer user
           pid = data.id;
-          loungeViews.openMediaViews();
           console.log(
             'creating new media element', 
             pid
@@ -47,14 +46,14 @@ function Lounge(){
           break;
         case 'roomCreated':
           if (data.created){
-            loungeViews.closeCreateModal();
-            loungeViews.openMediaViews();
+            rtc_engine.join();
           } else {
             alert("Room Exists. Please join the room instead.");
             console.log(data.msg);
-            loungeViews.closeMediaViews();
             destroyEngine();
           }
+          loungeViews.closeCreateModal();
+          loungeViews.openMediaViews();
           break;
         case 'err':
           // need to handle error for room full
