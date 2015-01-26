@@ -1,3 +1,9 @@
+button-size(w, h)
+  if h != null
+    height h
+  if w > 0
+    width w
+
 button-style(f)
   cursor pointer
   border 0px solid
@@ -8,9 +14,16 @@ button-style(f)
   &:hover
     background-color rgba(100,110,130,.9)
 
-button-size(w, h)
-  height h
-  width w
+button-style-bg(f)
+  cursor pointer
+  border 0px solid
+  font-size f
+  color black
+  vertical-align bottom
+  text-align center
+  &:hover
+    background-color rgba(100,110,130,.9)
+
 
 .btn-xl
   button-size(300px,75px)
@@ -27,3 +40,7 @@ button-size(w, h)
 .btn-xs
   button-size(30px,14px)
   button-style(10px)
+
+.btn-bg-l
+  button-size(0,50px)
+  button-style-bg(28px)
