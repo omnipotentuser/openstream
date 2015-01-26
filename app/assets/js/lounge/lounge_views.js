@@ -1,73 +1,95 @@
 
 function LoungeViews(){
 
+  var $lock = $('#lounge-ck-lock');
+  var $password = $('#lounge-input-pw');
+  var $createModal = $('#lounge-modal-create');
+  var $btnCancelCreate = $('#lounge-btn-cancel');
+  var $btnCreate = $('#lounge-btn-create');
+  var $room = $('#lounge-input-roomname');
+  var $video = $('#lounge-video-container');
+  var $title = $('#lounge-room-title');
+  var $callCreateModal = $('#lounge-list-menu');
+
+  var handleCreatePasswordCheck = function(event){
+    if (event.target.checked){
+      $password.fadeIn(200, function(){
+        $password.removeProp('disabled');
+      });
+    } else {
+      $password.fadeOut(200, function(){
+        $password.prop('disabled');
+      });
+    }
+  };
+
+  var handleOpenCreateModal = function(event){
+    if (!$createModal.hasClass('show')){
+      console.log('handleOpenCreateModal');
+      openCreateModal();
+    }
+  };
+
+  var handleCancelCreateModal = function(event){
+    console.log('handleCancelCreateModal');
+    closeCreateModal();
+  };
+
   var initialize = function(){
 
     $('<div/>', {id:'local-container', class:'lounge-media-layout'})
       .append('<video id=\"local-video\" autoplay controls muted>')
       .appendTo('#lounge-video-container');
 
-    var $input = $('#lounge-input-roomname');
-    $input.focus();
-    $input.keypress(function(event){
+    $room.focus();
+    $room.keypress(function(event){
       if (event.which === 13){
         event.preventDefault();
-        $('#lounge-btn-create').trigger("click");
+        $btnCreate.trigger("click");
       }
     });
-    $('#lounge-ck-lock').bind('click', handleCreatePasswordCheck);
-    $('#lounge-btn-cancel').bind('click', handleCancelCreateRoom);
+    $lock.bind('click', handleCreatePasswordCheck);
+    $callCreateModal.bind('click', handleOpenCreateModal);
+    $btnCancelCreate.bind('click', handleCancelCreateModal);
   };
 
-  var handleCreatePasswordCheck = function(event){
-    if (event.target.checked){
-      $('#lounge-input-pw').fadeIn(200, function(){
-        $('#lounge-input-pw').removeProp('disabled');
-      });
-    } else {
-      $('#lounge-input-pw').fadeOut(200, function(){
-        $('#lounge-input-pw').prop('disabled');
-      });
-    }
-  };
-
-  var handleCancelCreateRoom = function(event){
-    console.log('handleCancelCreateRoom');
-    this.closeCreateModal();
-  };
-
-  this.setListeners = function(engine){
-    // todo set any RTC listeners to bind to at initialization of views
-  };
-
-  this.destroyListeners = function(engine){
-    // todo destroy any RTC listeners to bind to at initialization of views
-  };
-
-  this.closeCreateModal = function(){
-    console.log('closing create room modal');
-    $('#lounge-modal-create').removeClass('show').addClass('hide');
-    $('#lounge-ck-lock').attr('checked',false);
-    $('#lounge-input-pw').val('').fadeOut();
+  function openCreateModal(){
+    console.log('opening create room modal');
+    $createModal.removeClass('hide').addClass('show');
+    $lock.attr('checked',false);
+    $password.val('').fadeOut();
   }
 
-  this.openMediaViews = function(){
-    $('#lounge-modal-create').removeClass('show').addClass('hide');
-    //$('#lounge-video-container').removeClass('hide').addClass('show');
-    $('#lounge-video-container').fadeIn();
-  };
+  function closeCreateModal(){
+    console.log('closing modal to create room');
+    $createModal.removeClass('show').addClass('hide');
+    $lock.attr('checked',false);
+    $password.val('').fadeOut();
+  }
 
-  this.closeMediaViews = function(destroyCallback, next){
-    $('#lounge-room-title').empty();
-    $('#lounge-video-container').fadeOut(function(){
-      //$('#lounge-video-container').removeClass('show').addClass('hide');
-      $('#lounge-modal-create').removeClass('hide').addClass('show');
+  function setListeners(engine){
+    // todo set any RTC listeners to bind to at initialization of views
+  }
+
+  function destroyListeners(engine){
+    // todo destroy any RTC listeners to bind to at initialization of views
+  }
+
+  function openMediaViews(){
+    $createModal.removeClass('show').addClass('hide');
+    //$('#lounge-video-container').removeClass('hide').addClass('show');
+    $video.fadeIn();
+  }
+
+  function closeMediaViews(destroyCallback, next){
+    $title.empty();
+    $video.fadeOut(function(){
       if (destroyCallback) destroyCallback(next);
     });
     this.deleteAllMedia();
-  };
+  }
 
-  this.appendPeerMedia = function(pid){
+  function appendPeerMedia(pid){
     console.log('appendPeerMedia', pid);
     $('<div/>', {class:'media-layout'})
       .append('<video id="'+pid+'" autoplay controls>')
@@ -77,7 +99,7 @@ function LoungeViews(){
     $ml.css('width',percent+'%');
   }
 
-  this.deletePeerMedia = function(pid){
+  function deletePeerMedia(pid){
     $('#'+pid).parent().remove();
     var $ml = $('.media-layout');
     var percent = (100 / $ml.length);
@@ -85,15 +107,29 @@ function LoungeViews(){
     console.log('deletePeerMedia', pid);
   }
 
-  this.deleteAllMedia = function(){
-    $('#lounge-video-container').empty(); 
-    $('#lounge-ck-lock').unbind('click', handleCreatePasswordCheck);
-    $('#lounge-btn-cancel').unbind('click', handleCancelCreateRoom);
+  function deleteAllMedia(){
+    $video.empty(); 
+    $lock.unbind('click', handleCreatePasswordCheck);
+    $btnCancelCreate.unbind('click', handleCancelCreateModal);
+    $callCreateModal.unbind('click', handleOpenCreateModal);
   }
 
-  this.updateTitle = function(room){
-    $('#lounge-room-title').append('<p>Room: '+room+'</p>');
+  function updateTitle(room){
+    $title.append('<p>Room: '+room+'</p>');
   }
 
   initialize();
+
+  return {
+    openCreateModal: openCreateModal,
+    closeCreateModal: closeCreateModal,
+    updateTitle: updateTitle,
+    deleteAllMedia: deleteAllMedia,
+    deletePeerMedia: deletePeerMedia,
+    appendPeerMedia: appendPeerMedia,
+    closeMediaViews: closeMediaViews,
+    openMediaViews: openMediaViews,
+    destroyListeners: destroyListeners,
+    setListeners: setListeners
+  };
 }
