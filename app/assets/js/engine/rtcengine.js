@@ -261,7 +261,8 @@ function RTCEngine(){
       roomName = data.room;
 
     appCB = callback;
-    socket = io('/', {'forceNew': true}); 
+    //socket = io('/', {'forceNew': true}); 
+    socket = io(); 
 
     socket.on('connect', function(){
 
@@ -279,8 +280,10 @@ function RTCEngine(){
       handleSysCode(socket, callback);
 
       if (data.createRoom){
+        console.log('create room');
         socket.emit('createRoom', data);
       } else {
+        console.log('connected');
         callback('connected');
       }
 
