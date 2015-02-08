@@ -278,7 +278,11 @@ function RTCEngine(){
       handleClientDisconnected(socket, callback);
       handleSysCode(socket, callback);
 
-      (data.createRoom) ? socket.emit('createRoom', data) : callback('connected');
+      if (data.createRoom){
+        socket.emit('createRoom', data);
+      } else {
+        callback('connected');
+      }
 
     });
   }
