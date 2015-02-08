@@ -58,7 +58,8 @@ function RTCEngine(){
       peer.close();
     }
     if(socket){
-      socket.emit('exit');
+      //socket.emit('exit');
+      socket.disconnect();
     }
   }
 
@@ -107,7 +108,7 @@ function RTCEngine(){
   function handleCreateRoom(socket, callback) {
     if (typeof callback === 'undefined') callback = function(){};
     socket.on('roomCreated', function(message){
-      console.log('rtcengine - is room created? ' + message.created);
+      console.log('rtcengine: handleCreateRoom - room created? ' + message.created);
       callback('roomCreated', message);
     });
   }
@@ -261,8 +262,13 @@ function RTCEngine(){
       roomName = data.room;
 
     appCB = callback;
-    //socket = io('/', {'forceNew': true}); 
-    socket = io(); 
+    if(socket){
+      console.log('socket reconnecting');
+      socket.reconnect();
+    } else {
+      console.log('creating new socket connection');
+      socket = io({ forceNew: true }); 
+    }
 
     socket.on('connect', function(){
 

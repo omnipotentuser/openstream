@@ -4,6 +4,8 @@ function LoungeViews(){
   var $lock = $('#lounge-ck-lock');
   var $password = $('#lounge-input-pw');
   var $createModal = $('#lounge-modal-create');
+  var $listContainer = $('#lounge-container-list');
+  var $galleryContainer = $('#lounge-container-gallery');
   var $btnCancelCreate = $('#lounge-btn-cancel');
   var $btnCreate = $('#lounge-btn-create');
   var $room = $('#lounge-input-roomname');
@@ -67,6 +69,18 @@ function LoungeViews(){
     $password.val('').fadeOut();
   }
 
+  function openGalleryContainer(){
+    console.log('opening gallery container');
+    $galleryContainer.removeClass('hide').addClass('show');
+    $listContainer.removeClass('show').addClass('hide');
+  }
+
+  function openListContainer(){
+    console.log('opening room list container');
+    $listContainer.removeClass('hide').addClass('show');
+    $galleryContainer.removeClass('show').addClass('hide');
+  }
+
   function setListeners(engine){
     // todo set any RTC listeners to bind to at initialization of views
   }
@@ -112,6 +126,7 @@ function LoungeViews(){
     $lock.unbind('click', handleCreatePasswordCheck);
     $btnCancelCreate.unbind('click', handleCancelCreateModal);
     $callCreateModal.unbind('click', handleOpenCreateModal);
+    openListContainer();
   }
 
   function updateTitle(room){
@@ -121,6 +136,8 @@ function LoungeViews(){
   initialize();
 
   return {
+    openGallery: openGalleryContainer,
+    openList: openListContainer,
     openCreateModal: openCreateModal,
     closeCreateModal: closeCreateModal,
     updateTitle: updateTitle,
