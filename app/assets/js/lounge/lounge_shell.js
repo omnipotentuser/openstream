@@ -25,6 +25,8 @@ function Lounge(){
         case 'id':
           console.log('client id: '+data.id);
           localId = data.id;
+          loungeViews.openGallery();
+          loungeViews.openMediaViews();
           break;
         case 'create': // creating peer user
           pid = data.id;
@@ -53,7 +55,6 @@ function Lounge(){
             destroyEngine();
           }
           loungeViews.closeCreateModal();
-          loungeViews.openMediaViews();
           break;
         case 'err':
           // need to handle error for room full

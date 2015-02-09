@@ -1,12 +1,13 @@
 #lounge-main
   h1 Lounge
   .lounge-body
-    #lounge-container-list
+    #lounge-container-list.lounge-container.show
       #lounge-list-menu
         #lounge-btn-open-create-modal.btn-bg-l(title='Create Room')
           img(src='img/Batch-master/SVG/add.svg', align='middle', width='32')
       #lounge-list
         ul#lounge-list-items
+    #lounge-container-gallery.lounge-container.hide
     .lounge-container-main.show-inline
       #lounge-modal-create.hide
         #lounge-modal-inner
