@@ -32,7 +32,7 @@ function Hallway(){
       switch (signaler) {
         case 'connected':
           console.log('rtc engine connected');
-          rtc_engine.join();
+          rtc_engine.join({room:roomName});
           break;
         case 'id':
           localId = data.id;
@@ -82,7 +82,7 @@ function Hallway(){
 
       (function(room, engine){
         console.log('starting rtc engine');
-        engine.connect({room:room}, handleSocketEvents);
+        engine.connect(handleSocketEvents);
       })(roomName, rtc_engine);
 
       hallwayViews.updateTitle(roomName);
