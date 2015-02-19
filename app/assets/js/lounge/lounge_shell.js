@@ -7,6 +7,7 @@ function Lounge(){
   var roomName = '';
   var $input = $('#lounge-input-roomname');
   var $create = $('#lounge-btn-create');
+  var $join = $('#lounge-btn-join');
   var $lock = $('#lounge-ck-lock');
   var $password = $('#lounge-input-pw');
   var isLocked = false;
@@ -20,7 +21,7 @@ function Lounge(){
       switch (signaler) {
         case 'connected':
           console.log('rtc engine connected');
-          rtc_engine.join();
+          rtc_engine.getRooms();
           break;
         case 'id':
           console.log('client id: '+data.id);
@@ -46,12 +47,18 @@ function Lounge(){
         case 'info':
           console.log(data.msg);
           break;
+        case 'roomSent':
+          handleCreateRoomList(data);
+          break;
         case 'roomCreated':
           if (data.created){
             rtc_engine.join();
           } else {
             alert("Room Exists. Please join the room instead.");
             console.log(data.msg);
+            
+            // left to be handled by the coder at some other time
+            // for now, destroy the rtc engine
             destroyEngine();
           }
           loungeViews.closeCreateModal();
@@ -67,13 +74,17 @@ function Lounge(){
     }
   };
 
+  function handleCreateRoomList(list){
+    console.log('handleCreateRoomList',list);
+  }
+
   var handleCreateBtn = function(event){
 
-    roomName = $input.val();
+    l_roomName = roomName || $input.val();
     isLocked = $lock.is(':checked');
     password = isLocked ? $password.val() : '';
 
-    if (roomName === ''){
+    if (l_roomName === ''){
       alert('Cannot have empty room name');
     } else {
 
@@ -90,13 +101,19 @@ function Lounge(){
           password:password 
         };
 
-        engine.connect(engineData, handleLoungeSocketEvents);
-      })(roomName, rtc_engine);
+        engine.createRoom(engineData);
 
-      loungeViews.updateTitle(roomName);
-      window.history.replaceState({}, "OpenStream "+roomName, "#"+roomName);
+      })(l_roomName, rtc_engine);
+
+      loungeViews.updateTitle(l_roomName);
+      window.history.replaceState({}, "OpenStream "+l_roomName, "#"+l_roomName);
       $create.unbind('click', handleCreateBtn);
     }
+  }
+
+  var handleJoinBtn = function (event){
+    console.log('coming soon');
+    $join.unbind('click', handleJoinBtn);
   }
 
   var destroyEngine = function(){
@@ -109,6 +126,7 @@ function Lounge(){
   this.leave = function(destroyCallback, next){
     $input.val('');
     $create.unbind('click', handleCreateBtn);
+    $join.unbind('click', handleJoinBtn);
     destroyEngine();
     if (loungeViews){
       loungeViews.closeMediaViews(destroyCallback, next);
@@ -118,6 +136,7 @@ function Lounge(){
   };
 
   $create.bind('click', handleCreateBtn);
+  $create.bind('click', handleJoinBtn);
   loungeViews.setListeners(rtc_engine);
   
   // Determine if we automatically go into the room from the URL value
@@ -134,10 +153,15 @@ function Lounge(){
     } else {
       roomName = '';
     }
+
     console.log('roomName',roomName);
+
+    rtc_engine.connect(handleLoungeSocketEvents);
+
     if (roomName !== ''){
-      $create.trigger('click');
+      $create.trigger('join');
     }
+
   })();
 
 }

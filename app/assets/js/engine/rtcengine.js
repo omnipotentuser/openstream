@@ -15,7 +15,10 @@ function RTCEngine(){
   var shiftKeyCode = {'192':'126', '49':'33', '50':'64', '51':'35', '52':'36', '53':'37', '54':'94', '55':'38', '56':'42', '57':'40', '48':'41', '189':'95', '187':'43', '219':'123', '221':'125', '220':'124', '186':'58', '222':'34', '188':'60', '190':'62', '191':'63'};
   var specialCharCode = {'8':'8', '13':'13', '32':'32', '186':'58', '187':'61', '188':'44', '189':'45', '190':'46', '191':'47', '192':'96', '219':'91', '220':'92', '221':'93', '222':'39'};
 
-  function startMedia(){
+  function startMedia(data){
+    if (data && data.room){
+      roomName = data.room;
+    }
     var media_constraints = {
       video : {
         mandatory: {
@@ -63,6 +66,29 @@ function RTCEngine(){
     }
   }
 
+  // data = {room:room, isLocked:isLocked, password:password}
+  //
+  function createRoom(data){
+    if (socket){
+
+      if (data.isLocked)
+        isLocked = data.isLocked;
+      if (data.password)
+        password = data.password;
+      if (data.room)
+        roomName = data.room;
+
+      socket.emit('createRoom', data);
+    }
+  }
+
+  function getRooms(){
+    console.log('rtcengine getRooms');
+    if (socket){
+      socket.emit('getRooms');
+    }
+  }
+
   function sendChar(code, isrelay){
     if (roomName){
       var message = {
@@ -94,6 +120,14 @@ function RTCEngine(){
         }
       }
     }
+  }
+
+  function handleRoomsSent(socket, callback){
+    if (typeof callback === 'undefined') callback = function() {};
+    socket.on('roomsSent', function(data){
+      console.log('handleRoomsSent', data);
+      callback('roomsSent', data);
+    });
   }
 
   function handleJoinRoom(socket, callback) {
@@ -132,7 +166,6 @@ function RTCEngine(){
 	  if(users.length > 0){
       createPeers(users, callback);
     }
-
   }
 
   function handleCreateOffer(socket, callback) {
@@ -247,19 +280,7 @@ function RTCEngine(){
     });
   }
 
-  // data = {room:room, isLocked:isLocked, password:password}
-  //
-  var connect = function(data, callback) {
-
-    if (typeof data === 'undefined')
-      return;
-
-    if (data.isLocked)
-      isLocked = data.isLocked;
-    if (data.password)
-      password = data.password;
-    if (data.room)
-      roomName = data.room;
+  function connect(callback) {
 
     appCB = callback;
     if(socket){
@@ -269,13 +290,10 @@ function RTCEngine(){
       console.log('creating new socket connection');
       socket = io({ forceNew: true }); 
     }
-
     socket.on('connect', function(){
-
-      console.log('socket connecting');
-
-      // establish socket callbacks
+      console.log('socket connected');
       handleCreateRoom(socket, callback);
+      handleRoomsSent(socket, callback);
       handleJoinRoom(socket,  callback);
       handleCreatePeers(socket, callback);
       handleCreateOffer(socket, callback);
@@ -285,13 +303,7 @@ function RTCEngine(){
       handleClientDisconnected(socket, callback);
       handleSysCode(socket, callback);
 
-      if (data.createRoom){
-        console.log('create room');
-        socket.emit('createRoom', data);
-      } else {
-        console.log('connected');
-        callback('connected');
-      }
+      callback('connected');
 
     });
   }
@@ -327,6 +339,8 @@ function RTCEngine(){
     connect:connect, 
     join:startMedia, 
     leave:stopMedia, 
+    createRoom:createRoom,
+    getRooms:getRooms,
     sendChar:sendChar,
     sendString:sendString
   };
