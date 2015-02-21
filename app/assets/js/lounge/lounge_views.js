@@ -89,27 +89,28 @@ function LoungeViews(){
     // todo destroy any RTC listeners to bind to at initialization of views
   }
 
-  function roomItemClicked(roomName){
+  function roomItemClicked(roomName, callback){
     console.log(roomName+"selected");
+    callback(roomName);
   }
 
-  function generateRoomList(rooms){
+  function generateRoomList(rooms, callback){
     $('#lounge-room-list-items').empty();
     Object.keys(rooms).forEach(function(name){
       (function(roomName){
-        var classtype = rooms[roomName].isLocked ? 'lounge-room-item unlocked'
-          : 'lounge-room-item locked';
+        var classtype = rooms[roomName].isLocked ? 'lounge-room-item locked'
+          : 'lounge-room-item unlocked';
         var attribs = {
           id: 'lounge-room-item-'+roomName,
           class: classtype
         };
         $('<li>', attribs)
           .bind('click', function(){
-            roomItemClicked(roomName);
+            roomItemClicked(roomName, callback);
           })
           .append(name)
           .appendTo('#lounge-room-list-items');
-      })(name);
+      })(name, callback);
     });
   }
 

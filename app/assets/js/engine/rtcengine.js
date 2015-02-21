@@ -41,12 +41,12 @@ function RTCEngine(){
           }
         }
         console.log('joining', roomName);
-        var data = {
+        var info = {
           room: roomName,
           isLocked: isLocked,
           password: password
         };
-        socket.emit('join', data);
+        socket.emit('join', info);
       },
       logError
     );

@@ -81,10 +81,16 @@ function Lounge(){
   function handleCreateRoomList(list){
     console.log('handleCreateRoomList',list);
     rooms = list;
-    loungeViews.generateRoomList(rooms);
+    loungeViews.generateRoomList(rooms, function(name){
+      roomName = name;
+      rtc_engine.join({room: roomName});
+      loungeViews.updateTitle(roomName);
+      window.history.replaceState({}, "OpenStream "+roomName, "#"+roomName);
+    });
   }
 
-  function handleDeleteRoomFromList(name){
+  function handleDeleteRoomFromList(data){
+    var name = data.room;
     console.log('handleDeleteRoomFromList');
     if (rooms[name]) delete rooms[name];
     loungeViews.deleteRoomFromList(name);
