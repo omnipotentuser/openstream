@@ -89,12 +89,19 @@ function LoungeViews(){
     // todo destroy any RTC listeners to bind to at initialization of views
   }
 
-  function generateRoomList(){
-
+  function generateRoomList(rooms){
+    Object.keys(rooms).forEach(function(name){
+      var classtype = rooms[name].isLocked ? 'lounge-room-item-unlocked'
+        : 'lounge-room-item-locked';
+      
+      $('<li>', {id: 'lounge-room-item-'+name, class: classtype})
+        .append(name)
+        .appendTo('#lounge-room-list-items');
+    });
   }
 
-  function deleteRoomFromList(){
-
+  function deleteRoomFromList(name){
+    $('#lounge-room-item-'+name).remove();
   }
 
   function openMediaViews(){
