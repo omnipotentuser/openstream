@@ -115,7 +115,7 @@ function Lounge(){
 
         engine.createRoom(engineData);
 
-      })(l_roomName, rtc_engine);
+      })(roomName, rtc_engine);
 
       loungeViews.updateTitle(roomName);
       window.history.replaceState({}, "OpenStream "+roomName, "#"+roomName);
@@ -124,6 +124,7 @@ function Lounge(){
   }
 
   var handleJoinBtn = function (event){
+    event.preventDefault();
     console.log('coming soon');
     $join.unbind('click', handleJoinBtn);
   }
@@ -148,7 +149,7 @@ function Lounge(){
   };
 
   $create.bind('click', handleCreateBtn);
-  $create.bind('click', handleJoinBtn);
+  $join.bind('click', handleJoinBtn);
   loungeViews.setListeners(rtc_engine);
   
   // Determine if we automatically go into the room from the URL value
@@ -166,7 +167,7 @@ function Lounge(){
       roomName = '';
     }
 
-    console.log('roomName',roomName);
+    console.log('room name:',roomName);
 
     rtc_engine.connect(handleLoungeSocketEvents);
 

@@ -89,6 +89,14 @@ function LoungeViews(){
     // todo destroy any RTC listeners to bind to at initialization of views
   }
 
+  function generateRoomList(){
+
+  }
+
+  function deleteRoomFromList(){
+
+  }
+
   function openMediaViews(){
     $createModal.removeClass('show').addClass('hide');
     //$('#lounge-video-container').removeClass('hide').addClass('show');
@@ -136,6 +144,8 @@ function LoungeViews(){
   initialize();
 
   return {
+    generateRoomList: generateRoomList,
+    deleteRoomFromList: deleteRoomFromList,
     openGallery: openGalleryContainer,
     openList: openListContainer,
     openCreateModal: openCreateModal,
