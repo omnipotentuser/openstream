@@ -125,8 +125,14 @@ function RTCEngine(){
   function handleRoomsSent(socket, callback){
     if (typeof callback === 'undefined') callback = function() {};
     socket.on('roomsSent', function(data){
-      console.log('handleRoomsSent', data);
       callback('roomsSent', data);
+    });
+  }
+
+  function handleDeleteRoom(socket, callback){
+    if (typeof callback === 'undefined') callback = function(){};
+    socket.on('deleteRoom', function(data){
+      callback('deleteRoom', data);
     });
   }
 
@@ -294,6 +300,7 @@ function RTCEngine(){
       console.log('socket connected');
       handleCreateRoom(socket, callback);
       handleRoomsSent(socket, callback);
+      handleDeleteRoom(socket, callback);
       handleJoinRoom(socket,  callback);
       handleCreatePeers(socket, callback);
       handleCreateOffer(socket, callback);

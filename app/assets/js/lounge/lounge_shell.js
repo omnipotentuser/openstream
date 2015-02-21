@@ -5,6 +5,7 @@ function Lounge(){
 	var loungeViews = new LoungeViews();
   var localId = null;
   var roomName = '';
+  var rooms = {};
   var $input = $('#lounge-input-roomname');
   var $create = $('#lounge-btn-create');
   var $join = $('#lounge-btn-join');
@@ -47,8 +48,11 @@ function Lounge(){
         case 'info':
           console.log(data.msg);
           break;
-        case 'roomSent':
+        case 'roomsSent':
           handleCreateRoomList(data);
+          break;
+        case 'deleteRoom':
+          handleDeleteRoomFromList(data);
           break;
         case 'roomCreated':
           if (data.created){
@@ -76,15 +80,23 @@ function Lounge(){
 
   function handleCreateRoomList(list){
     console.log('handleCreateRoomList',list);
+    rooms = list;
+    loungeViews.generateRoomList(rooms);
+  }
+
+  function handleDeleteRoomFromList(name){
+    console.log('handleDeleteRoomFromList');
+    if (rooms[name]) delete rooms[name];
+    loungeViews.deleteRoomFromList(name);
   }
 
   var handleCreateBtn = function(event){
 
-    l_roomName = roomName || $input.val();
+    roomName = roomName || $input.val();
     isLocked = $lock.is(':checked');
     password = isLocked ? $password.val() : '';
 
-    if (l_roomName === ''){
+    if (roomName === ''){
       alert('Cannot have empty room name');
     } else {
 
@@ -105,8 +117,8 @@ function Lounge(){
 
       })(l_roomName, rtc_engine);
 
-      loungeViews.updateTitle(l_roomName);
-      window.history.replaceState({}, "OpenStream "+l_roomName, "#"+l_roomName);
+      loungeViews.updateTitle(roomName);
+      window.history.replaceState({}, "OpenStream "+roomName, "#"+roomName);
       $create.unbind('click', handleCreateBtn);
     }
   }
