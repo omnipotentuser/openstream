@@ -97,7 +97,10 @@ function LoungeViews(){
   function generateRoomList(rooms, callback){
     $('#list-items').empty();
     Object.keys(rooms).forEach(function(name){
-      (function(roomName){
+      (function(roomName, rooms, callback){
+
+        console.log('generate list', roomName, rooms[roomName].isLocked);
+
         var classtype = rooms[roomName].isLocked ? 'list-item locked'
           : 'list-item unlocked';
         var attribs = {
@@ -109,9 +112,9 @@ function LoungeViews(){
           .bind('click', function(){
             roomItemClicked(roomName, callback);
           })
-          .append(name)
+          .append(roomName)
           .appendTo('#list-items');
-      })(name, callback);
+      })(name, rooms, callback);
     });
   }
 
