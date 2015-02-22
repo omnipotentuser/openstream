@@ -95,21 +95,22 @@ function LoungeViews(){
   }
 
   function generateRoomList(rooms, callback){
-    $('#lounge-room-list-items').empty();
+    $('#list-items').empty();
     Object.keys(rooms).forEach(function(name){
       (function(roomName){
-        var classtype = rooms[roomName].isLocked ? 'lounge-room-item locked'
-          : 'lounge-room-item unlocked';
+        var classtype = rooms[roomName].isLocked ? 'list-item locked'
+          : 'list-item unlocked';
         var attribs = {
           id: 'lounge-room-item-'+roomName,
-          class: classtype
+          class: classtype,
+          title: roomName
         };
         $('<li>', attribs)
           .bind('click', function(){
             roomItemClicked(roomName, callback);
           })
           .append(name)
-          .appendTo('#lounge-room-list-items');
+          .appendTo('#list-items');
       })(name, callback);
     });
   }
