@@ -51,6 +51,9 @@ function Lounge(){
         case 'roomsSent':
           handleCreateRoomList(data);
           break;
+        case 'addRoom':
+          handleAddRoomItem(data);
+          break;
         case 'deleteRoom':
           handleDeleteRoomFromList(data);
           break;
@@ -94,6 +97,19 @@ function Lounge(){
     console.log('handleDeleteRoomFromList');
     if (rooms[name]) delete rooms[name];
     loungeViews.deleteRoomFromList(name);
+  }
+
+  function handleAddRoomItem(data){
+    if (!data) return;
+    Object.keys(data).forEach(function(name){
+      rooms[name] = data;
+    });
+    loungeViews.addRoomItem(data, function(name){
+      roomName = name;
+      rtc_engine.join({room: roomName});
+      loungeViews.updateTitle(roomName);
+      window.history.replaceState({}, "OpenStream "+roomName, "#"+roomName);
+    });
   }
 
   var handleCreateBtn = function(event){

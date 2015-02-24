@@ -94,12 +94,9 @@ function LoungeViews(){
     callback(roomName);
   }
 
-  function generateRoomList(rooms, callback){
-    $('#list-items').empty();
+  function roomGenerateList(rooms, callback){
     Object.keys(rooms).forEach(function(name){
       (function(roomName, rooms, callback){
-
-        console.log('generate list', roomName, rooms[roomName].isLocked);
 
         var classtype = rooms[roomName].isLocked ? 'list-item locked'
           : 'list-item unlocked';
@@ -109,17 +106,26 @@ function LoungeViews(){
           title: roomName
         };
         $('<li>', attribs)
-          .bind('click', function(){
-            roomItemClicked(roomName, callback);
-          })
-          .append(roomName)
-          .appendTo('#list-items');
+        .bind('click', function(){
+          roomItemClicked(roomName, callback);
+        })
+        .append(roomName)
+        .appendTo('#list-items');
       })(name, rooms, callback);
     });
   }
 
+  function generateRoomList(rooms, callback){
+    $('#list-items').empty();
+    roomGenerateList(rooms, callback);
+  }
+
   function deleteRoomFromList(name){
     $('#lounge-room-item-'+name).remove();
+  }
+
+  function addRoomItem(room, callback){
+    roomGenerateList(room, callback);
   }
 
   function openMediaViews(){
@@ -171,6 +177,7 @@ function LoungeViews(){
   return {
     generateRoomList: generateRoomList,
     deleteRoomFromList: deleteRoomFromList,
+    addRoomItem: addRoomItem,
     openGallery: openGalleryContainer,
     openList: openListContainer,
     openCreateModal: openCreateModal,
