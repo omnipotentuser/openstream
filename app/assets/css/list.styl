@@ -1,0 +1,27 @@
+li
+  list-style none
+#list-items
+  list-style-type none
+  padding 0px
+  margin 0px
+.list-item
+  margin-bottom .5em
+  text-indent 0.4em
+  font-weight none
+  cursor pointer
+  text-align left
+  &:before
+    content ""
+    display inline-block
+    height 18px
+    width 18px
+    background-size contain
+    background-image url('')
+.unlocked
+  list-style-image url('')
+  background-repeat no-repeat
+.locked
+  background-image url('../img/Batch-master/SVG/locked.svg')
+  background-position 5px 5px
+  background-size 18px 18px
+  background-repeat no-repeat
