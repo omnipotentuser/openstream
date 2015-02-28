@@ -40,7 +40,7 @@ function LoungeViews(){
   var initialize = function(){
 
     $('<div/>', {id:'local-container', class:'lounge-media-layout'})
-      .append('<video id=\"local-video\" autoplay controls muted>')
+      .append('<video id="local-video" autoplay controls muted>')
       .appendTo('#lounge-video-container');
 
     $room.focus();
@@ -144,17 +144,17 @@ function LoungeViews(){
 
   function appendPeerMedia(pid){
     console.log('appendPeerMedia', pid);
-    $('<div/>', {class:'media-layout'})
+    $('<div/>', {class:'lounge-media-layout'})
       .append('<video id="'+pid+'" autoplay controls>')
       .appendTo('#lounge-video-container');
-    var $ml = $('.media-layout');
+    var $ml = $('.lounge-media-layout');
     var percent = (100 / $ml.length);
     $ml.css('width',percent+'%');
   }
 
   function deletePeerMedia(pid){
     $('#'+pid).parent().remove();
-    var $ml = $('.media-layout');
+    var $ml = $('.lounge-media-layout');
     var percent = (100 / $ml.length);
     $ml.css('width',percent+'%');
     console.log('deletePeerMedia', pid);
