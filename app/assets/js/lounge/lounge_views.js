@@ -146,8 +146,7 @@ function LoungeViews(){
   }
 
   function deleteRoomFromList(name){
-    var encoded = window.btoa(name);
-    $('#lounge-room-item-'+encoded).remove();
+    $('#lounge-room-item-'+name).remove();
   }
 
   function addRoomItem(room, callback){
