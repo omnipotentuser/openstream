@@ -115,17 +115,23 @@ function Lounge(){
     loungeViews.deleteRoomFromList(name);
   }
 
+  function validateInput(str){
+    if (str){
+      var re = /^\w*$/g;
+      return re.test(str) ? str : '';
+    }
+  }
+
   var handleCreateBtn = function(event){
 
-    roomName = roomName || $input.val();
+    roomName = roomName || validateInput($input.val());
     isLocked = $lock.is(':checked');
     password = isLocked ? $password.val() : '';
 
     password = window.btoa(password);
-    console.log('base64 password:', password);
 
     if (roomName === ''){
-      alert('Cannot have empty room name');
+      alert('Cannot have empty room name and can only accept alphanumeric and underscore characters.');
     } else {
 
       event.preventDefault();
