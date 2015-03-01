@@ -19,6 +19,11 @@ function RTCEngine(){
     if (data && data.room){
       roomName = data.room;
     }
+    if ( data && data.password){
+      isLocked = true;
+      password = data.password;
+      console.log('password', password);
+    }
     var media_constraints = {
       video : {
         mandatory: {

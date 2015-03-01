@@ -11,8 +11,15 @@
         ul#list-items
     #lounge-container-gallery.lounge-container.hide
     .lounge-container-main.show-inline
+      #lounge-modal-join.hide
+        .lounge-modal-inner
+          .lounge-boxed.show
+            input#lounge-input-verify.in-l(type='password', placeholder='password')
+          .lounge-boxed.show
+             button#lounge-btn-join.btn-m Join
+             button#lounge-btn-cancel-join.btn-m.last-l Cancel
       #lounge-modal-create.hide
-        #lounge-modal-inner
+        .lounge-modal-inner
           .lounge-boxed.show
             input#lounge-input-roomname.in-l(type='text', placeholder='room name')
           .lounge-boxed.show(title='Privatize the room')
