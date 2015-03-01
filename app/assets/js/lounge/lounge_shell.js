@@ -153,7 +153,6 @@ function Lounge(){
 
   var handleJoinBtn = function (event){
     event.preventDefault();
-    console.log('coming soon');
     $join.unbind('click', handleJoinBtn);
   }
 
@@ -200,7 +199,10 @@ function Lounge(){
     rtc_engine.connect(handleLoungeSocketEvents);
 
     if (roomName !== ''){
-      $create.trigger('join');
+      setTimeout(function(){
+        console.log('triggering room item click to', roomName);
+        $('#lounge-room-item-'+roomName).trigger('click');
+      }, 2000)
     }
 
   })();
