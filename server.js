@@ -16,7 +16,7 @@ var mcu		          = require(path.join(__dirname, './lib/mcu.js'));
 var asset           = path.join(__dirname, './app/assets/css');
 var pub		          = path.join(__dirname, './app/public');
 var views	          = path.join(__dirname, './app/server/views');
-var port	          = process.env.PORT || 9999;
+var port	          = process.env.PORT || 9990;
 
 
 var jsIn = path.join(__dirname, './app/assets/js/**/*.js');
