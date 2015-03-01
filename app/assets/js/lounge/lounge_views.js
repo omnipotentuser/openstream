@@ -4,10 +4,13 @@ function LoungeViews(){
   var $lock = $('#lounge-ck-lock');
   var $password = $('#lounge-input-pw');
   var $createModal = $('#lounge-modal-create');
+  var $joinModal = $('#lounge-modal-join');
   var $listContainer = $('#lounge-container-list');
   var $galleryContainer = $('#lounge-container-gallery');
   var $btnCancelCreate = $('#lounge-btn-cancel');
   var $btnCreate = $('#lounge-btn-create');
+  var $joinModalBtnCancel = $('#lounge-btn-cancel-join')
+  var $joinModalBtnJoin = $('#lounge-btn-join')
   var $room = $('#lounge-input-roomname');
   var $video = $('#lounge-video-container');
   var $title = $('#lounge-room-title');
@@ -89,17 +92,39 @@ function LoungeViews(){
     // todo destroy any RTC listeners to bind to at initialization of views
   }
 
-  function roomItemClicked(roomName, callback){
+  function handleJoinPrivate(roomName, callback){
+    var pwd = $('#lounge-input-verify').val();
+    console.log('password given', pwd);
+    if (!pwd){
+      alert('Cannot have empty password');
+      return false;
+    }
+    var encoded = window.btoa(pwd);
+    callback(roomName, encoded);
+  }
+
+  function roomItemClicked(roomName, isLocked, callback){
     console.log(roomName+"selected");
-    callback(roomName);
+    if (isLocked){
+      $joinModal.removeClass('hide').addClass('show');
+      $joinModalBtnJoin.bind('click', function(){
+        $joinModal.removeClass('show').addClass('hide');
+        handleJoinPrivate(roomName, callback);
+      });
+      $joinModalBtnCancel.bind('click', function(){
+        $joinModal.removeClass('show').addClass('hide');
+      })
+    } else {
+      callback(roomName);
+    }
   }
 
   function roomGenerateList(rooms, callback){
     Object.keys(rooms).forEach(function(name){
       (function(roomName, rooms, callback){
 
-        var classtype = rooms[roomName].isLocked ? 'list-item locked'
-          : 'list-item unlocked';
+        var isLocked = rooms[roomName].isLocked;
+        var classtype = isLocked ? 'list-item locked' : 'list-item unlocked';
         var attribs = {
           id: 'lounge-room-item-'+roomName,
           class: classtype,
@@ -107,7 +132,7 @@ function LoungeViews(){
         };
         $('<li>', attribs)
         .bind('click', function(){
-          roomItemClicked(roomName, callback);
+          roomItemClicked(roomName, isLocked, callback);
         })
         .append(roomName)
         .appendTo('#list-items');

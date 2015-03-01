@@ -81,15 +81,31 @@ function Lounge(){
     }
   };
 
+  function generateRoom(rooms){
+    loungeViews.generateRoomList(rooms, function(name, encoded){
+      roomName = name;
+      if (rtc_engine){
+        rtc_engine.join({room: roomName, password: encoded });
+        loungeViews.updateTitle(roomName);
+        window.history.replaceState({}, "OpenStream "+roomName, "#"+roomName);
+      } else {
+        console.log('rtc_engine is not defined',rtc_engine);
+      }
+    });
+  }
+
   function handleCreateRoomList(list){
     console.log('handleCreateRoomList',list);
     rooms = list;
-    loungeViews.generateRoomList(rooms, function(name){
-      roomName = name;
-      rtc_engine.join({room: roomName});
-      loungeViews.updateTitle(roomName);
-      window.history.replaceState({}, "OpenStream "+roomName, "#"+roomName);
+    generateRoom(rooms);
+  }
+
+  function handleAddRoomItem(data){
+    if (!data) return;
+    Object.keys(data).forEach(function(name){
+      rooms[name] = data;
     });
+    generateRoom(rooms);
   }
 
   function handleDeleteRoomFromList(data){
@@ -99,24 +115,14 @@ function Lounge(){
     loungeViews.deleteRoomFromList(name);
   }
 
-  function handleAddRoomItem(data){
-    if (!data) return;
-    Object.keys(data).forEach(function(name){
-      rooms[name] = data;
-    });
-    loungeViews.addRoomItem(data, function(name){
-      roomName = name;
-      rtc_engine.join({room: roomName});
-      loungeViews.updateTitle(roomName);
-      window.history.replaceState({}, "OpenStream "+roomName, "#"+roomName);
-    });
-  }
-
   var handleCreateBtn = function(event){
 
     roomName = roomName || $input.val();
     isLocked = $lock.is(':checked');
     password = isLocked ? $password.val() : '';
+
+    password = window.btoa(password);
+    console.log('base64 password:', password);
 
     if (roomName === ''){
       alert('Cannot have empty room name');
