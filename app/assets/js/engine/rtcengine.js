@@ -349,7 +349,7 @@ function RTCEngine(){
 
   function updateIce(ice){
     if (ice.length > 0){
-      //console.log('updating ice from post');
+      console.log('updating ice configs');
       iceConfig = ice;
     }
   }

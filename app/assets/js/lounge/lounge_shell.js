@@ -59,7 +59,23 @@ function Lounge(){
           break;
         case 'roomCreated':
           if (data.created){
-            rtc_engine.join();
+            $.post("https://api.xirsys.com/getIceServers",{
+              ident:"openhack",
+              secret:"03150bbb-a1e7-49ff-862b-ab28688111a3",
+              domain:"www.openhack.net",
+              application:"default",
+              room:"default",
+              secure: "1"
+            },
+            function(data, status){
+              var icedata = JSON.parse(data);
+              //console.log('ice obtained:',icedata.d.iceServers);
+              if (status === "success"){
+                console.log('post success');
+                rtc_engine.updateIce(icedata.d.iceServers);
+                rtc_engine.join();
+              }
+            });
           } else {
             alert("Room Exists. Please join the room instead.");
             console.log(data.msg);
@@ -85,7 +101,23 @@ function Lounge(){
     loungeViews.generateRoomList(rooms, function(name, encoded){
       roomName = name;
       if (rtc_engine){
-        rtc_engine.join({room: roomName, password: encoded });
+        $.post("https://api.xirsys.com/getIceServers",{
+          ident:"openhack",
+          secret:"03150bbb-a1e7-49ff-862b-ab28688111a3",
+          domain:"www.openhack.net",
+          application:"default",
+          room:"default",
+          secure: "1"
+        },
+        function(data, status){
+          var icedata = JSON.parse(data);
+          //console.log('ice obtained:',icedata.d.iceServers);
+          if (status === "success"){
+            console.log('post success');
+            rtc_engine.updateIce(icedata.d.iceServers);
+            rtc_engine.join({room: roomName, password: encoded });
+          }
+        });
         loungeViews.updateTitle(roomName);
         window.history.replaceState({}, "OpenStream "+roomName, "#"+roomName);
       } else {
