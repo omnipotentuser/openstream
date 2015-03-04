@@ -59,6 +59,8 @@ function Lounge(){
           break;
         case 'roomCreated':
           if (data.created){
+            loungeViews.updateTitle(roomName);
+            window.history.replaceState({}, "OpenStream "+roomName, "#"+roomName);
             $.post("https://api.xirsys.com/getIceServers",{
               ident:"openhack",
               secret:"03150bbb-a1e7-49ff-862b-ab28688111a3",
@@ -77,12 +79,16 @@ function Lounge(){
               }
             });
           } else {
-            alert("Room Exists. Please join the room instead.");
+            swal({ 
+              title: "Room Exists.",
+              text: "Please join the room instead.",
+              type: "error",
+              confirmButtonText: "Cool"
+            });
             console.log(data.msg);
             
             // left to be handled by the coder at some other time
             // for now, destroy the rtc engine
-            destroyEngine();
           }
           loungeViews.closeCreateModal();
           break;
@@ -150,7 +156,10 @@ function Lounge(){
   function validateInput(str){
     if (str){
       var re = /^\w*$/g;
-      return re.test(str) ? str : '';
+      var cond = re.test(str) ? str : '';
+      console.log('--- cond', cond);
+      return cond;
+      //return re.test(str) ? str : '';
     }
   }
 
@@ -162,8 +171,15 @@ function Lounge(){
 
     password = window.btoa(password);
 
-    if (roomName === ''){
-      alert('Cannot have empty room name and can only accept alphanumeric and underscore characters.');
+    console.log('--- roomName', roomName);
+
+    if (! roomName){
+      swal({
+        title: "Invalid Entry",
+        text: 'Cannot have empty room name and can only accept alphanumeric and underscore characters.',
+        type: "warning",
+        confirmTextButton: "cool"
+      });
     } else {
 
       event.preventDefault();
@@ -182,16 +198,12 @@ function Lounge(){
         engine.createRoom(engineData);
 
       })(roomName, rtc_engine);
-
-      loungeViews.updateTitle(roomName);
-      window.history.replaceState({}, "OpenStream "+roomName, "#"+roomName);
-      $create.unbind('click', handleCreateBtn);
     }
   }
 
   var handleJoinBtn = function (event){
     event.preventDefault();
-    $join.unbind('click', handleJoinBtn);
+    //$join.unbind('click', handleJoinBtn);
   }
 
   var destroyEngine = function(){

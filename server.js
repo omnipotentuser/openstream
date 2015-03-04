@@ -53,6 +53,7 @@ app.use(stylus.middleware({
   compile: compile
 }));
 app.use(express.static(pub));
+app.use('/bower_components',  express.static(__dirname + '/bower_components'));
 
 router.use(function(req, res, next){
   console.log('something is happening');
