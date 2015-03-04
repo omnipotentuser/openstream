@@ -66,7 +66,7 @@ function LoungeViews(){
   }
 
   function closeCreateModal(){
-    console.log('closing modal to create room');
+    console.log('closing room create modal');
     $createModal.removeClass('show').addClass('hide');
     $lock.attr('checked',false);
     $password.val('').fadeOut();

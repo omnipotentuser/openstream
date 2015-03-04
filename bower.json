@@ -1,0 +1,26 @@
+{
+  "name": "openstream",
+  "version": "1.5.0",
+  "homepage": "https://github.com/omnipotentuser/openstream",
+  "authors": [
+    "Nicholas Buchanan <nick@openhack.net>"
+  ],
+  "description": "open stream for multi purpose app",
+  "main": "server.js",
+  "keywords": [
+    "streaming",
+    "mcu",
+    "server"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "sweetalert": "~0.4.2"
+  }
+}
