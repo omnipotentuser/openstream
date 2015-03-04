@@ -157,21 +157,16 @@ function Lounge(){
     if (str){
       var re = /^\w*$/g;
       var cond = re.test(str) ? str : '';
-      console.log('--- cond', cond);
       return cond;
-      //return re.test(str) ? str : '';
     }
   }
 
   var handleCreateBtn = function(event){
 
-    roomName = roomName || validateInput($input.val());
+    roomName = validateInput(roomName) || validateInput($input.val());
     isLocked = $lock.is(':checked');
     password = isLocked ? $password.val() : '';
 
-    password = window.btoa(password);
-
-    console.log('--- roomName', roomName);
 
     if (! roomName){
       swal({
@@ -179,6 +174,13 @@ function Lounge(){
         text: 'Cannot have empty room name and can only accept alphanumeric and underscore characters.',
         type: "warning",
         confirmTextButton: "cool"
+      });
+    } else if (isLocked && !validateInput(password)){
+      swal({ 
+        title: "What Password?",
+        text: "Please enter valid password of alphanumeric and/or underscore characters.",
+        type: "warning",
+        confirmButtonText: "Cool"
       });
     } else {
 
@@ -192,7 +194,7 @@ function Lounge(){
           room:room, 
           createRoom:true,
           isLocked:isLocked, 
-          password:password 
+          password:window.btoa(password)
         };
 
         engine.createRoom(engineData);

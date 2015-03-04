@@ -96,7 +96,12 @@ function LoungeViews(){
     var pwd = $('#lounge-input-verify').val();
     console.log('password given', pwd);
     if (!pwd){
-      alert('Cannot have empty password');
+      swal({ 
+        title: "Empty Password",
+        text: "Please enter a password.",
+        type: "error",
+        confirmButtonText: "Cool"
+      });
       return false;
     }
     var encoded = window.btoa(pwd);
