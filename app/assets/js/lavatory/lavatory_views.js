@@ -244,7 +244,11 @@ function LavatoryViews(){
           },
           error: function(error) {
             console.log(error);
-            alert(error, function() {
+            swal({
+              title:error,
+              type:'error',
+              confirmButtonText:'Cool'
+            }, function(){
               startLavatory();
             });
           },

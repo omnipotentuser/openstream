@@ -79,7 +79,13 @@ function HallwayViews(){
       var $clipinput = $('.hallway-input-text-clip');
       var word = $clipinput.val();
       if (word && word.length < 4){
-        alert('Word is too short. Must be at least 4 characters long.');
+        swal({
+          title: 'String is too short.',
+          text: 'Needs to be longer than 3 characters.',
+          type: 'info',
+          confirmButtonText: 'Cool'
+        });
+
       } else if (word){
         ss(word, isrelay);
         $clipinput.val('');
