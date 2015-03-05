@@ -73,9 +73,12 @@ function Hallway(){
     }
     
     if (roomName === ''){
-
-      alert('Cannot have empty name');
-
+      swal({
+        title:'',
+        text: 'Cannot have empty name',
+        type: 'error',
+        confirmButtonText: 'Cool'
+      });
     } else {
       event.preventDefault();
       hallwayViews.openMediaViews();

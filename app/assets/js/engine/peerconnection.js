@@ -79,7 +79,12 @@ function Peer(p_socket, p_id, p_roomName, iceConfig) {
       localStream = stream;
 	    pc.addStream(localStream);
     }else{
-	    alert('Media device is not detected.');
+      swal({
+        title: 'Media not found!',
+        text:'Please check that your webcam is not being used by some other program and that you have given permission for the browser to access it.',
+        type:'error',
+        confirmButtonText: 'Cool'
+      });
     }
   };
 
