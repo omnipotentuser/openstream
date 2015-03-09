@@ -246,14 +246,33 @@ function Lounge(){
       roomName = '';
     }
 
-    console.log('room name:',roomName);
-
     rtc_engine.connect(handleLoungeSocketEvents);
 
     if (roomName !== ''){
+      console.log('Hashurl triggered room query');
       setTimeout(function(){
-        console.log('triggering room item click to', roomName);
-        $('#lounge-room-item-'+roomName).trigger('click');
+        var placeholder = $('#lounge-room-item-' + roomName);
+        if ( placeholder.length ){
+          console.log('triggering room item click to', roomName);
+          $('#lounge-room-item-'+roomName).trigger('click');
+        } else {
+          swal({
+            title: "This room \""+roomName+"\" has not been created yet.",
+            text: "Do you want to create it?",
+            type: "info",
+            showCancelButton: true,
+            cancelButtonText: "No, I am fine",
+            confirmButtonText: "Yes, please"
+          }, function(isConfirm){
+            if (isConfirm){
+              handleCreateBtn(new Event('click'));              
+            } else {
+              var page = window.location.protocol 
+                + window.location.pathname;
+              window.history.replaceState({}, "OpenStream", page);
+            }
+          });
+        }
       }, 2000)
     }
 
