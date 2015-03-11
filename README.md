@@ -32,13 +32,30 @@ All DOM manipulation shall be written in the view.js where it belongs to each ap
 ---
 All event calls that handle data goes through the shell. I name it shell because it represents the layer that comes between the view and model shell. Each of the MVC piece is its own shell.
 
+####Installation Instruction:
+---
+Clone the project from github:
+
+```
+git clone git@github.com:omnipotentuser/openstream.git
+cd openstream
+npm install
+gulp
+npm start
+```
+You will have to install Janus server and may want to set up your own proxying rules by using Nginx or Haproxy. [here](git@github.com:meetecho/janus-gateway.git)
+Janus is used for gateway and echo test which is what the Lavatory app uses.
+
+Openstream is set to port 9990.
+
+
 ###Working apps:
 
 ---
 
 **Hallway**
 
-The app is found at [openstream.openhack.net/hallway](http://openstream.openhack.net#hallway)
+The app is found at [openstream.openhack.net/hallway](http://openstream.openhack.net/hallway)
 
 Give the room a name, whatever you desire. The auto room generation is useful if the name needs to be anonymous.
 
@@ -53,6 +70,15 @@ The app is found at [openstream.openhack.net/lavatory](http://openstream.openhac
 Often measuring the network traffic by using some obscure JavaScript bandwidth assessment test to measure payloads in order to determine latency for video streaming in real time, does not match real world experience. Bandwith varies greatly from hiccups to bursts so the most effective way to determine our streaming experience with respect to our network is to echo back ourselves from the server. This is where the Lavatory application comes in.
 
 We have to keep in mind the hardware limitations for handling encoding and decoding of video and audio compression in real time. Unlike playback video that can be buffered and played at a later time, real time streaming has to have buffered video in the hundreds of milliseconds or lower in order to keep the lag between current time and delivered time as close as possible.
+
+**Lounge**
+
+The app is found at [openstreamopenhack.net/lounge](http://openstream.openhack.net/lounge)
+
+At first glance, nothing out of ordinary, a chatroom with room list to enter from. What makes this app stand out from the typical list-oriented chatroom is that this is also able to send images from screenshots taken through the webcam. The purpose of the screenshot is to broadcast it to everyone in the room.
+
+In other words: a chat room that shares screenshots. A good usage would be playing Magic: The Gathering and take snapshots of our cards and send out to everyone for better viewing of the cards.
+
 
 ---
 
