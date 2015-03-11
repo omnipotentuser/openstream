@@ -43,7 +43,8 @@ npm install
 gulp
 npm start
 ```
-You will have to install Janus server and may want to set up your own proxying rules by using Nginx or Haproxy. [here](git@github.com:meetecho/janus-gateway.git)
+You will have to install [http://janus.conf.meetecho.com/](git@github.com:meetecho/janus-gateway.git) server and may want to set up your own proxying rules by using Nginx or Haproxy.
+
 Janus is used for gateway and echo test which is what the Lavatory app uses.
 
 Openstream is set to port 9990.
