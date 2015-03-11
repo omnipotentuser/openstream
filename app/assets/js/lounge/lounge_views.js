@@ -16,6 +16,40 @@ function LoungeViews(){
   var $title = $('#lounge-room-title');
   var $callCreateModal = $('#lounge-list-menu');
 
+
+  function bindSpacebarKeypress(event){
+    console.log(event);
+    // press 'c' to trigger
+    if (event.charCode === 99){
+      console.log('slicing out a single webcam frame!', event);
+
+      var canvas = document.createElement('canvas');
+      var ctx = canvas.getContext('2d');
+      var video = $('#local-video');
+      //var width = video.innerWidth();
+      //var height = video.innerHeight();
+      var width = 640;
+      var height = 480;
+      canvas.width = width;
+      canvas.height = height;
+      ctx.drawImage(video[0], 0, 0, width, height);
+      var data = canvas.toDataURL("image/jpeg");
+      swal({
+        title: 'Good to go?',
+        text: 'Hit \'c\' to take another one.',
+        showCancelButton: true,
+        cancelButtonText: 'Don\'t Send!',
+        confirmButtonText: 'Yes, please send.',
+        imageUrl: data,
+        imageSize: "320x240"
+      }, function(ok){
+        if (ok){
+          console.log('sending image...');
+        }
+      });
+    }
+  }
+
   var handleCreatePasswordCheck = function(event){
     if (event.target.checked){
       $password.fadeIn(200, function(){
@@ -162,6 +196,7 @@ function LoungeViews(){
     $createModal.removeClass('show').addClass('hide');
     //$('#lounge-video-container').removeClass('hide').addClass('show');
     $video.fadeIn();
+    document.addEventListener('keypress', bindSpacebarKeypress, false);
   }
 
   function closeMediaViews(destroyCallback, next){
@@ -191,6 +226,7 @@ function LoungeViews(){
   }
 
   function deleteAllMedia(){
+    document.removeEventListener('keypress', bindSpacebarKeypress, false);
     $video.empty(); 
     $lock.unbind('click', handleCreatePasswordCheck);
     $btnCancelCreate.unbind('click', handleCancelCreateModal);
