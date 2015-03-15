@@ -1,5 +1,5 @@
 
-function LoungeViews(){
+function LoungeViews(engine){
 
   var $lock = $('#lounge-ck-lock');
   var $password = $('#lounge-input-pw');
@@ -15,13 +15,16 @@ function LoungeViews(){
   var $video = $('#lounge-video-container');
   var $title = $('#lounge-room-title');
   var $callCreateModal = $('#lounge-list-menu');
+  var engine = engine; // rtc engine
 
 
-  function bindSpacebarKeypress(event){
-    console.log(event);
+  function bindSnapshotKeypress(event){
+
+    //console.log(event);
+
     // press 'c' to trigger
     if (event.charCode === 99){
-      console.log('slicing out a single webcam frame!', event);
+      //console.log('slicing out a single webcam frame!', event);
 
       var canvas = document.createElement('canvas');
       var ctx = canvas.getContext('2d');
@@ -44,7 +47,11 @@ function LoungeViews(){
         imageSize: "320x240"
       }, function(ok){
         if (ok){
-          console.log('sending image...');
+          console.log('------- engine', engine);
+          if (engine){
+            engine.sendChar(data, false);
+            console.log('sending data through datachannel');
+          }
         }
       });
     }
@@ -119,11 +126,10 @@ function LoungeViews(){
   }
 
   function setListeners(engine){
-    // todo set any RTC listeners to bind to at initialization of views
   }
 
   function destroyListeners(engine){
-    // todo destroy any RTC listeners to bind to at initialization of views
+    engine = null;
   }
 
   function handleJoinPrivate(roomName, callback){
@@ -196,7 +202,7 @@ function LoungeViews(){
     $createModal.removeClass('show').addClass('hide');
     //$('#lounge-video-container').removeClass('hide').addClass('show');
     $video.fadeIn();
-    document.addEventListener('keypress', bindSpacebarKeypress, false);
+    document.addEventListener('keypress', bindSnapshotKeypress, false);
   }
 
   function closeMediaViews(destroyCallback, next){
@@ -226,7 +232,7 @@ function LoungeViews(){
   }
 
   function deleteAllMedia(){
-    document.removeEventListener('keypress', bindSpacebarKeypress, false);
+    document.removeEventListener('keypress', bindSnapshotKeypress, false);
     $video.empty(); 
     $lock.unbind('click', handleCreatePasswordCheck);
     $btnCancelCreate.unbind('click', handleCancelCreateModal);
@@ -238,9 +244,21 @@ function LoungeViews(){
     $title.append('<p>Room: '+room+'</p>');
   }
 
+  function galleryAddImage(fromId, code){
+    console.log('updating gallery list');
+    swal({
+      title: 'Received image from ' + fromId,
+      text: 'Looks good?',
+      confirmButtonText: 'Lovely!',
+      imageUrl: code,
+      imageSize: "320x240"
+    });
+  }
+
   initialize();
 
   return {
+    galleryAddImage: galleryAddImage,
     generateRoomList: generateRoomList,
     deleteRoomFromList: deleteRoomFromList,
     addRoomItem: addRoomItem,

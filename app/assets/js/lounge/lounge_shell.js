@@ -2,7 +2,7 @@
 
 function Lounge(){
   var rtc_engine = new RTCEngine();
-	var loungeViews = new LoungeViews();
+	var loungeViews = new LoungeViews(rtc_engine);
   var localId = null;
   var roomName = '';
   var rooms = {};
@@ -43,7 +43,7 @@ function Lounge(){
           loungeViews.deletePeerMedia(data.id);
           break;
         case 'readbytechar':
-          loungeViews.updateTextArea(data.from_id, data.code);
+          loungeViews.galleryAddImage(data.from_id, data.code);
           break;
         case 'info':
           console.log(data.msg);
@@ -222,6 +222,7 @@ function Lounge(){
     destroyEngine();
     if (loungeViews){
       loungeViews.closeMediaViews(destroyCallback, next);
+      loungeViews.destroyListeners();
       loungeViews = null;
     }
     console.log('Lounge exiting');
@@ -229,7 +230,6 @@ function Lounge(){
 
   $create.bind('click', handleCreateBtn);
   $join.bind('click', handleJoinBtn);
-  loungeViews.setListeners(rtc_engine);
   
   // Determine if we automatically go into the room from the URL value
   (function queryUrl(){
