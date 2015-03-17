@@ -47,10 +47,9 @@ function LoungeViews(engine){
         imageSize: "320x240"
       }, function(ok){
         if (ok){
-          console.log('------- engine', engine);
           if (engine){
-            engine.sendChar(data, false);
             console.log('sending data through datachannel');
+            engine.sendString(data, false);
           }
         }
       });
@@ -238,6 +237,7 @@ function LoungeViews(engine){
     $btnCancelCreate.unbind('click', handleCancelCreateModal);
     $callCreateModal.unbind('click', handleOpenCreateModal);
     openListContainer();
+    $galleryContainer.empty();
   }
 
   function updateTitle(room){
@@ -247,11 +247,17 @@ function LoungeViews(engine){
   function galleryAddImage(fromId, code){
     console.log('updating gallery list');
     swal({
-      title: 'Received image from ' + fromId,
+      title: 'Received Image',
       text: 'Looks good?',
+      showCancelButton: true,
+      cancelButtonText: 'Yuck!',
       confirmButtonText: 'Lovely!',
       imageUrl: code,
       imageSize: "320x240"
+    }, function(ok){
+      if (ok){
+        $('<img src="'+code+'" width="100%"/>').appendTo($galleryContainer);
+      }
     });
   }
 
