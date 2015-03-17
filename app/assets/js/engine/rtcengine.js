@@ -118,9 +118,11 @@ function RTCEngine(){
         code: word
       };
       if (isrelay){
+        console.log('sendString using WebSocket');
         socket.emit('byteChar', message);
       } else {
         for(var i = 0; i < peers.length; i++){
+          console.log('sendString using datachannel to peer',i);
           peers[i].sendData(word);
         }
       }

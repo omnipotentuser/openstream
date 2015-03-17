@@ -9,6 +9,7 @@ function Peer(p_socket, p_id, p_roomName, iceConfig) {
       peerid = p_id,
       onByteChar = null,
       dc = null,
+      bufferedData = '',
       socket = p_socket,
       localStream = null,
       roomName = p_roomName,
@@ -94,11 +95,19 @@ function Peer(p_socket, p_id, p_roomName, iceConfig) {
 
   var onDCMessage = function(event){
     if (onByteChar && peerid){
-      var message = {
-        from_id: peerid,
-        code: event.data
-      };
-      onByteChar(message);
+      if (event.data === '\n'){
+        var message = {
+          from_id: peerid,
+          code: bufferedData //event.data
+        };
+        //console.log('onDCMessage - completed',message.code);
+        onByteChar(message);
+        bufferedData = '';
+      } else {
+        bufferedData += event.data;
+        //console.log('onDCMessage buff', bufferedData);
+        //console.log('onDCMessage data', event.data);
+      }
     }
   };
 
@@ -199,7 +208,31 @@ function Peer(p_socket, p_id, p_roomName, iceConfig) {
 
   this.sendData = function(byteChar){
     if (dc && dc.readyState.toLowerCase() === 'open'){
-      dc.send(byteChar);
+      //console.log('datachannel sending',byteChar);
+      var delay = 10;
+      var charSlice = 10000;
+      var termChar = '\n';
+      var dataSent = 0;
+      var intervalId = 0;
+
+      if (byteChar.isNaN){
+        intervalId = setInterval(function(){
+          slideEndIndex = dataSent + charSlice;
+          if (slideEndIndex > byteChar.length){
+            slideEndIndex = byteChar.length;
+          } 
+          dc.send(byteChar.slice(dataSent, slideEndIndex));
+          dataSent = slideEndIndex;
+          if (dataSent + 1 > byteChar.length) {
+            //console.log('All data chunks sent.');
+            dc.send(termChar);
+            clearInterval(intervalId);
+          }
+        }, delay);
+      } else {
+        dc.send(byteChar);
+        dc.send('\n');
+      }
     } else {
       console.log('DataChannel not ready');
     }
