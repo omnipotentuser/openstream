@@ -133,9 +133,20 @@ function LoungeViews(engine){
     engine = null;
   }
 
+  function onModalRoomJoin(event){
+    var data = event.data;
+    handleJoinPrivate(data.roomName, data.loungeCallback);
+    onModalRoomAction();
+  }
+
+  function onModalRoomAction(){
+    $joinModal.removeClass('show').addClass('hide');
+  }
+
   function handleJoinPrivate(roomName, callback){
     var pwd = $('#lounge-input-verify').val();
-    console.log('password given', pwd);
+    $joinModalBtnJoin.unbind('click', onModalRoomJoin);
+    $joinModalBtnCancel.unbind('click', onModalRoomAction);
     if (!pwd){
       swal({ 
         title: "Empty Password",
@@ -150,16 +161,14 @@ function LoungeViews(engine){
   }
 
   function roomItemClicked(roomName, isLocked, callback){
-    console.log(roomName+"selected");
+    console.log(roomName + " selected");
     if (isLocked){
       $joinModal.removeClass('hide').addClass('show');
-      $joinModalBtnJoin.bind('click', function(){
-        $joinModal.removeClass('show').addClass('hide');
-        handleJoinPrivate(roomName, callback);
-      });
-      $joinModalBtnCancel.bind('click', function(){
-        $joinModal.removeClass('show').addClass('hide');
-      })
+      $joinModalBtnJoin.bind('click', {
+        roomName: roomName,
+        loungeCallback: callback
+      }, onModalRoomJoin);
+      $joinModalBtnCancel.bind('click', onModalRoomAction);
     } else {
       callback(roomName);
     }
@@ -168,7 +177,6 @@ function LoungeViews(engine){
   function roomGenerateList(rooms, callback){
     Object.keys(rooms).forEach(function(name){
       (function(roomName, rooms, callback){
-
         var isLocked = rooms[roomName].isLocked;
         var classtype = isLocked ? 'list-item locked' : 'list-item unlocked';
         var attribs = {
@@ -243,7 +251,10 @@ function LoungeViews(engine){
   }
 
   function updateTitle(room){
-    $title.append('<p>Room: '+room+'</p>');
+    $title.empty();
+    if (room && room !== ""){
+      $title.append('<p>Room: '+room+'</p>');
+    }
   }
 
   function onImageMouseOver(event){

@@ -58,9 +58,7 @@ function RTCEngine(){
   }
 
   function stopMedia(){
-    if (localStream){
-      localStream.stop();
-    }
+    closeLocalMedia();
     while (peers.length > 0){
       peer = peers.pop();
       peer.close();
@@ -68,6 +66,12 @@ function RTCEngine(){
     if(socket){
       //socket.emit('exit');
       socket.disconnect();
+    }
+  }
+
+  function closeLocalMedia(){
+    if (localStream){
+      localStream.stop();
     }
   }
 
@@ -362,6 +366,7 @@ function RTCEngine(){
     connect:connect, 
     join:startMedia, 
     leave:stopMedia, 
+    closeLocalMedia:closeLocalMedia,
     createRoom:createRoom,
     getRooms:getRooms,
     sendChar:sendChar,

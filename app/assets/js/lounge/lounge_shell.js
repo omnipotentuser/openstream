@@ -8,13 +8,10 @@ function Lounge(){
   var rooms = {};
   var $input = $('#lounge-input-roomname');
   var $create = $('#lounge-btn-create');
-  var $join = $('#lounge-btn-join');
   var $lock = $('#lounge-ck-lock');
   var $password = $('#lounge-input-pw');
   var isLocked = false;
   var password = '';
-
-  //var $join = $('#lounge-list .join');
 
   var handleLoungeSocketEvents = function(signaler, data){
     if (signaler){
@@ -73,10 +70,27 @@ function Lounge(){
           }
           loungeViews.closeCreateModal();
           break;
-        case 'err':
+        case 'error':
           // need to handle error for room full
           // by exiting room
-          console.log(data.msg);
+          console.log(data.errcode);
+          if (data.errcode === 'invalid password'){
+            swal({ 
+              title: "Invalid Password!",
+              text: "Please try again.",
+              type: "error",
+              confirmButtonText: "Cool"
+            }, function(ok){
+              if (ok){
+                roomName = "";
+                loungeViews.updateTitle(roomName);
+                var page = window.location.protocol 
+                  + window.location.pathname;
+                window.history.replaceState({}, "OpenStream", page);
+                rtc_engine.closeLocalMedia();
+              }
+            });
+          }
           break;
         default:
           break;
@@ -132,7 +146,6 @@ function Lounge(){
     isLocked = $lock.is(':checked');
     password = isLocked ? $password.val() : '';
 
-
     if (! roomName){
       swal({
         title: "Invalid Entry",
@@ -148,29 +161,18 @@ function Lounge(){
         confirmButtonText: "Cool"
       });
     } else {
-
       event.preventDefault();
-
       (function(room, engine){
-
         console.log('starting rtc engine');
-
         var engineData = { 
           room:room, 
           createRoom:true,
           isLocked:isLocked, 
           password:window.btoa(password)
         };
-
         engine.createRoom(engineData);
-
       })(roomName, rtc_engine);
     }
-  }
-
-  var handleJoinBtn = function (event){
-    event.preventDefault();
-    //$join.unbind('click', handleJoinBtn);
   }
 
   var destroyEngine = function(){
@@ -183,7 +185,6 @@ function Lounge(){
   this.leave = function(destroyCallback, next){
     $input.val('');
     $create.unbind('click', handleCreateBtn);
-    $join.unbind('click', handleJoinBtn);
     destroyEngine();
     if (loungeViews){
       loungeViews.closeMediaViews(destroyCallback, next);
@@ -194,7 +195,6 @@ function Lounge(){
   };
 
   $create.bind('click', handleCreateBtn);
-  $join.bind('click', handleJoinBtn);
   
   // Determine if we automatically go into the room from the URL value
   (function queryUrl(){
