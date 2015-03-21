@@ -300,6 +300,14 @@ function RTCEngine(){
     });
   }
 
+  function handleIceConfig(socket){
+    socket.on('iceConfig', function(ice){
+      if (ice.length > 0){
+        iceConfig = ice; 
+      }
+    });
+  }
+
   function connect(callback) {
 
     appCB = callback;
@@ -324,6 +332,7 @@ function RTCEngine(){
       handleReceiveCode(socket, callback);
       handleClientDisconnected(socket, callback);
       handleSysCode(socket, callback);
+      handleIceConfig(socket);
 
       callback('connected');
 
@@ -349,15 +358,7 @@ function RTCEngine(){
     return url;
   }
 
-  function updateIce(ice){
-    if (ice.length > 0){
-      console.log('updating ice configs');
-      iceConfig = ice;
-    }
-  }
-
   return {
-    updateIce:updateIce,
     connect:connect, 
     join:startMedia, 
     leave:stopMedia, 

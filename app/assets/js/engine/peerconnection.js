@@ -48,7 +48,7 @@ function Peer(p_socket, p_id, p_roomName, iceConfig) {
   };
 
   this.buildClient = function(stream, bytecharCallback, requestType){
-    for (var i = 0; i<credentials.length; i++){
+    for (var i = 0; i < credentials.length; i++){
       var iceServer = {};
       iceServer = createIceServer(credentials[i].url,
       credentials[i].username,

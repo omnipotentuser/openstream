@@ -61,23 +61,7 @@ function Lounge(){
           if (data.created){
             loungeViews.updateTitle(roomName);
             window.history.replaceState({}, "OpenStream "+roomName, "#"+roomName);
-            $.post("https://api.xirsys.com/getIceServers",{
-              ident:"openhack",
-              secret:"03150bbb-a1e7-49ff-862b-ab28688111a3",
-              domain:"www.openhack.net",
-              application:"default",
-              room:"default",
-              secure: "1"
-            },
-            function(data, status){
-              var icedata = JSON.parse(data);
-              //console.log('ice obtained:',icedata.d.iceServers);
-              if (status === "success"){
-                console.log('post success');
-                rtc_engine.updateIce(icedata.d.iceServers);
-                rtc_engine.join();
-              }
-            });
+            rtc_engine.join();
           } else {
             swal({ 
               title: "Room Exists.",
@@ -86,9 +70,6 @@ function Lounge(){
               confirmButtonText: "Cool"
             });
             console.log(data.msg);
-            
-            // left to be handled by the coder at some other time
-            // for now, destroy the rtc engine
           }
           loungeViews.closeCreateModal();
           break;
@@ -105,25 +86,9 @@ function Lounge(){
 
   function generateRoom(rooms){
     loungeViews.generateRoomList(rooms, function(name, encoded){
-      roomName = name;
       if (rtc_engine){
-        $.post("https://api.xirsys.com/getIceServers",{
-          ident:"openhack",
-          secret:"03150bbb-a1e7-49ff-862b-ab28688111a3",
-          domain:"www.openhack.net",
-          application:"default",
-          room:"default",
-          secure: "1"
-        },
-        function(data, status){
-          var icedata = JSON.parse(data);
-          //console.log('ice obtained:',icedata.d.iceServers);
-          if (status === "success"){
-            console.log('post success');
-            rtc_engine.updateIce(icedata.d.iceServers);
-            rtc_engine.join({room: roomName, password: encoded });
-          }
-        });
+        roomName = name;
+        rtc_engine.join({room: roomName, password: encoded });
         loungeViews.updateTitle(roomName);
         window.history.replaceState({}, "OpenStream "+roomName, "#"+roomName);
       } else {

@@ -27,3 +27,6 @@ node_modules
 # stylus styl
 *.css
 *.swp
+
+# config files
+config.js
