@@ -29,7 +29,6 @@ function Hallway(){
             //console.log('ice obtained:',icedata.d.iceServers);
             if (status === "success"){
               console.log('post success');
-              rtc_engine.updateIce(icedata.d.iceServers);
               rtc_engine.join({room:roomName});
             }
           });

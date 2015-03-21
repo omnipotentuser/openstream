@@ -49,6 +49,19 @@ Janus is used for gateway and echo test which is what the Lavatory app uses.
 
 Openstream is set to port 9990.
 
+*notice*
+You need to create a config.js file in the root directory. The config file currently only exists for obtaining key from TURN server to be inserted into the ICE config. The config needs to look like this:
+
+```
+module.exports = {
+  thirdparty : {
+    turn_secret : "<your secret key>"
+  }
+};
+```
+
+You can set the turn_secret to empty. MCU will then just use public ICE configs which as expected will have less network penetration power. I use xirsys turn server which is pretty nice and easy to set up for general purpose turn relaying. For more fine control I recommend checking out RFC5766-turn-server at [https://code.google.com/p/rfc5766-turn-server/wiki/newDownloadsSite](https://code.google.com/p/rfc5766-turn-server/wiki/newDownloadsSite).
+
 
 ###Working apps:
 
