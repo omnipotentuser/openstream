@@ -15,6 +15,8 @@ function LoungeViews(engine){
   var $video = $('#lounge-video-container');
   var $title = $('#lounge-room-title');
   var $callCreateModal = $('#lounge-list-menu');
+  var $imageModal = $('#lounge-modal-image-fullsize');
+  var $imageModalCanvas = $('.lounge-fullsize');
   var engine = engine; // rtc engine
 
 
@@ -244,6 +246,15 @@ function LoungeViews(engine){
     $title.append('<p>Room: '+room+'</p>');
   }
 
+  function onImageMouseOver(event){
+    $imageModal.removeClass('hide').addClass('show');
+    $imageModalCanvas.prop({'src' : event.target.currentSrc});
+  }
+
+  function onImageMouseOut(){
+    $imageModal.removeClass('show').addClass('hide');
+  }
+
   function galleryAddImage(fromId, code){
     console.log('updating gallery list');
     swal({
@@ -256,7 +267,10 @@ function LoungeViews(engine){
       imageSize: "320x240"
     }, function(ok){
       if (ok){
-        $('<img src="'+code+'" width="100%"/>').appendTo($galleryContainer);
+        $('<img src="'+code+'" width="100%"/>') 
+        .mouseenter(onImageMouseOver)
+        .mouseleave(onImageMouseOut)
+        .appendTo($galleryContainer);
       }
     });
   }
