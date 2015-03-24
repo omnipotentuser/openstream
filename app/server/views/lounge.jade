@@ -10,42 +10,10 @@
       #lounge-room-list-container
         ul#list-items
     #lounge-container-gallery.lounge-container.hide
+      #lounge-btn-snapshot.btn-bg-l(title='Hit \'c\' to shoot')
+        img(src='img/Batch-master/SVG/camera.svg', align='middle', width='32')
+      #lounge-list-image
     .lounge-container-main.show-inline
-      h3.lounge-header3-usage
-        img.lounge-usage-img-space(src='img/Batch-master/SVG/add.svg', align='middle', width='32')
-        | Create Room
-      p.lounge-p-description
-        | A unique room gets created for all to see on left panel list
-
-      h3.lounge-header3-usage
-        img.lounge-usage-img-space(src='img/Batch-master/SVG/locked.svg', align='middle', width='32')
-        | Lock Password
-      p.lounge-p-description
-        | Blocks uninvited users from entering room
-      p.lounge-p-description
-        | Last person leaving room removes the lock
-      h3.lounge-header3-usage
-        | During Chat:
-      h4.lounge-header3-usage
-        .lounge-p-description Press C to Take snapshot
-      p.lounge-p-description
-        | Image gets sent over to all others.
-        | Once they receive the image, it gets stored into the gallery panel on the left.
-      p.lounge-p-description
-        | Hover over images to enlarge
-      p.lounge-p-description
-        | Share address URL to friends (i.e. send instant message of URL)
-        | and friends can copy link into their address bar and join room.
-      h3.lounge-header3-usage Support:
-      p.lounge-p-description
-        | Mac OSX Chrome and Firefox
-      p.lounge-p-description
-        | Windows Chrome and Firefox
-      p.lounge-p-description
-        | Android Chrome and Firefox
-      p.lounge-p-description
-        | iOS not available
-      include lounge_description
       #lounge-modal-join.hide
         .lounge-modal-inner
           .lounge-boxed.show
