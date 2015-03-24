@@ -7,6 +7,8 @@ function LoungeViews(engine){
   var $joinModal = $('#lounge-modal-join');
   var $listContainer = $('#lounge-container-list');
   var $galleryContainer = $('#lounge-container-gallery');
+  var $imageList = $('#lounge-list-image');
+  var $btnSnapshot = $('#lounge-btn-snapshot');
   var $btnCancelCreate = $('#lounge-btn-cancel');
   var $btnCreate = $('#lounge-btn-create');
   var $joinModalBtnCancel = $('#lounge-btn-cancel-join')
@@ -20,41 +22,40 @@ function LoungeViews(engine){
   var engine = engine; // rtc engine
 
 
+  function handleSnapshot(){
+    var canvas = document.createElement('canvas');
+    var ctx = canvas.getContext('2d');
+    var video = $('#local-video');
+    //var width = video.innerWidth();
+    //var height = video.innerHeight();
+    var width = 640;
+    var height = 480;
+    canvas.width = width;
+    canvas.height = height;
+    ctx.drawImage(video[0], 0, 0, width, height);
+    var data = canvas.toDataURL("image/jpeg");
+    swal({
+      title: 'Good to go?',
+      text: 'Hit \'c\' to take another one.',
+      showCancelButton: true,
+      cancelButtonText: 'Don\'t Send!',
+      confirmButtonText: 'Yes, please send.',
+      imageUrl: data,
+      imageSize: "320x240"
+    }, function(ok){
+      if (ok){
+        if (engine){
+          console.log('sending data through datachannel');
+          engine.sendString(data, false);
+        }
+      }
+    });
+  }
+
   function bindSnapshotKeypress(event){
-
-    //console.log(event);
-
     // press 'c' to trigger
     if (event.charCode === 99){
-      //console.log('slicing out a single webcam frame!', event);
-
-      var canvas = document.createElement('canvas');
-      var ctx = canvas.getContext('2d');
-      var video = $('#local-video');
-      //var width = video.innerWidth();
-      //var height = video.innerHeight();
-      var width = 640;
-      var height = 480;
-      canvas.width = width;
-      canvas.height = height;
-      ctx.drawImage(video[0], 0, 0, width, height);
-      var data = canvas.toDataURL("image/jpeg");
-      swal({
-        title: 'Good to go?',
-        text: 'Hit \'c\' to take another one.',
-        showCancelButton: true,
-        cancelButtonText: 'Don\'t Send!',
-        confirmButtonText: 'Yes, please send.',
-        imageUrl: data,
-        imageSize: "320x240"
-      }, function(ok){
-        if (ok){
-          if (engine){
-            console.log('sending data through datachannel');
-            engine.sendString(data, false);
-          }
-        }
-      });
+      handleSnapshot();
     }
   }
 
@@ -98,6 +99,7 @@ function LoungeViews(engine){
     $lock.bind('click', handleCreatePasswordCheck);
     $callCreateModal.bind('click', handleOpenCreateModal);
     $btnCancelCreate.bind('click', handleCancelCreateModal);
+    $btnSnapshot.bind('click', handleSnapshot);
   };
 
   function openCreateModal(){
@@ -247,7 +249,7 @@ function LoungeViews(engine){
     $btnCancelCreate.unbind('click', handleCancelCreateModal);
     $callCreateModal.unbind('click', handleOpenCreateModal);
     openListContainer();
-    $galleryContainer.empty();
+    $imageList.empty();
   }
 
   function updateTitle(room){
@@ -281,7 +283,7 @@ function LoungeViews(engine){
         $('<img src="'+code+'" width="100%"/>') 
         .mouseenter(onImageMouseOver)
         .mouseleave(onImageMouseOut)
-        .appendTo($galleryContainer);
+        .appendTo($imageList);
       }
     });
   }
