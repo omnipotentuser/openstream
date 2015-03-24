@@ -3,7 +3,7 @@
   "main": "server.js",
   "license": "MIT",
   "author": "Nicholas Buchanan",
-  "version": "1.6.0",
+  "version": "1.6.4",
   "url": "http://openstream.openhack.net",
   "repository": {
     "type": "git",
