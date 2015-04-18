@@ -11,6 +11,7 @@
       "beforeEach"  : true,
       "waits"       : true,
       "waitsFor"    : true,
+      "swal"        : true,
       "runs"        : true
   },
   "predef":["Stage"],
