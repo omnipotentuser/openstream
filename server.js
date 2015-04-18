@@ -13,8 +13,9 @@ var compressor      = require('node-minify');
 var app		          = express();
 var router	        = express.Router();
 var mcu		          = require(path.join(__dirname, './lib/mcu.js'));
-var asset           = path.join(__dirname, './app/assets/css');
+var cssasset        = path.join(__dirname, './app/assets/css');
 var pub		          = path.join(__dirname, './app/public');
+var devpub		      = path.join(__dirname, './app/assets');
 var views	          = path.join(__dirname, './app/server/views');
 var port	          = process.env.PORT || 9990;
 
@@ -29,6 +30,7 @@ if (env === 'development'){
   console.log('development mode');
   app.use(errorHandler());
   app.use(morgan('dev'));
+  app.use(express.static(devpub));
 } else {
   console.log('production mode');
 };
@@ -48,7 +50,7 @@ app.use(methodOverride());
 app.use(livereload());
 app.use(stylus.middleware({
   debug: true,
-  src: asset,
+  src: cssasset,
   dest: pub,
   compile: compile
 }));
