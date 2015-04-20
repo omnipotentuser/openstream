@@ -1,4 +1,4 @@
-/* globals echotest:true, Janus:true, attachMediaStream:true, webrtcDetectedBrowser:true,  */
+/* globals echotest:true, Janus:true, attachMediaStream:true, webrtcDetectedBrowser:true */
 function LavatoryViews(){
   var $bitratelist = $('#lavatory-dropdown-bitrate a');
   var $bitratedropdown = $('.lavatory-dropdown-menu');

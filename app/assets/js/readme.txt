@@ -1,1 +1,1 @@
-shell is like controller
+The shell is akin to the controller in a MVC behavioral model. A better picture is to think of it like a layer of shell as an onion. The shell is the starting point of each main program within OpenStream.
