@@ -64,9 +64,6 @@ $(document).ready(function(){
     var hashurl = window.location.hash.substring(1);
     var url = '';
     url = urlpath ? urlpath : hashurl;
-    console.log('urlpath',urlpath);
-    console.log('hashurl', hashurl);
-    console.log('url',url);
     switch ( url ){
       case 'hallway': 
         lobby.hallway();
@@ -92,21 +89,26 @@ $(document).ready(function(){
     }
   };
 
+  window.onpopstate = function(event){
+    var page = JSON.stringify(event.state);
+    updatePage(page);
+  }
+
   $(window).bind('hashchange', updatePage).trigger('hashchange');
   $('#href-lobby').on('click', function(event){
-    window.history.replaceState({}, "OpenStream - Lobby", "/");
+    window.history.pushState({page:'lobby'}, "OpenStream - Lobby", "/");
     updatePage(event);
   });
   $('#href-hallway').on('click', function(event){
-    window.history.replaceState({}, "OpenStream - Hallway", "/hallway");
+    window.history.pushState({page:'hallway'}, "OpenStream - Hallway", "/hallway");
     updatePage(event);
   });
   $('#href-lavatory').on('click', function(event){
-    window.history.replaceState({}, "OpenStream - Lavatory", "/lavatory");
+    window.history.pushState({page:'lavatory'}, "OpenStream - Lavatory", "/lavatory");
     updatePage(event);
   });
   $('#href-lounge').on('click', function(event){
-    window.history.replaceState({}, "OpenStream - Lounge", "/lounge");
+    window.history.pushState({page:'lounge'}, "OpenStream - Lounge", "/lounge");
     updatePage(event);
   });
 });
