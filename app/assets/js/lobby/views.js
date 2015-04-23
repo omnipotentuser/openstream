@@ -14,9 +14,9 @@ function LobbyViews(cb){
       $body.css('right',0);
       $banner.css('right', 0);
     } else {
-      $body.css('left',200);
-      $body.css('right',200);
-      $banner.css('right', -150);
+      $body.css('left',20);
+      $body.css('right',20);
+      $banner.css('right', 30);
     }
   }, true)
   $(document).ready(function(){
