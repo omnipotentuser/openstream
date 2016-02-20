@@ -16,10 +16,11 @@ function Hallway(){
         case 'connected':
           console.log('rtc engine connected');
 
+          /*
           $.post("https://api.xirsys.com/getIceServers",{
             ident:"openhack",
-            secret:"03150bbb-a1e7-49ff-862b-ab28688111a3",
-            domain:"www.openhack.net",
+            secret:"7ba03da6-d79b-11e5-83d0-057edf23e1c6",
+            domain:"openhack.net",
             application:"default",
             room:"default",
             secure: "1"
@@ -32,6 +33,8 @@ function Hallway(){
               rtc_engine.join({room:roomName});
             }
           });
+          */
+          rtc_engine.join({room:roomName});
           break;
         case 'id':
           localId = data.id;

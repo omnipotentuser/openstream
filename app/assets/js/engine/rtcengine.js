@@ -71,7 +71,10 @@ function RTCEngine(){
 
   function closeLocalMedia(){
     if (localStream){
-      localStream.stop();
+      var tracks = localStream.getTracks();
+      for (var i = 0; i < tracks.length; i++){
+        tracks[i].stop();
+      }
     }
   }
 

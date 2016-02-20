@@ -1312,7 +1312,10 @@ function Janus(gatewayCallbacks) {
     config.bitrate.value = null;
     if(config.myStream !== null && config.myStream !== undefined) {
       Janus.log("Stopping local stream");
-      config.myStream.stop();
+      var tracks = config.myStream.getTracks();
+      for (var i = 0; i < tracks.length; i++){
+        tracks[i].stop();
+      }
     }
     config.myStream = null;
     // Close PeerConnection

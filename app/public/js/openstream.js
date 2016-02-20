@@ -64,9 +64,6 @@ $(document).ready(function(){
     var hashurl = window.location.hash.substring(1);
     var url = '';
     url = urlpath ? urlpath : hashurl;
-    console.log('urlpath',urlpath);
-    console.log('hashurl', hashurl);
-    console.log('url',url);
     switch ( url ){
       case 'hallway': 
         lobby.hallway();
@@ -92,21 +89,26 @@ $(document).ready(function(){
     }
   };
 
+  window.onpopstate = function(event){
+    var page = JSON.stringify(event.state);
+    updatePage(page);
+  }
+
   $(window).bind('hashchange', updatePage).trigger('hashchange');
   $('#href-lobby').on('click', function(event){
-    window.history.replaceState({}, "OpenStream - Lobby", "/");
+    window.history.pushState({page:'lobby'}, "OpenStream - Lobby", "/");
     updatePage(event);
   });
   $('#href-hallway').on('click', function(event){
-    window.history.replaceState({}, "OpenStream - Hallway", "/hallway");
+    window.history.pushState({page:'hallway'}, "OpenStream - Hallway", "/hallway");
     updatePage(event);
   });
   $('#href-lavatory').on('click', function(event){
-    window.history.replaceState({}, "OpenStream - Lavatory", "/lavatory");
+    window.history.pushState({page:'lavatory'}, "OpenStream - Lavatory", "/lavatory");
     updatePage(event);
   });
   $('#href-lounge').on('click', function(event){
-    window.history.replaceState({}, "OpenStream - Lounge", "/lounge");
+    window.history.pushState({page:'lounge'}, "OpenStream - Lounge", "/lounge");
     updatePage(event);
   });
 });
@@ -305,6 +307,7 @@ function Peer(p_socket, p_id, p_roomName, iceConfig) {
       peerid = p_id,
       onByteChar = null,
       dc = null,
+      bufferedData = '',
       socket = p_socket,
       localStream = null,
       roomName = p_roomName,
@@ -343,7 +346,7 @@ function Peer(p_socket, p_id, p_roomName, iceConfig) {
   };
 
   this.buildClient = function(stream, bytecharCallback, requestType){
-    for (var i = 0; i<credentials.length; i++){
+    for (var i = 0; i < credentials.length; i++){
       var iceServer = {};
       iceServer = createIceServer(credentials[i].url,
       credentials[i].username,
@@ -375,7 +378,12 @@ function Peer(p_socket, p_id, p_roomName, iceConfig) {
       localStream = stream;
 	    pc.addStream(localStream);
     }else{
-	    alert('Media device is not detected.');
+      swal({
+        title: 'Media not found!',
+        text:'Please check that your webcam is not being used by some other program and that you have given permission for the browser to access it.',
+        type:'error',
+        confirmButtonText: 'Cool'
+      });
     }
   };
 
@@ -385,11 +393,19 @@ function Peer(p_socket, p_id, p_roomName, iceConfig) {
 
   var onDCMessage = function(event){
     if (onByteChar && peerid){
-      var message = {
-        from_id: peerid,
-        code: event.data
-      };
-      onByteChar(message);
+      if (event.data === '\n'){
+        var message = {
+          from_id: peerid,
+          code: bufferedData //event.data
+        };
+        //console.log('onDCMessage - completed',message.code);
+        onByteChar(message);
+        bufferedData = '';
+      } else {
+        bufferedData += event.data;
+        //console.log('onDCMessage buff', bufferedData);
+        //console.log('onDCMessage data', event.data);
+      }
     }
   };
 
@@ -490,7 +506,31 @@ function Peer(p_socket, p_id, p_roomName, iceConfig) {
 
   this.sendData = function(byteChar){
     if (dc && dc.readyState.toLowerCase() === 'open'){
-      dc.send(byteChar);
+      //console.log('datachannel sending',byteChar);
+      var delay = 10;
+      var charSlice = 10000;
+      var termChar = '\n';
+      var dataSent = 0;
+      var intervalId = 0;
+
+      if (byteChar.isNaN){
+        intervalId = setInterval(function(){
+          slideEndIndex = dataSent + charSlice;
+          if (slideEndIndex > byteChar.length){
+            slideEndIndex = byteChar.length;
+          } 
+          dc.send(byteChar.slice(dataSent, slideEndIndex));
+          dataSent = slideEndIndex;
+          if (dataSent + 1 > byteChar.length) {
+            //console.log('All data chunks sent.');
+            dc.send(termChar);
+            clearInterval(intervalId);
+          }
+        }, delay);
+      } else {
+        dc.send(byteChar);
+        dc.send('\n');
+      }
     } else {
       console.log('DataChannel not ready');
     }
@@ -514,7 +554,15 @@ function RTCEngine(){
   var shiftKeyCode = {'192':'126', '49':'33', '50':'64', '51':'35', '52':'36', '53':'37', '54':'94', '55':'38', '56':'42', '57':'40', '48':'41', '189':'95', '187':'43', '219':'123', '221':'125', '220':'124', '186':'58', '222':'34', '188':'60', '190':'62', '191':'63'};
   var specialCharCode = {'8':'8', '13':'13', '32':'32', '186':'58', '187':'61', '188':'44', '189':'45', '190':'46', '191':'47', '192':'96', '219':'91', '220':'92', '221':'93', '222':'39'};
 
-  function startMedia(){
+  function startMedia(data){
+    if (data && data.room){
+      roomName = data.room;
+    }
+    if ( data && data.password){
+      isLocked = true;
+      password = data.password;
+      console.log('password', password);
+    }
     var media_constraints = {
       video : {
         mandatory: {
@@ -537,22 +585,58 @@ function RTCEngine(){
           }
         }
         console.log('joining', roomName);
-        socket.emit('join', {room:roomName});
+        var info = {
+          room: roomName,
+          isLocked: isLocked,
+          password: password
+        };
+        socket.emit('join', info);
       },
       logError
     );
   }
 
   function stopMedia(){
-    if (localStream){
-      localStream.stop();
-    }
+    closeLocalMedia();
     while (peers.length > 0){
       peer = peers.pop();
       peer.close();
     }
     if(socket){
-      socket.emit('exit');
+      //socket.emit('exit');
+      socket.disconnect();
+    }
+  }
+
+  function closeLocalMedia(){
+    if (localStream){
+      var tracks = localStream.getTracks();
+      for (var i = 0; i < tracks.length; i++){
+        tracks[i].stop();
+      }
+    }
+  }
+
+  // data = {room:room, isLocked:isLocked, password:password}
+  //
+  function createRoom(data){
+    if (socket){
+
+      if (data.isLocked)
+        isLocked = data.isLocked;
+      if (data.password)
+        password = data.password;
+      if (data.room)
+        roomName = data.room;
+
+      socket.emit('createRoom', data);
+    }
+  }
+
+  function getRooms(){
+    console.log('rtcengine getRooms');
+    if (socket){
+      socket.emit('getRooms');
     }
   }
 
@@ -580,13 +664,36 @@ function RTCEngine(){
         code: word
       };
       if (isrelay){
+        console.log('sendString using WebSocket');
         socket.emit('byteChar', message);
       } else {
         for(var i = 0; i < peers.length; i++){
+          console.log('sendString using datachannel to peer',i);
           peers[i].sendData(word);
         }
       }
     }
+  }
+
+  function handleRoomsSent(socket, callback){
+    if (typeof callback === 'undefined') callback = function() {};
+    socket.on('roomsSent', function(data){
+      callback('roomsSent', data);
+    });
+  }
+
+  function handleAddRoom(socket, callback){
+    if (typeof callback === 'undefined') callback = function() {};
+    socket.on('addRoom', function(data){
+      callback('addRoom', data);
+    });
+  }
+
+  function handleDeleteRoom(socket, callback){
+    if (typeof callback === 'undefined') callback = function(){};
+    socket.on('deleteRoom', function(data){
+      callback('deleteRoom', data);
+    });
   }
 
   function handleJoinRoom(socket, callback) {
@@ -595,6 +702,14 @@ function RTCEngine(){
       localId = message.yourId;
       console.log('localId: ' + localId);
       callback('id', {id:localId});
+    });
+  }
+
+  function handleCreateRoom(socket, callback) {
+    if (typeof callback === 'undefined') callback = function(){};
+    socket.on('roomCreated', function(message){
+      console.log('rtcengine: handleCreateRoom - room created? ' + message.created);
+      callback('roomCreated', message);
     });
   }
 
@@ -617,7 +732,6 @@ function RTCEngine(){
 	  if(users.length > 0){
       createPeers(users, callback);
     }
-
   }
 
   function handleCreateOffer(socket, callback) {
@@ -679,7 +793,7 @@ function RTCEngine(){
 
   function handleSysCode(socket, callback) {
     if (typeof callback === 'undefined') callback = function(){};
-    socket.on('error', function(message) {
+    socket.on('err', function(message) {
       console.log('handleSysCode', message.errcode);
       callback('error', message);
     });
@@ -732,29 +846,31 @@ function RTCEngine(){
     });
   }
 
-  // data = {room:room, isLocked:isLocked, password:password}
-  //
-  var connect = function(data, callback) {
-    if (typeof data === 'undefined')
-      return;
+  function handleIceConfig(socket){
+    socket.on('iceConfig', function(ice){
+      if (ice.length > 0){
+        iceConfig = ice; 
+      }
+    });
+  }
 
-    if (data.create)
-      password = data.password;
-    if (data.isLocked)
-      isLocked = data.isLocked;
-    if (data.password)
-      password = data.password;
-    if (data.room)
-      roomName = data.room;
+  function connect(callback) {
 
     appCB = callback;
-    socket = io('/', {'forceNew': true}); 
-    console.log('socket connecting');
+    if(socket){
+      console.log('socket reconnecting');
+      socket.reconnect();
+    } else {
+      console.log('creating new socket connection');
+      socket = io({ forceNew: true }); 
+    }
     socket.on('connect', function(){
-      if (data.create)
-        handleCreateRoom(socket, callback);
-      else
-        handleJoinRoom(socket,  callback);
+      console.log('socket connected');
+      handleCreateRoom(socket, callback);
+      handleRoomsSent(socket, callback);
+      handleDeleteRoom(socket, callback);
+      handleAddRoom(socket, callback);
+      handleJoinRoom(socket,  callback);
       handleCreatePeers(socket, callback);
       handleCreateOffer(socket, callback);
       handleIceCandidate(socket);
@@ -762,7 +878,10 @@ function RTCEngine(){
       handleReceiveCode(socket, callback);
       handleClientDisconnected(socket, callback);
       handleSysCode(socket, callback);
+      handleIceConfig(socket);
+
       callback('connected');
+
     });
   }
 
@@ -785,18 +904,13 @@ function RTCEngine(){
     return url;
   }
 
-  function updateIce(ice){
-    if (ice.length > 0){
-      //console.log('updating ice from post');
-      iceConfig = ice;
-    }
-  }
-
   return {
-    updateIce:updateIce,
     connect:connect, 
     join:startMedia, 
     leave:stopMedia, 
+    closeLocalMedia:closeLocalMedia,
+    createRoom:createRoom,
+    getRooms:getRooms,
     sendChar:sendChar,
     sendString:sendString
   };
@@ -813,30 +927,32 @@ function Hallway(){
   var joinRoomBtn = $('#joinroombtn');
   var randGenBtn = $('#randomgeneratorbtn');
 
-  $.post("https://api.xirsys.com/getIceServers",{
-    ident:"openhack",
-    secret:"03150bbb-a1e7-49ff-862b-ab28688111a3",
-    domain:"www.openhack.net",
-    application:"default",
-    room:"default",
-    secure: "1"
-  },
-  function(data, status){
-    var icedata = JSON.parse(data);
-    //console.log('ice obtained:',icedata.d.iceServers);
-    if (status === "success"){
-      console.log('post success');
-      rtc_engine.updateIce(icedata.d.iceServers);
-    }
-  });
-
   var handleSocketEvents = function(signaler, data){
     if (signaler){
       var pid = '';
       switch (signaler) {
         case 'connected':
           console.log('rtc engine connected');
-          rtc_engine.join();
+
+          /*
+          $.post("https://api.xirsys.com/getIceServers",{
+            ident:"openhack",
+            secret:"7ba03da6-d79b-11e5-83d0-057edf23e1c6",
+            domain:"openhack.net",
+            application:"default",
+            room:"default",
+            secure: "1"
+          },
+          function(data, status){
+            var icedata = JSON.parse(data);
+            //console.log('ice obtained:',icedata.d.iceServers);
+            if (status === "success"){
+              console.log('post success');
+              rtc_engine.join({room:roomName});
+            }
+          });
+          */
+          rtc_engine.join({room:roomName});
           break;
         case 'id':
           localId = data.id;
@@ -877,16 +993,19 @@ function Hallway(){
     }
     
     if (roomName === ''){
-
-      alert('Cannot have empty name');
-
+      swal({
+        title:'',
+        text: 'Cannot have empty name',
+        type: 'error',
+        confirmButtonText: 'Cool'
+      });
     } else {
       event.preventDefault();
       hallwayViews.openMediaViews();
 
       (function(room, engine){
         console.log('starting rtc engine');
-        engine.connect({room:room}, handleSocketEvents);
+        engine.connect(handleSocketEvents);
       })(roomName, rtc_engine);
 
       hallwayViews.updateTitle(roomName);
@@ -1024,7 +1143,13 @@ function HallwayViews(){
       var $clipinput = $('.hallway-input-text-clip');
       var word = $clipinput.val();
       if (word && word.length < 4){
-        alert('Word is too short. Must be at least 4 characters long.');
+        swal({
+          title: 'String is too short.',
+          text: 'Needs to be longer than 3 characters.',
+          type: 'info',
+          confirmButtonText: 'Cool'
+        });
+
       } else if (word){
         ss(word, isrelay);
         $clipinput.val('');
@@ -1117,7 +1242,7 @@ function Lavatory(){
   }
 }
 
-/* globals echotest:true, Janus:true, attachMediaStream:true, webrtcDetectedBrowser:true,  */
+/* globals echotest:true, Janus:true, attachMediaStream:true, webrtcDetectedBrowser:true */
 function LavatoryViews(){
   var $bitratelist = $('#lavatory-dropdown-bitrate a');
   var $bitratedropdown = $('.lavatory-dropdown-menu');
@@ -1363,7 +1488,11 @@ function LavatoryViews(){
           },
           error: function(error) {
             console.log(error);
-            alert(error, function() {
+            swal({
+              title:error,
+              type:'error',
+              confirmButtonText:'Cool'
+            }, function(){
               startLavatory();
             });
           },
@@ -1423,9 +1552,9 @@ function LobbyViews(cb){
       $body.css('right',0);
       $banner.css('right', 0);
     } else {
-      $body.css('left',200);
-      $body.css('right',200);
-      $banner.css('right', -150);
+      $body.css('left',20);
+      $body.css('right',20);
+      $banner.css('right', 30);
     }
   }, true)
   $(document).ready(function(){
@@ -1524,28 +1653,33 @@ function LobbyViews(cb){
 
 function Lounge(){
   var rtc_engine = new RTCEngine();
-	var loungeViews = new LoungeViews();
+	var loungeViews = new LoungeViews(rtc_engine);
   var localId = null;
   var roomName = '';
+  var rooms = {};
   var $input = $('#lounge-input-roomname');
   var $create = $('#lounge-btn-create');
+  var $lock = $('#lounge-ck-lock');
+  var $password = $('#lounge-input-pw');
+  var isLocked = false;
+  var password = '';
 
-  //var $join = $('#lounge-list .join');
-
-  var handleSocketEvents = function(signaler, data){
+  var handleLoungeSocketEvents = function(signaler, data){
     if (signaler){
       var pid = '';
       switch (signaler) {
         case 'connected':
           console.log('rtc engine connected');
-          rtc_engine.join();
+          rtc_engine.getRooms();
           break;
         case 'id':
+          console.log('client id: '+data.id);
           localId = data.id;
-          break;
-        case 'create':
-          pid = data.id;
+          loungeViews.openGallery();
           loungeViews.openMediaViews();
+          break;
+        case 'create': // creating peer user
+          pid = data.id;
           console.log(
             'creating new media element', 
             pid
@@ -1557,19 +1691,57 @@ function Lounge(){
           loungeViews.deletePeerMedia(data.id);
           break;
         case 'readbytechar':
-          loungeViews.updateTextArea(data.from_id, data.code);
+          loungeViews.galleryAddImage(data.from_id, data.code);
           break;
         case 'info':
           console.log(data.msg);
           break;
-        case 'roomExists':
-          alert("Room Exists. Please join the room instead.");
-          console.log(data.msg);
+        case 'roomsSent':
+          handleCreateRoomList(data);
+          break;
+        case 'addRoom':
+          handleAddRoomItem(data);
+          break;
+        case 'deleteRoom':
+          handleDeleteRoomFromList(data);
+          break;
+        case 'roomCreated':
+          if (data.created){
+            loungeViews.updateTitle(roomName);
+            window.history.replaceState({}, "OpenStream "+roomName, "#"+roomName);
+            rtc_engine.join();
+          } else {
+            swal({ 
+              title: "Room Exists.",
+              text: "Please join the room instead.",
+              type: "error",
+              confirmButtonText: "Cool"
+            });
+            console.log(data.msg);
+          }
+          loungeViews.closeCreateModal();
           break;
         case 'error':
           // need to handle error for room full
           // by exiting room
-          console.log(data.msg);
+          console.log(data.errcode);
+          if (data.errcode === 'invalid password'){
+            swal({ 
+              title: "Invalid Password!",
+              text: "Please try again.",
+              type: "error",
+              confirmButtonText: "Cool"
+            }, function(ok){
+              if (ok){
+                roomName = "";
+                loungeViews.updateTitle(roomName);
+                var page = window.location.protocol 
+                  + window.location.pathname;
+                window.history.replaceState({}, "OpenStream", page);
+                rtc_engine.closeLocalMedia();
+              }
+            });
+          }
           break;
         default:
           break;
@@ -1577,47 +1749,103 @@ function Lounge(){
     }
   };
 
-  var handleCreateBtn = function(event){
-    if (roomName === ''){
-      roomName = $input.val();
+  function generateRoom(rooms){
+    loungeViews.generateRoomList(rooms, function(name, encoded){
+      if (rtc_engine){
+        roomName = name;
+        rtc_engine.join({room: roomName, password: encoded });
+        loungeViews.updateTitle(roomName);
+        window.history.replaceState({}, "OpenStream "+roomName, "#"+roomName);
+      } else {
+        console.log('rtc_engine is not defined',rtc_engine);
+      }
+    });
+  }
+
+  function handleCreateRoomList(list){
+    console.log('handleCreateRoomList',list);
+    rooms = list;
+    generateRoom(rooms);
+  }
+
+  function handleAddRoomItem(data){
+    if (!data) return;
+    Object.keys(data).forEach(function(name){
+      rooms[name] = data;
+    });
+    generateRoom(rooms);
+  }
+
+  function handleDeleteRoomFromList(data){
+    var name = data.room;
+    console.log('handleDeleteRoomFromList');
+    if (rooms[name]) delete rooms[name];
+    loungeViews.deleteRoomFromList(name);
+  }
+
+  function validateInput(str){
+    if (str){
+      var re = /^\w*$/g;
+      var cond = re.test(str) ? str : '';
+      return cond;
     }
-    if (roomName === ''){
-      alert('Cannot have empty name');
+  }
+
+  var handleCreateBtn = function(event){
+
+    roomName = validateInput(roomName) || validateInput($input.val());
+    isLocked = $lock.is(':checked');
+    password = isLocked ? $password.val() : '';
+
+    if (! roomName){
+      swal({
+        title: "Invalid Entry",
+        text: 'Cannot have empty room name and can only accept alphanumeric and underscore characters.',
+        type: "warning",
+        confirmTextButton: "cool"
+      });
+    } else if (isLocked && !validateInput(password)){
+      swal({ 
+        title: "What Password?",
+        text: "Please enter valid password of alphanumeric and/or underscore characters.",
+        type: "warning",
+        confirmButtonText: "Cool"
+      });
     } else {
       event.preventDefault();
       (function(room, engine){
         console.log('starting rtc engine');
         var engineData = { 
           room:room, 
-          create:true,
+          createRoom:true,
           isLocked:isLocked, 
-          password:password 
+          password:window.btoa(password)
         };
-        engine.connect(engineData, handleSocketEvents);
+        engine.createRoom(engineData);
       })(roomName, rtc_engine);
-
-      loungeViews.updateTitle(roomName);
-      window.history.replaceState({}, "OpenStream "+roomName, "#"+roomName);
-      $create.unbind('click', handleCreateBtn);
     }
-  };
+  }
 
-  this.leave = function(destroyCallback, next){
-    $input.val('');
-    $create.unbind('click', handleCreateBtn);
+  var destroyEngine = function(){
     if (rtc_engine){
       rtc_engine.leave();
       rtc_engine = null;
     }
+  }
+
+  this.leave = function(destroyCallback, next){
+    $input.val('');
+    $create.unbind('click', handleCreateBtn);
+    destroyEngine();
     if (loungeViews){
       loungeViews.closeMediaViews(destroyCallback, next);
+      loungeViews.destroyListeners();
       loungeViews = null;
     }
     console.log('Lounge exiting');
   };
 
   $create.bind('click', handleCreateBtn);
-  loungeViews.setListeners(rtc_engine);
   
   // Determine if we automatically go into the room from the URL value
   (function queryUrl(){
@@ -1633,101 +1861,351 @@ function Lounge(){
     } else {
       roomName = '';
     }
-    console.log('roomName',roomName);
-    if (roomName !== ''){
-      $create.trigger('click');
-    }
-  })();
 
+    rtc_engine.connect(handleLoungeSocketEvents);
+
+    if (roomName !== ''){
+      console.log('Hashurl triggered room query');
+      setTimeout(function(){
+        var placeholder = $('#lounge-room-item-' + roomName);
+        if ( placeholder.length ){
+          console.log('triggering room item click to', roomName);
+          $('#lounge-room-item-'+roomName).trigger('click');
+        } else {
+          swal({
+            title: "This room \""+roomName+"\" has not been created yet.",
+            text: "Do you want to create it?",
+            type: "info",
+            showCancelButton: true,
+            cancelButtonText: "No, I am fine",
+            confirmButtonText: "Yes, please"
+          }, function(isConfirm){
+            if (isConfirm){
+              handleCreateBtn(new Event('click'));              
+            } else {
+              var page = window.location.protocol 
+                + window.location.pathname;
+              window.history.replaceState({}, "OpenStream", page);
+            }
+          });
+        }
+      }, 2000)
+    }
+
+  })();
+ 
 }
 
 
-function LoungeViews(){
+function LoungeViews(engine){
+
+  var $lock = $('#lounge-ck-lock');
+  var $password = $('#lounge-input-pw');
+  var $createModal = $('#lounge-modal-create');
+  var $joinModal = $('#lounge-modal-join');
+  var $listContainer = $('#lounge-container-list');
+  var $galleryContainer = $('#lounge-container-gallery');
+  var $imageList = $('#lounge-list-image');
+  var $btnSnapshot = $('#lounge-btn-snapshot');
+  var $btnCancelCreate = $('#lounge-btn-cancel');
+  var $btnCreate = $('#lounge-btn-create');
+  var $joinModalBtnCancel = $('#lounge-btn-cancel-join')
+  var $joinModalBtnJoin = $('#lounge-btn-join')
+  var $room = $('#lounge-input-roomname');
+  var $video = $('#lounge-video-container');
+  var $title = $('#lounge-room-title');
+  var $callCreateModal = $('#lounge-list-menu');
+  var $imageModal = $('#lounge-modal-image-fullsize');
+  var $imageModalCanvas = $('.lounge-fullsize');
+  var engine = engine; // rtc engine
+
+
+  function handleSnapshot(){
+    var canvas = document.createElement('canvas');
+    var ctx = canvas.getContext('2d');
+    var video = $('#local-video');
+    //var width = video.innerWidth();
+    //var height = video.innerHeight();
+    var width = 640;
+    var height = 480;
+    canvas.width = width;
+    canvas.height = height;
+    ctx.drawImage(video[0], 0, 0, width, height);
+    var data = canvas.toDataURL("image/jpeg");
+    swal({
+      title: 'Good to go?',
+      text: 'Hit \'c\' to take another one.',
+      showCancelButton: true,
+      cancelButtonText: 'Don\'t Send!',
+      confirmButtonText: 'Yes, please send.',
+      imageUrl: data,
+      imageSize: "320x240"
+    }, function(ok){
+      if (ok){
+        if (engine){
+          console.log('sending data through datachannel');
+          engine.sendString(data, false);
+        }
+      }
+    });
+  }
+
+  function bindSnapshotKeypress(event){
+    // press 'c' to trigger
+    if (event.charCode === 99){
+      handleSnapshot();
+    }
+  }
+
+  var handleCreatePasswordCheck = function(event){
+    if (event.target.checked){
+      $password.fadeIn(200, function(){
+        $password.removeProp('disabled');
+      });
+    } else {
+      $password.fadeOut(200, function(){
+        $password.prop('disabled');
+      });
+    }
+  };
+
+  var handleOpenCreateModal = function(event){
+    if (!$createModal.hasClass('show')){
+      console.log('handleOpenCreateModal');
+      openCreateModal();
+    }
+  };
+
+  var handleCancelCreateModal = function(event){
+    console.log('handleCancelCreateModal');
+    closeCreateModal();
+  };
 
   var initialize = function(){
 
     $('<div/>', {id:'local-container', class:'lounge-media-layout'})
-      .append('<video id=\"local-video\" autoplay controls muted>')
+      .append('<video id="local-video" autoplay controls muted>')
       .appendTo('#lounge-video-container');
 
-    var $input = $('#lounge-input-roomname');
-    $input.focus();
-    $input.keypress(function(event){
+    $room.focus();
+    $room.keypress(function(event){
       if (event.which === 13){
         event.preventDefault();
-        $('#lounge-btn-create').trigger("click");
+        $btnCreate.trigger("click");
       }
     });
-    $('#lounge-ck-lock').bind('click', handleCreatePasswordCheck);
-    $('#lounge-btn-cancel').bind('click', handleCancelCreateRoom);
+    $lock.bind('click', handleCreatePasswordCheck);
+    $callCreateModal.bind('click', handleOpenCreateModal);
+    $btnCancelCreate.bind('click', handleCancelCreateModal);
+    $btnSnapshot.bind('click', handleSnapshot);
   };
 
-  var handleCreatePasswordCheck = function(event){
-    if (event.target.checked){
-      $('#lounge-input-pw').fadeIn(200);
-    } else {
-      $('#lounge-input-pw').fadeOut(200);
+  function openCreateModal(){
+    console.log('opening create room modal');
+    $createModal.removeClass('hide').addClass('show');
+    $lock.attr('checked',false);
+    $password.val('').fadeOut();
+  }
+
+  function closeCreateModal(){
+    console.log('closing room create modal');
+    $createModal.removeClass('show').addClass('hide');
+    $lock.attr('checked',false);
+    $password.val('').fadeOut();
+  }
+
+  function openGalleryContainer(){
+    console.log('opening gallery container');
+    $galleryContainer.removeClass('hide').addClass('show');
+    $listContainer.removeClass('show').addClass('hide');
+  }
+
+  function openListContainer(){
+    console.log('opening room list container');
+    $listContainer.removeClass('hide').addClass('show');
+    $galleryContainer.removeClass('show').addClass('hide');
+  }
+
+  function setListeners(engine){
+  }
+
+  function destroyListeners(engine){
+    engine = null;
+  }
+
+  function onModalRoomJoin(event){
+    var data = event.data;
+    handleJoinPrivate(data.roomName, data.loungeCallback);
+    onModalRoomAction();
+  }
+
+  function onModalRoomAction(){
+    $joinModal.removeClass('show').addClass('hide');
+  }
+
+  function handleJoinPrivate(roomName, callback){
+    var pwd = $('#lounge-input-verify').val();
+    $joinModalBtnJoin.unbind('click', onModalRoomJoin);
+    $joinModalBtnCancel.unbind('click', onModalRoomAction);
+    if (!pwd){
+      swal({ 
+        title: "Empty Password",
+        text: "Please enter a password.",
+        type: "error",
+        confirmButtonText: "Cool"
+      });
+      return false;
     }
-  };
+    var encoded = window.btoa(pwd);
+    callback(roomName, encoded);
+  }
 
-  var handleCancelCreateRoom = function(event){
-    console.log('closing create room modal');
-    $('#lounge-modal-create').removeClass('show').addClass('hide');
-  };
+  function roomItemClicked(roomName, isLocked, callback){
+    console.log(roomName + " selected");
+    if (isLocked){
+      $joinModal.removeClass('hide').addClass('show');
+      $joinModalBtnJoin.bind('click', {
+        roomName: roomName,
+        loungeCallback: callback
+      }, onModalRoomJoin);
+      $joinModalBtnCancel.bind('click', onModalRoomAction);
+    } else {
+      callback(roomName);
+    }
+  }
 
-  this.setListeners = function(engine){
-    // todo set any RTC listeners to bind to at initialization of views
-  };
+  function roomGenerateList(rooms, callback){
+    Object.keys(rooms).forEach(function(name){
+      (function(roomName, rooms, callback){
+        var isLocked = rooms[roomName].isLocked;
+        var classtype = isLocked ? 'list-item locked' : 'list-item unlocked';
+        var attribs = {
+          id: 'lounge-room-item-'+roomName,
+          class: classtype,
+          title: roomName
+        };
+        $('<li>', attribs)
+        .bind('click', function(){
+          roomItemClicked(roomName, isLocked, callback);
+        })
+        .append(roomName)
+        .appendTo('#list-items');
+      })(name, rooms, callback);
+    });
+  }
 
-  this.destroyListeners = function(engine){
-    // todo destroy any RTC listeners to bind to at initialization of views
-  };
+  function generateRoomList(rooms, callback){
+    $('#list-items').empty();
+    roomGenerateList(rooms, callback);
+  }
 
-  this.openMediaViews = function(){
-    $('#lounge-modal-create').removeClass('show').addClass('hide');
+  function deleteRoomFromList(name){
+    $('#lounge-room-item-'+name).remove();
+  }
+
+  function addRoomItem(room, callback){
+    roomGenerateList(room, callback);
+  }
+
+  function openMediaViews(){
+    $createModal.removeClass('show').addClass('hide');
     //$('#lounge-video-container').removeClass('hide').addClass('show');
-    $('#lounge-video-container').fadeIn();
-  };
+    $video.fadeIn();
+    document.addEventListener('keypress', bindSnapshotKeypress, false);
+  }
 
-  this.closeMediaViews = function(destroyCallback, next){
-    $('#lounge-room-title').empty();
-    $('#lounge-video-container').fadeOut(function(){
-      //$('#lounge-video-container').removeClass('show').addClass('hide');
-      $('#lounge-modal-create').removeClass('hide').addClass('show');
-      destroyCallback(next);
+  function closeMediaViews(destroyCallback, next){
+    $title.empty();
+    $video.fadeOut(function(){
+      if (destroyCallback) destroyCallback(next);
     });
     this.deleteAllMedia();
-  };
+  }
 
-  this.appendPeerMedia = function(pid){
+  function appendPeerMedia(pid){
     console.log('appendPeerMedia', pid);
-    $('<div/>', {class:'media-layout'})
+    $('<div/>', {class:'lounge-media-layout'})
       .append('<video id="'+pid+'" autoplay controls>')
       .appendTo('#lounge-video-container');
-    var $ml = $('.media-layout');
+    var $ml = $('.lounge-media-layout');
     var percent = (100 / $ml.length);
     $ml.css('width',percent+'%');
   }
 
-  this.deletePeerMedia = function(pid){
+  function deletePeerMedia(pid){
     $('#'+pid).parent().remove();
-    var $ml = $('.media-layout');
+    var $ml = $('.lounge-media-layout');
     var percent = (100 / $ml.length);
     $ml.css('width',percent+'%');
     console.log('deletePeerMedia', pid);
   }
 
-  this.deleteAllMedia = function(){
-    $('#lounge-video-container').empty(); 
-    $('#lounge-ck-lock').unbind('click', handleCreatePasswordCheck);
-    $('#lounge-btn-cancel').unbind('click', handleCancelCreateRoom);
+  function deleteAllMedia(){
+    document.removeEventListener('keypress', bindSnapshotKeypress, false);
+    $video.empty(); 
+    $lock.unbind('click', handleCreatePasswordCheck);
+    $btnCancelCreate.unbind('click', handleCancelCreateModal);
+    $callCreateModal.unbind('click', handleOpenCreateModal);
+    openListContainer();
+    $imageList.empty();
   }
 
-  this.updateTitle = function(room){
-    $('#lounge-room-title').append('<p>Room: '+room+'</p>');
+  function updateTitle(room){
+    $title.empty();
+    if (room && room !== ""){
+      $title.append('<p>Room: '+room+'</p>');
+    }
+  }
+
+  function onImageMouseOver(event){
+    $imageModal.removeClass('hide').addClass('show');
+    $imageModalCanvas.prop({'src' : event.target.currentSrc});
+  }
+
+  function onImageMouseOut(){
+    $imageModal.removeClass('show').addClass('hide');
+  }
+
+  function galleryAddImage(fromId, code){
+    console.log('updating gallery list');
+    swal({
+      title: 'Received Image',
+      text: 'Looks good?',
+      showCancelButton: true,
+      cancelButtonText: 'Yuck!',
+      confirmButtonText: 'Lovely!',
+      imageUrl: code,
+      imageSize: "320x240"
+    }, function(ok){
+      if (ok){
+        $('<img src="'+code+'" width="100%"/>') 
+        .mouseenter(onImageMouseOver)
+        .mouseleave(onImageMouseOut)
+        .appendTo($imageList);
+      }
+    });
   }
 
   initialize();
+
+  return {
+    galleryAddImage: galleryAddImage,
+    generateRoomList: generateRoomList,
+    deleteRoomFromList: deleteRoomFromList,
+    addRoomItem: addRoomItem,
+    openGallery: openGalleryContainer,
+    openList: openListContainer,
+    openCreateModal: openCreateModal,
+    closeCreateModal: closeCreateModal,
+    updateTitle: updateTitle,
+    deleteAllMedia: deleteAllMedia,
+    deletePeerMedia: deletePeerMedia,
+    appendPeerMedia: appendPeerMedia,
+    closeMediaViews: closeMediaViews,
+    openMediaViews: openMediaViews,
+    destroyListeners: destroyListeners,
+    setListeners: setListeners
+  };
 }
 
 /* globals ModularViews:true */
@@ -3086,7 +3564,10 @@ function Janus(gatewayCallbacks) {
     config.bitrate.value = null;
     if(config.myStream !== null && config.myStream !== undefined) {
       Janus.log("Stopping local stream");
-      config.myStream.stop();
+      var tracks = config.myStream.getTracks();
+      for (var i = 0; i < tracks.length; i++){
+        tracks[i].stop();
+      }
     }
     config.myStream = null;
     // Close PeerConnection
