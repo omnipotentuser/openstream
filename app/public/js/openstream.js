@@ -1094,7 +1094,7 @@ function HallwayViews(){
       .append('<video id=\"local-video\" autoplay controls muted>')
       .append(clip)
       .append(wstext)
-      .append('<textarea id=\"local-ta\" placeholder="Being typing in real time"></textarea>')
+      .append('<textarea id=\"local-ta\" placeholder="Begin typing in real time"></textarea>')
       .appendTo('#hallway-video-container');
 
     var $input = $('#roomnameinput');
